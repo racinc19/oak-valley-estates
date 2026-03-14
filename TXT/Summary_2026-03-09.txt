@@ -1,0 +1,17 @@
+SUMMARY — Monday March 9, 2026
+================================
+
+RODRIGUEZ RESIDENCE
+-------------------
+• Client email: Plumbing-only ask. At their convenience, fill out plumbing selections on the website and confirm chosen items; anytime before end of week. No reply needed. Text in Rodriquez\Plumbing_Email.txt.
+• Website selections: Added Complete Water Filtration & Softening (Kanarraville) to Mechanical Room — SpringWell whole-house carbon + softener, Arsenic/heavy metals pre-filter (optional), Point-of-use RO at kitchen sink, UV sterilizer (optional). Storage key bumped to v10 so seed loads fresh; merge added so new seed items appear for returning visitors.
+• Looked for well/water test file in Rodriquez folder — not found (may be in Downloads, Desktop, or email).
+
+PRADA BUILDING 6
+-----------------
+• Created folder: Prada Building 6 new project (Desktop).
+• Copied full contents of existing Prada Building 6 into the new project folder (same structure and files).
+
+OTHER
+-----
+• Contacted concrete contractor to confirm his schedule — no response yet.

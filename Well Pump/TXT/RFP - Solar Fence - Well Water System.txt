@@ -1,0 +1,91 @@
+REQUEST FOR PROPOSAL
+Single-Panel Solar Fence — Well Pump Area
+
+--------------------------------------------------------------------------------
+
+Project: Single-panel solar fence (vertical PV mounting)
+Location: Adjacent to well pump / 2000 gal water collection (5 HP pump) area
+Delivery: Time and material (T&M) for this first installation; subsequent scope to be defined
+Reference drawing set: 705 panel detail and associated structural/site drawings
+
+--------------------------------------------------------------------------------
+
+1. SCOPE OF WORK
+
+The Owner requests proposals for the supply and installation of one (1) single-panel solar fence at the designated site. The fence consists of vertical support posts, concrete footings, and a single solar panel mounted in a vertical (portrait) orientation. The panel itself will be Owner-supplied; the Contractor shall furnish all structural materials, labor, and installation.
+
+Required work includes:
+
+• Layout and excavation for two (2) concrete footings per structural drawing (each 18" × 36" plan, 3'-0" depth unless soils require otherwise).
+• Pouring concrete footings; Owner may perform excavation and concrete work by prior agreement—Contractor shall state in the proposal whether they will perform this work or assume Owner-furnished footings.
+• Supply and installation of vertical support structure (posts and horizontal framing) per structural drawing:
+  - Vertical posts: 2×2 tube (or equivalent per Contractor's specification).
+  - Top horizontal: 2×1 tube, 6" below top of post.
+  - Bottom horizontal: 1×2 tube, 6" above top of footing.
+  - Clear panel opening height: 8'-0" per drawing.
+• Post-to-footing connection — Contractor shall choose and price one of the following; Owner can supply a detail for either:
+  - Option A: Posts sunk/embedded directly in concrete (as shown on structural drawing).
+  - Option B: Base plate with bolt-hole connection to concrete (Owner to provide base-plate detail).
+• Panel attachment: Simple L-angle (e.g. 0.75" × 2.5") connected to the Owner-supplied panel using the panel's factory mounting holes (M8 hardware, 5–Φ11 holes per panel manufacturer). The panel shall be set in the opening; the L-angle shall be welded to the fence post. Attachment shall comply with panel manufacturer (EGING) mounting requirements (e.g. M8 bolts, load limits).
+• Orientation: The solar fence shall be oriented East–West (panel face normal to North–South). Layout shall be verified in the field to achieve this orientation regardless of angle shown on any plan.
+• Coordination with existing 2" PVC Schedule 40 Solar Conduit (if shown on site plan): Contractor shall state in the proposal whether electrical conduit to the fence is in scope (e.g. stub-up at fence) or excluded; any trenching/conduit run from pump area to fence shall be clearly included or excluded in the bid.
+
+--------------------------------------------------------------------------------
+
+2. OWNER-FURNISHED ITEMS
+
+• Solar panel(s): Owner will supply the panel(s) for this installation (reference: EG-NT66-HU/BF-DG or equivalent per 705 panel detail).
+• Detail for post connection: Owner will provide a detail for either sunk-post or base-plate connection, as selected by Contractor in the proposal.
+
+--------------------------------------------------------------------------------
+
+3. MATERIALS AND FINISH
+
+• Structural steel: Contractor shall specify the type and grade of steel for posts and framing. Owner does not prescribe a specific steel.
+• Finish: No powder coat. Steel may be left to weather and develop a natural rust patina unless Contractor proposes an alternative (e.g. oil or clear coat) and Owner approves.
+• Hardware: M8 bolts and appropriate gaskets/washers per panel manufacturer (EGING) mounting instructions for connection of L-angle to panel. Material for hardware (e.g. carbon steel, stainless) to be specified by Contractor; galvanized or stainless may be used for durability if desired.
+
+--------------------------------------------------------------------------------
+
+4. CONTRACT TYPE AND PRICING
+
+• This first installation shall be performed on a time and material (T&M) basis.
+• Proposal shall include: Labor rate(s) and estimated hours; Material cost (structural steel, concrete if in scope, hardware, incidentals); Clarification of footing responsibility (Contractor vs Owner); Clarification of conduit/electrical scope (included or excluded).
+• Payment terms and invoicing frequency to be agreed with the selected Contractor. Subsequent panels or fence runs may be contracted separately (lump sum or T&M) after this first installation is complete.
+
+--------------------------------------------------------------------------------
+
+5. SUBMITTALS AND COORDINATION
+
+• Contractor shall confirm post-to-footing option (sunk vs base plate) and request Owner-furnished detail if needed.
+• Contractor shall confirm panel mounting method (L-angle size and spacing) and compatibility with Owner-supplied panel (mounting holes 5–Φ11, M8).
+• Any deviation from the structural drawing (e.g. footing size, post spacing) shall be noted and approved by Owner before work begins.
+
+--------------------------------------------------------------------------------
+
+6. DRAWING REFERENCES
+
+• Single-panel solar fence: isometric and elevation (vertical panel on posts, concrete footings).
+• Site plan: building, 2000 gal water collection with 5 HP pump, well, Solar Fence location, 2" PVC Sched 40 Solar Conduit.
+• Structural: 2×2 tube posts, 2×1 tube top, 1×2 tube bottom, 8'-0" panel section, 18"×36" footing, 3'-0" depth.
+• Panel: EG-NT66-HU/BF-DG (705 panel)—mounting holes, frame profiles, drainage/ground/calibration holes.
+• Mounting: EGING 5.2.1 Bolts Mounting—M8, mounting holes, load limits (e.g. 2400 Pa / 5400 Pa per type).
+
+--------------------------------------------------------------------------------
+
+7. PROPOSAL FORMAT AND DUE DATE
+
+Please provide:
+
+1. Cover letter with company name, contact, and confirmation of T&M basis.
+2. Scope summary stating: (a) footing work included or excluded, (b) post option (sunk or base plate), (c) conduit/electrical scope.
+3. Pricing: labor rate(s), estimated hours, material estimate, total estimated T&M for this first panel.
+4. Schedule: anticipated start and duration.
+5. Any exceptions or assumptions relative to this RFP and the referenced drawings.
+
+Proposal due: _________________________
+Submit to: _________________________
+
+--------------------------------------------------------------------------------
+
+This RFP covers one (1) single-panel solar fence installation on a time-and-material basis. Orientation: East–West. Panel: Owner-supplied. Post connection: sink or base plate per Contractor choice; Owner will supply detail. Attachment: simple L-angle to panel mounting holes, welded to post. No powder coat; steel may weather. Contractor specifies steel type.

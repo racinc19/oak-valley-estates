@@ -1,0 +1,116 @@
+# Create Word (.docx) files for Solar Fence RFP - run from any folder
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+import os
+
+def add_para(doc, text, bold=False):
+    p = doc.add_paragraph()
+    p.paragraph_format.space_after = Pt(6)
+    run = p.add_run(text)
+    run.bold = bold
+    return p
+
+def add_heading(doc, text, level=1):
+    doc.add_paragraph(text, style=f'Heading {level}')
+    doc.paragraphs[-1].paragraph_format.space_after = Pt(6)
+
+def main():
+    folder = os.path.dirname(os.path.abspath(__file__))
+
+    # --- Full RFP ---
+    doc = Document()
+    doc.add_paragraph('Request for Proposal', style='Title')
+    doc.add_paragraph('Single-Panel Solar Fence — Well Pump Area', style='Heading 1')
+    doc.add_paragraph()
+    add_para(doc, 'Project: Single-panel solar fence (vertical PV mounting)')
+    add_para(doc, 'Location: Adjacent to well pump / 2000 gal water collection (5 HP pump) area')
+    add_para(doc, 'Delivery: Time and material (T&M) for this first installation; subsequent scope to be defined')
+    add_para(doc, 'Reference drawing set: 705 panel detail and associated structural/site drawings')
+    doc.add_paragraph('—' * 30)
+    add_heading(doc, '1. Scope of Work', 2)
+    add_para(doc, 'The Owner requests proposals for the supply and installation of one (1) single-panel solar fence at the designated site. The fence consists of vertical support posts, concrete footings, and a single solar panel mounted in a vertical (portrait) orientation. The panel itself will be Owner-supplied; the Contractor shall furnish all structural materials, labor, and installation.')
+    add_para(doc, 'Required work includes:', bold=True)
+    doc.add_paragraph('Layout and excavation for two (2) concrete footings per structural drawing (each 18" × 36" plan, 3\'-0" depth unless soils require otherwise).', style='List Bullet')
+    doc.add_paragraph('Pouring concrete footings; Owner may perform excavation and concrete work by prior agreement—Contractor shall state in the proposal whether they will perform this work or assume Owner-furnished footings.', style='List Bullet')
+    doc.add_paragraph('Supply and installation of vertical support structure (posts and horizontal framing) per structural drawing: Vertical posts 2×2 tube; Top horizontal 2×1 tube, 6" below top of post; Bottom horizontal 1×2 tube, 6" above top of footing; Clear panel opening height 8\'-0".', style='List Bullet')
+    doc.add_paragraph('Post-to-footing connection — Contractor shall choose one: Option A — Posts sunk/embedded in concrete; Option B — Base plate with bolt-hole connection (Owner to provide base-plate detail).', style='List Bullet')
+    doc.add_paragraph('Panel attachment: Simple L-angle (e.g. 0.75" × 2.5") connected to Owner-supplied panel using factory mounting holes (M8, 5–Φ11). Panel set in opening; L-angle welded to fence post. Comply with EGING mounting requirements.', style='List Bullet')
+    doc.add_paragraph('Orientation: Solar fence shall be oriented East–West. Layout verified in field.', style='List Bullet')
+    doc.add_paragraph('Coordination with 2" PVC Schedule 40 Solar Conduit: Contractor shall state whether conduit to fence is in scope or excluded.', style='List Bullet')
+    doc.add_paragraph('—' * 30)
+    add_heading(doc, '2. Owner-Furnished Items', 2)
+    doc.add_paragraph('Solar panel(s): Owner will supply (reference EG-NT66-HU/BF-DG or equivalent per 705 panel detail).', style='List Bullet')
+    doc.add_paragraph('Detail for post connection: Owner will provide for either sunk-post or base-plate, as selected by Contractor.', style='List Bullet')
+    doc.add_paragraph('—' * 30)
+    add_heading(doc, '3. Materials and Finish', 2)
+    doc.add_paragraph('Structural steel: Contractor shall specify type and grade. Owner does not prescribe.', style='List Bullet')
+    doc.add_paragraph('Finish: No powder coat. Steel may weather to natural rust patina unless Contractor proposes alternative and Owner approves.', style='List Bullet')
+    doc.add_paragraph('Hardware: M8 bolts and gaskets/washers per EGING. Contractor may specify galvanized or stainless.', style='List Bullet')
+    doc.add_paragraph('—' * 30)
+    add_heading(doc, '4. Contract Type and Pricing', 2)
+    doc.add_paragraph('This first installation is time and material (T&M). Proposal shall include: labor rate(s) and estimated hours; material cost; footing responsibility (Contractor vs Owner); conduit/electrical scope. Payment terms to be agreed. Subsequent panels may be contracted separately.', style='List Bullet')
+    doc.add_paragraph('—' * 30)
+    add_heading(doc, '5. Submittals and Coordination', 2)
+    doc.add_paragraph('Contractor confirms post-to-footing option and panel mounting (L-angle, M8, 5–Φ11). Deviations from structural drawing noted and approved by Owner.', style='List Bullet')
+    doc.add_paragraph('—' * 30)
+    add_heading(doc, '6. Drawing References', 2)
+    doc.add_paragraph('Single-panel solar fence isometric/elevation; Site plan; Structural (2×2 tube, 2×1, 1×2, 8\'-0", 18"×36" footing, 3\'-0" depth); Panel EG-NT66-HU/BF-DG; EGING 5.2.1 Bolts Mounting.', style='List Bullet')
+    doc.add_paragraph('—' * 30)
+    add_heading(doc, '7. Proposal Format and Due Date', 2)
+    doc.add_paragraph('Provide: (1) Cover letter, company name, contact, T&M confirmation; (2) Scope summary—footing, post option, conduit; (3) Pricing—rates, hours, materials, total T&M; (4) Schedule; (5) Exceptions or assumptions.', style='List Number')
+    add_para(doc, 'Proposal due: _________________________')
+    add_para(doc, 'Submit to: _________________________')
+    doc.add_paragraph()
+    add_para(doc, 'This RFP covers one (1) single-panel solar fence, T&M. East–West. Owner-supplied panel. Sink or base plate; Owner supplies detail. L-angle to mounting holes, welded to post. No powder coat; Contractor specifies steel.', bold=False)
+    doc.save(folder + r'\RFP - Solar Fence - Well Water System.docx')
+    print('Created: RFP - Solar Fence - Well Water System.docx')
+
+    # --- Summary ---
+    doc2 = Document()
+    doc2.add_paragraph('Single-Panel Solar Fence — RFP Summary', style='Heading 1')
+    doc2.add_paragraph()
+    doc2.add_paragraph('Project: One (1) single-panel solar fence at well pump area')
+    doc2.add_paragraph('Location: Near 2000 gal water collection / 5 HP pump')
+    doc2.add_paragraph('Orientation: East–West')
+    doc2.add_paragraph('Contract: Time and material (T&M); rest of fence to be defined later')
+    doc2.add_paragraph()
+    doc2.add_paragraph('Owner provides: Solar panel (per 705 panel detail); optional detail for post connection (sunk or base plate).', style='List Bullet')
+    doc2.add_paragraph('Contractor provides: Footings (or Owner by agreement), posts, framing, L-angle welded to post, all labor and materials.', style='List Bullet')
+    doc2.add_paragraph('Post options: (A) Sink posts in concrete (B) Base plate with bolt holes (Owner supplies detail).', style='List Bullet')
+    doc2.add_paragraph('Panel attachment: L-angle (e.g. 0.75" × 2.5") bolted to panel mounting holes (M8, 5–Φ11), welded to fence post.', style='List Bullet')
+    doc2.add_paragraph('Finish: No powder coat; steel may rust/weather. Steel type by Contractor.', style='List Bullet')
+    doc2.add_paragraph('Drawings: 705 panel detail, site plan, structural section, EGING panel/mounting specs.', style='List Bullet')
+    doc2.add_paragraph()
+    doc2.add_paragraph('Full scope and proposal format: see RFP - Solar Fence - Well Water System.docx.')
+    doc2.save(folder + r'\RFP - Solar Fence Summary.docx')
+    print('Created: RFP - Solar Fence Summary.docx')
+
+    # --- Drawing Review ---
+    doc3 = Document()
+    doc3.add_paragraph('Drawing Review — Single Panel Solar Fence', style='Heading 1')
+    doc3.add_paragraph('Review of drawings (705 panel, site plan, structural, EGING). Items to correct or clarify.', style='Normal')
+    doc3.add_paragraph()
+    add_heading(doc3, '1. Orientation', 2)
+    doc3.add_paragraph('Issue: Site plan shows Solar Fence at an angle; no North arrow. Action: State explicitly in RFP that fence must be East–West.', style='List Bullet')
+    add_heading(doc3, '2. Post-to-footing', 2)
+    doc3.add_paragraph('Drawings show posts sunk only. RFP offers both: Option A Sink posts, Option B Base plate (Owner provides detail).', style='List Bullet')
+    add_heading(doc3, '3. L-angle', 2)
+    doc3.add_paragraph('Use 0.75" × 2.5" L-angle, M8 at panel mounting holes (5–Φ11), welded to fence post.', style='List Bullet')
+    add_heading(doc3, '4. Panel frame vs L-angle', 2)
+    doc3.add_paragraph('Simple L-angle is for connecting panel to post via mounting holes, not the panel frame profile.', style='List Bullet')
+    add_heading(doc3, '5. Material and finish', 2)
+    doc3.add_paragraph('No powder coat; allow rust. Contractor specifies structural steel.', style='List Bullet')
+    add_heading(doc3, '6. Structural dimensions', 2)
+    doc3.add_paragraph('2×2 tube posts, 2×1 top, 1×2 bottom, 8\'-0" panel height, 18"×36" footing, 3\'-0" depth.', style='List Bullet')
+    add_heading(doc3, '7. Solar conduit', 2)
+    doc3.add_paragraph('Clarify in RFP whether conduit run to fence is in scope or owner/other trade.', style='List Bullet')
+    doc3.add_paragraph()
+    doc3.add_paragraph('Summary: Orientation E–W explicit; both post options; L-angle + M8 at holes; no powder coat; define conduit scope.')
+    doc3.save(folder + r'\Drawing Review - Single Panel Solar Fence.docx')
+    print('Created: Drawing Review - Single Panel Solar Fence.docx')
+
+    print('Done. Word files are in Well Pump folder.')
+
+if __name__ == '__main__':
+    main()

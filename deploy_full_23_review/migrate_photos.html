@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Photo Migration</title>
+<style>
+body{font-family:monospace;background:#0c1220;color:#e8edf5;padding:24px}
+#log{white-space:pre-wrap;font-size:13px;line-height:1.8}
+.ok{color:#22c55e}.fail{color:#ef4444}.info{color:#3b82f6}
+button{background:#3b82f6;color:white;border:none;padding:12px 24px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:20px}
+button:disabled{opacity:.5}
+</style>
+</head>
+<body>
+<h2 style="margin-bottom:16px">📸 Photo Migration Tool</h2>
+<p style="color:#8899b0;margin-bottom:20px">Open this page at <strong style="color:white">oak-valley-estates.pages.dev</strong> — paste the URL in the address bar after opening that site, or just open this file locally after visiting the site first so localStorage is accessible.</p>
+<button id="btn" onclick="run()">Run Migration</button>
+<div id="log"></div>
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz6wObMc9CP6NMcE0k0Ey-FKxu2bO0yzMCQ8L-Ep3M1h6tAOtFu3TEkmDe5G_4nFgJx/exec';
+
+function log(msg,cls){
+  const el=document.getElementById('log');
+  const line=document.createElement('div');
+  line.className=cls||'';
+  line.textContent=msg;
+  el.appendChild(line);
+}
+
+async function run(){
+  document.getElementById('btn').disabled=true;
+  log('Starting photo migration...','info');
+
+  const entries=JSON.parse(localStorage.getItem('rodriguez_daily_log')||'[]');
+  const withPhotos=entries.filter(e=>e.photos&&e.photos.length);
+  log('Entries with photos: '+withPhotos.length,'info');
+
+  if(!withPhotos.length){log('Nothing to migrate.','fail');return;}
+
+  log('Opening IndexedDB...','info');
+  const db=await new Promise((res,rej)=>{
+    const r=indexedDB.open('rodriguez_photos');
+    r.onsuccess=e=>res(e.target.result);
+    r.onerror=e=>rej(e);
+  });
+  const storeName=Array.from(db.objectStoreNames)[0];
+  log('IDB store: '+storeName,'info');
+
+  log('Loading sheet entries...','info');
+  const sheetEntries=await fetch(SCRIPT_URL+'?action=list&_='+Date.now()).then(r=>r.json());
+  log('Sheet entries: '+sheetEntries.length,'info');
+
+  let ok=0,skip=0,fail=0;
+  for(const entry of withPhotos){
+    const photos=[];
+    for(const key of entry.photos){
+      try{
+        const dataUrl=await new Promise((res,rej)=>{
+          const tx=db.transaction(storeName,'readonly');
+          const req=tx.objectStore(storeName).get(key);
+          req.onsuccess=e=>res(e.target.result);
+          req.onerror=rej;
+        });
+        if(dataUrl)photos.push(dataUrl);
+      }catch(e){log('  key error: '+key+' '+e.message,'fail');}
+    }
+
+    if(!photos.length){log(entry.date+' — no photos in IDB','fail');skip++;continue;}
+
+    const match=sheetEntries.find(s=>s.date===entry.date&&(s.notes||'').trim()===(entry.notes||'').trim());
+    if(!match){
+      log(entry.date+' — no matching sheet row (trying date only)','fail');
+      const matchDate=sheetEntries.find(s=>s.date===entry.date);
+      if(!matchDate){skip++;continue;}
+    }
+    const target=sheetEntries.find(s=>s.date===entry.date&&(s.notes||'').trim()===(entry.notes||'').trim())
+                ||sheetEntries.find(s=>s.date===entry.date);
+
+    log(entry.date+' — uploading '+photos.length+' photo(s)...','info');
+    try{
+      const r=await fetch(SCRIPT_URL,{
+        method:'POST',
+        body:JSON.stringify({action:'update',id:target.id,date:target.date,tag:target.tag,notes:target.notes,photos})
+      });
+      const d=await r.json();
+      if(d.ok){log(entry.date+' ✓ '+photos.length+' photos uploaded','ok');ok++;}
+      else{log(entry.date+' FAIL: '+JSON.stringify(d),'fail');fail++;}
+    }catch(e){log(entry.date+' ERROR: '+e.message,'fail');fail++;}
+  }
+
+  log('','');
+  log('Done: '+ok+' migrated, '+skip+' skipped, '+fail+' failed','info');
+  document.getElementById('btn').disabled=false;
+}
+</script>
+</body>
+</html>

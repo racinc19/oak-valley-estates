@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAC Development — Well Solar Install Visual</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0e14; color: #e8edf2; font-family: 'Space Grotesk', sans-serif; min-height: 100vh; padding: 28px 20px; }
+
+  header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #1e2733; padding-bottom: 16px; margin-bottom: 28px; }
+  .logo { font-family: 'Space Mono', monospace; font-size: 10px; color: #f59e0b; letter-spacing: 2px; text-transform: uppercase; }
+  h1 { font-size: 20px; font-weight: 700; color: #fff; }
+  .sub { font-size: 12px; color: #6b7a8d; font-family: 'Space Mono', monospace; margin-top: 3px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1100px; margin: 0 auto; }
+  .full { grid-column: 1 / -1; }
+  .panel { background: #0f1520; border: 1px solid #1e2733; border-radius: 12px; padding: 22px; }
+  .ptitle { font-size: 10px; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 2px; color: #f59e0b; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .ptitle::after { content: ''; flex: 1; height: 1px; background: #1e2733; }
+
+  .callout { background: #1a1500; border-left: 3px solid #f59e0b; border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 8px 0; font-size: 12px; color: #94a3b8; line-height: 1.6; }
+  .callout strong { color: #fbbf24; display: block; font-size: 13px; margin-bottom: 2px; }
+  .callout.blue { background: #0c1a2e; border-left-color: #3b8fff; }
+  .callout.blue strong { color: #93c5fd; }
+  .callout.red { background: #1a0a0a; border-left-color: #ef4444; }
+  .callout.red strong { color: #f87171; }
+  .callout.green { background: #0a1a0f; border-left-color: #34d399; }
+  .callout.green strong { color: #6ee7b7; }
+
+  .flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; font-family: 'Space Mono', monospace; padding: 14px; background: #0a0e14; border-radius: 8px; border: 1px solid #1e2733; }
+  .fnode { padding: 5px 12px; border-radius: 5px; font-weight: 700; }
+  .farrow { color: #2a3a50; font-size: 16px; }
+
+  .done-tag { display: inline-block; font-size: 9px; font-family: 'Space Mono', monospace; background: #1a3a2a; color: #34d399; padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
+  .todo-tag { display: inline-block; font-size: 9px; font-family: 'Space Mono', monospace; background: #3a2000; color: #fbbf24; padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
+
+  footer { text-align: center; margin-top: 36px; font-family: 'Space Mono', monospace; font-size: 10px; color: #2a3a50; }
+  @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } .full { grid-column: 1; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">RAC Development -- Installer Reference</div>
+    <h1>Well Pump -- Solar Power System</h1>
+    <div class="sub">Rodriguez Residence | Kanarraville, UT | Solar panel to VFD only</div>
+  </div>
+  <div style="text-align:right;font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;">
+    Craig Engel<br>(435) 229-7360<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="136172707a7d70222a53747e727a7f3d707c7e">[email&#160;protected]</a>
+  </div>
+</header>
+
+<div class="grid">
+
+  <!-- MAIN FLOW DIAGRAM -->
+  <div class="panel full">
+    <div class="ptitle">System Flow -- Panel to VFD</div>
+    <svg viewBox="0 0 1000 220" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1000" height="220" fill="#0a0e14"/>
+
+      <!-- ── SOLAR PANEL ── -->
+      <rect x="20" y="60" width="110" height="70" fill="#1a2a60" stroke="#3b8fff" stroke-width="2" rx="6"/>
+      <!-- panel cells -->
+      <line x1="20" y1="78" x2="130" y2="78" stroke="#2a4a8f" stroke-width="0.8"/>
+      <line x1="20" y1="96" x2="130" y2="96" stroke="#2a4a8f" stroke-width="0.8"/>
+      <line x1="20" y1="114" x2="130" y2="114" stroke="#2a4a8f" stroke-width="0.8"/>
+      <line x1="53" y1="60" x2="53" y2="130" stroke="#2a4a8f" stroke-width="0.8"/>
+      <line x1="86" y1="60" x2="86" y2="130" stroke="#2a4a8f" stroke-width="0.8"/>
+      <line x1="119" y1="60" x2="119" y2="130" stroke="#2a4a8f" stroke-width="0.8"/>
+      <text x="75" y="150" text-anchor="middle" fill="#3b8fff" font-family="Space Mono" font-size="9" font-weight="700">705W SOLAR</text>
+      <text x="75" y="162" text-anchor="middle" fill="#2a4a6f" font-family="Space Mono" font-size="8">PANEL</text>
+      <text x="75" y="175" text-anchor="middle" fill="#2a4a6f" font-family="Space Mono" font-size="8">fence-mounted</text>
+      <text x="75" y="188" text-anchor="middle" fill="#34d399" font-family="Space Mono" font-size="8">ALREADY DONE</text>
+      <!-- sun -->
+      <circle cx="75" cy="30" r="16" fill="#fbbf24" opacity="0.8"/>
+      <line x1="75" y1="8" x2="75" y2="2" stroke="#fbbf24" stroke-width="1.5" opacity="0.6"/>
+      <line x1="92" y1="13" x2="96" y2="9" stroke="#fbbf24" stroke-width="1.5" opacity="0.6"/>
+      <line x1="97" y1="30" x2="103" y2="30" stroke="#fbbf24" stroke-width="1.5" opacity="0.6"/>
+      <line x1="92" y1="47" x2="96" y2="51" stroke="#fbbf24" stroke-width="1.5" opacity="0.6"/>
+      <line x1="58" y1="13" x2="54" y2="9" stroke="#fbbf24" stroke-width="1.5" opacity="0.6"/>
+      <line x1="53" y1="30" x2="47" y2="30" stroke="#fbbf24" stroke-width="1.5" opacity="0.6"/>
+
+      <!-- DC wire + arrow -->
+      <line x1="130" y1="95" x2="200" y2="95" stroke="#f59e0b" stroke-width="2.5"/>
+      <polygon points="200,90 212,95 200,100" fill="#f59e0b"/>
+      <text x="168" y="88" text-anchor="middle" fill="#f59e0b" font-family="Space Mono" font-size="8">DC cable</text>
+      <text x="168" y="108" text-anchor="middle" fill="#2a3a50" font-family="Space Mono" font-size="7">USE-2 / PV wire</text>
+      <text x="168" y="118" text-anchor="middle" fill="#2a3a50" font-family="Space Mono" font-size="7">in conduit</text>
+
+      <!-- ── PV COMBINER BOX ── -->
+      <rect x="212" y="72" width="72" height="46" fill="#1a1500" stroke="#f59e0b" stroke-width="1.5" rx="5"/>
+      <text x="248" y="90" text-anchor="middle" fill="#fbbf24" font-family="Space Mono" font-size="8" font-weight="700">PV COMBINER</text>
+      <text x="248" y="101" text-anchor="middle" fill="#f59e0b" font-family="Space Mono" font-size="7">fuse + breaker</text>
+      <text x="248" y="112" text-anchor="middle" fill="#f59e0b" font-family="Space Mono" font-size="7">+ SPD/arrestor</text>
+      <text x="248" y="155" text-anchor="middle" fill="#fbbf24" font-family="Space Mono" font-size="8">YOUR SCOPE</text>
+
+      <!-- arrow -->
+      <line x1="284" y1="95" x2="340" y2="95" stroke="#f59e0b" stroke-width="2.5"/>
+      <polygon points="340,90 352,95 340,100" fill="#f59e0b"/>
+      <text x="315" y="88" text-anchor="middle" fill="#f59e0b" font-family="Space Mono" font-size="8">DC fused</text>
+
+      <!-- ── VICTRON CHARGE CONTROLLER ── -->
+      <rect x="352" y="55" width="100" height="80" fill="#0d1f3c" stroke="#3b8fff" stroke-width="2" rx="6"/>
+      <text x="402" y="82" text-anchor="middle" fill="#3b8fff" font-family="Space Mono" font-size="8" font-weight="700">VICTRON</text>
+      <text x="402" y="94" text-anchor="middle" fill="#3b8fff" font-family="Space Mono" font-size="8">MPPT</text>
+      <text x="402" y="106" text-anchor="middle" fill="#3b8fff" font-family="Space Mono" font-size="8">CHARGE</text>
+      <text x="402" y="118" text-anchor="middle" fill="#3b8fff" font-family="Space Mono" font-size="8">CTRL</text>
+      <text x="402" y="148" text-anchor="middle" fill="#fbbf24" font-family="Space Mono" font-size="8">YOUR SCOPE</text>
+      <!-- battery connection down -->
+      <line x1="402" y1="135" x2="402" y2="170" stroke="#3b8fff" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="420" y="165" fill="#2a4a6f" font-family="Space Mono" font-size="7">to battery</text>
+
+      <!-- arrow -->
+      <line x1="452" y1="95" x2="508" y2="95" stroke="#3b8fff" stroke-width="2.5"/>
+      <polygon points="508,90 520,95 508,100" fill="#3b8fff"/>
+      <text x="483" y="88" text-anchor="middle" fill="#3b8fff" font-family="Space Mono" font-size="8">DC out</text>
+
+      <!-- ── BATTERY BANK ── -->
+      <rect x="520" y="55" width="90" height="80" fill="#0a1520" stroke="#60a5fa" stroke-width="2" rx="6"/>
+      <text x="565" y="82" text-anchor="middle" fill="#60a5fa" font-family="Space Mono" font-size="8" font-weight="700">24V</text>
+      <text x="565" y="94" text-anchor="middle" fill="#60a5fa" font-family="Space Mono" font-size="8">BATTERY</text>
+      <text x="565" y="106" text-anchor="middle" fill="#60a5fa" font-family="Space Mono" font-size="8">BANK</text>
+      <text x="565" y="118" text-anchor="middle" fill="#60a5fa" font-family="Space Mono" font-size="8">100Ah x2</text>
+      <text x="565" y="148" text-anchor="middle" fill="#fbbf24" font-family="Space Mono" font-size="8">YOUR SCOPE</text>
+
+      <!-- arrow -->
+      <line x1="610" y1="95" x2="658" y2="95" stroke="#60a5fa" stroke-width="2.5"/>
+      <polygon points="658,90 670,95 658,100" fill="#60a5fa"/>
+      <text x="637" y="88" text-anchor="middle" fill="#60a5fa" font-family="Space Mono" font-size="8">DC to</text>
+      <text x="637" y="108" text-anchor="middle" fill="#60a5fa" font-family="Space Mono" font-size="8">inverter</text>
+
+      <!-- ── VICTRON INVERTER ── -->
+      <rect x="670" y="55" width="100" height="80" fill="#0d1f3c" stroke="#a78bfa" stroke-width="2" rx="6"/>
+      <text x="720" y="82" text-anchor="middle" fill="#a78bfa" font-family="Space Mono" font-size="8" font-weight="700">VICTRON</text>
+      <text x="720" y="94" text-anchor="middle" fill="#a78bfa" font-family="Space Mono" font-size="8">MULTIPLUS-II</text>
+      <text x="720" y="106" text-anchor="middle" fill="#a78bfa" font-family="Space Mono" font-size="8">24/3000</text>
+      <text x="720" y="118" text-anchor="middle" fill="#a78bfa" font-family="Space Mono" font-size="8">DC->AC</text>
+      <text x="720" y="148" text-anchor="middle" fill="#fbbf24" font-family="Space Mono" font-size="8">YOUR SCOPE</text>
+
+      <!-- arrow -->
+      <line x1="770" y1="95" x2="828" y2="95" stroke="#a78bfa" stroke-width="2.5"/>
+      <polygon points="828,90 840,95 828,100" fill="#a78bfa"/>
+      <text x="802" y="88" text-anchor="middle" fill="#a78bfa" font-family="Space Mono" font-size="8">AC out</text>
+      <text x="802" y="108" text-anchor="middle" fill="#2a3a50" font-family="Space Mono" font-size="7">240V AC</text>
+
+      <!-- ── VFD ── -->
+      <rect x="840" y="55" width="100" height="80" fill="#1a0a2a" stroke="#c084fc" stroke-width="2" rx="6"/>
+      <text x="890" y="82" text-anchor="middle" fill="#c084fc" font-family="Space Mono" font-size="8" font-weight="700">VFD</text>
+      <text x="890" y="94" text-anchor="middle" fill="#c084fc" font-family="Space Mono" font-size="8">COMMANDER</text>
+      <text x="890" y="106" text-anchor="middle" fill="#c084fc" font-family="Space Mono" font-size="8">PRO</text>
+      <text x="890" y="118" text-anchor="middle" fill="#c084fc" font-family="Space Mono" font-size="8">at wellhead</text>
+      <text x="890" y="148" text-anchor="middle" fill="#34d399" font-family="Space Mono" font-size="8">ALREADY DONE</text>
+      <!-- pump wire down -->
+      <line x1="890" y1="135" x2="890" y2="195" stroke="#c084fc" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <polygon points="885,195 895,195 890,205" fill="#c084fc" opacity="0.6"/>
+      <text x="910" y="178" fill="#2a3a50" font-family="Space Mono" font-size="7">pump wire</text>
+      <text x="910" y="188" fill="#2a3a50" font-family="Space Mono" font-size="7">200 ft down</text>
+      <text x="910" y="200" fill="#2a3a50" font-family="Space Mono" font-size="7">to Franklin pump</text>
+
+      <!-- vault boundary box -->
+      <rect x="340" y="40" width="440" height="120" fill="none" stroke="#1e2733" stroke-width="1" stroke-dasharray="6,3" rx="8"/>
+      <text x="560" y="35" text-anchor="middle" fill="#2a3a50" font-family="Space Mono" font-size="8" letter-spacing="2">VAULT -- UNDERGROUND ENCLOSURE</text>
+    </svg>
+  </div>
+
+  <!-- VAULT DETAIL -->
+  <div class="panel">
+    <div class="ptitle">Vault Interior -- Component Layout</div>
+    <div style="display:flex;gap:20px;">
+      <svg width="160" height="280" viewBox="0 0 160 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- vault walls -->
+        <rect x="10" y="30" width="140" height="200" fill="#0c1018" stroke="#2a3a50" stroke-width="2" rx="4"/>
+        <!-- hatch -->
+        <rect x="45" y="22" width="70" height="12" fill="#1e2733" stroke="#3b8fff" stroke-width="1.5" rx="2"/>
+        <text x="80" y="31" text-anchor="middle" fill="#3b8fff" font-family="Space Mono" font-size="7">HATCH (grade)</text>
+
+        <!-- Victron MPPT -->
+        <rect x="20" y="45" width="55" height="35" fill="#0d1f3c" stroke="#3b8fff" stroke-width="1.5" rx="3"/>
+        <text x="47" y="60" text-anchor="middle" fill="#3b8fff" font-family="Space Mono" font-size="7" font-weight="700">VICTRON</text>
+        <text x="47" y="71" text-anchor="middle" fill="#3b8fff" font-family="Space Mono" font-size="7">MPPT CTRL</text>
+
+        <!-- Victron inverter -->
+        <rect x="85" y="45" width="55" height="35" fill="#0d1f3c" stroke="#a78bfa" stroke-width="1.5" rx="3"/>
+        <text x="112" y="60" text-anchor="middle" fill="#a78bfa" font-family="Space Mono" font-size="7" font-weight="700">MULTIPLUS</text>
+        <text x="112" y="71" text-anchor="middle" fill="#a78bfa" font-family="Space Mono" font-size="7">II 24/3000</text>
+
+        <!-- Battery bank -->
+        <rect x="20" y="100" width="120" height="50" fill="#0a1520" stroke="#60a5fa" stroke-width="1.5" rx="3"/>
+        <rect x="28" y="108" width="45" height="34" fill="#111d2e" stroke="#60a5fa" stroke-width="1" rx="2"/>
+        <text x="50" y="128" text-anchor="middle" fill="#60a5fa" font-family="Space Mono" font-size="7">BATT 1</text>
+        <rect x="87" y="108" width="45" height="34" fill="#111d2e" stroke="#60a5fa" stroke-width="1" rx="2"/>
+        <text x="109" y="128" text-anchor="middle" fill="#60a5fa" font-family="Space Mono" font-size="7">BATT 2</text>
+        <text x="80" y="161" text-anchor="middle" fill="#60a5fa" font-family="Space Mono" font-size="7">24V / 100Ah x2</text>
+
+        <!-- PV combiner box note -->
+        <rect x="20" y="175" width="55" height="30" fill="#1a1500" stroke="#f59e0b" stroke-width="1" rx="3"/>
+        <text x="47" y="189" text-anchor="middle" fill="#fbbf24" font-family="Space Mono" font-size="7">PV COMBINER</text>
+        <text x="47" y="199" text-anchor="middle" fill="#fbbf24" font-family="Space Mono" font-size="7">at array</text>
+
+        <!-- labels in/out -->
+        <text x="80" y="220" text-anchor="middle" fill="#2a3a50" font-family="Space Mono" font-size="7">DC IN from panel</text>
+        <line x1="80" y1="222" x2="80" y2="230" stroke="#f59e0b" stroke-width="1" stroke-dasharray="2,2"/>
+        <text x="80" y="240" text-anchor="middle" fill="#2a3a50" font-family="Space Mono" font-size="7">AC OUT to VFD</text>
+        <line x1="80" y1="242" x2="80" y2="250" stroke="#a78bfa" stroke-width="1" stroke-dasharray="2,2"/>
+        <text x="80" y="265" text-anchor="middle" fill="#2a4a6f" font-family="Space Mono" font-size="7">36" x 42" vault</text>
+      </svg>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div class="callout blue">
+          <strong>Victron MPPT Charge Controller</strong>
+          Mount on vault wall. Wire PV input from solar DC cable. Wire output to battery bank. Batteries first -- then PV. Never reverse.
+        </div>
+        <div class="callout blue">
+          <strong>Battery Bank -- 24V / 100Ah x2</strong>
+          Two batteries wired in series for 24V. Connect to charge controller output and inverter DC input. Fuse on positive terminal.
+        </div>
+        <div class="callout blue">
+          <strong>Victron MultiPlus-II 24/3000 2x120V</strong>
+          Split phase output -- L1 + L2 = 240V to VFD. DC input from battery bank. AC output to VFD Commander Pro AC input terminals only.
+        </div>
+        <div class="callout">
+          <strong>PV Combiner Box -- at array (not in vault)</strong>
+          PJERJZN 1-string unit. Fuse + 40A DC breaker + SPD lightning arrestor all-in-one. Mounted at panel, not in vault. Bond ground to GEC.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIRING CALLOUTS -->
+  <div class="panel">
+    <div class="ptitle">Wiring -- Key Rules</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="callout">
+        <strong>1 -- PV combiner box at array</strong>
+        PJERJZN 1-string combiner box (1000VDC, 40A MCB, 20-40KA SPD). Combines fuse, DC disconnect, and lightning arrestor in one IP65 weatherproof unit. Mount within 10 ft of panel. MC4 in from panel, DC cable out to vault. Bond ground terminal to array frame and GEC.
+      </div>
+      <div class="callout">
+        <strong>2 -- Wire sequence inside vault</strong>
+        (1) Connect batteries to charge controller. (2) Connect batteries to inverter DC input. (3) Connect PV solar cable to charge controller. Never connect PV before batteries.
+      </div>
+      <div class="callout">
+        <strong>3 -- Victron MultiPlus-II 24/3000 2x120V AC output to VFD</strong>
+        Wire L1 and L2 from inverter AC output to VFD Commander Pro AC input terminals. This gives 240V split phase. AC input terminals only -- do not open VFD beyond input wiring. Confirm 240V across L1 and L2 before energizing VFD.
+      </div>
+      <div class="callout red">
+        <strong>DO NOT touch the VFD internals</strong>
+        Franklin pump, pump wire, and VFD Commander Pro are already installed and running. Connect to AC input terminals only.
+      </div>
+      <div class="callout green">
+        <strong>Commissioning sequence</strong>
+        (1) Batteries on. (2) Charge controller -- confirm PV input reading. (3) Inverter on -- confirm AC output voltage. (4) Confirm VFD receives power. Do not test pump -- already commissioned.
+      </div>
+    </div>
+  </div>
+
+  <!-- POWER FLOW SUMMARY -->
+  <div class="panel full">
+    <div class="ptitle">Power Flow Summary</div>
+    <div class="flow">
+      <span class="fnode" style="background:#1a2a60;color:#3b8fff;">705W Solar Panel</span>
+      <span class="farrow">--&gt;</span>
+      <span class="fnode" style="background:#1a1500;color:#fbbf24;">PV Combiner Box (fuse + breaker + SPD)</span>
+      <span class="farrow">--&gt;</span>
+      <span class="fnode" style="background:#0d1f3c;color:#3b8fff;">Victron MPPT Controller</span>
+      <span class="farrow">--&gt;</span>
+      <span class="fnode" style="background:#0a1520;color:#60a5fa;">24V Battery Bank</span>
+      <span class="farrow">--&gt;</span>
+      <span class="fnode" style="background:#0d1f3c;color:#a78bfa;">Victron Inverter</span>
+      <span class="farrow">--&gt;</span>
+      <span class="fnode" style="background:#1a0a2a;color:#c084fc;">VFD Commander Pro</span>
+      <span class="farrow">--&gt;</span>
+      <span class="fnode" style="background:#0a1a10;color:#34d399;">Franklin Pump -- 200 ft down</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px;">
+      <div class="callout green">
+        <strong>Already installed -- do not touch</strong>
+        705W solar panel (fence installer). Franklin pump + pump wire. VFD Commander Pro at wellhead.
+      </div>
+      <div class="callout">
+        <strong>Your scope -- vault</strong>
+        PV combiner box (at array). Victron MPPT controller. Battery bank. Victron MultiPlus-II 24/3000. All labeling.
+      </div>
+      <div class="callout">
+        <strong>Your scope -- connection</strong>
+        DC cable panel to vault. AC cable inverter to VFD AC input. Verify end-to-end system operation. Document string voltage and current.
+      </div>
+    </div>

@@ -1,0 +1,10 @@
+---
+description: Do exactly what the user says; do not predict or infer what they want.
+alwaysApply: true
+---
+
+# Do What I Say
+
+- Do only what the user explicitly asks. Do not predict, infer, or add steps they did not request.
+- Do not assume "they probably want X" or add "helpful" extras.
+- If the user points to a folder or file, use only that folder or file for the task unless they say otherwise.

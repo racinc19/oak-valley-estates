@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CO-005 — AV &amp; Smart Fixture Upgrade | Rodriguez Residence</title>
+<style>
+:root{--navy:#1a2e4a;--blue:#2563eb;--accent:#c0392b;--gold:#b8860b;--light:#f4f6f9;--border:#dde3ec;--text:#1e2532;--muted:#6b7a99;--green:#1a7232;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#eef1f7;color:var(--text);font-size:15px;line-height:1.6;}
+.topbar{background:var(--navy);color:#fff;padding:10px 40px;display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.topbar strong{font-size:13px;letter-spacing:.08em;text-transform:uppercase;}
+.hero{background:linear-gradient(135deg,#0f1e32 0%,#1a3a5c 60%,#1e4976 100%);color:#fff;padding:56px 40px 48px;}
+.co-badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 12px;border-radius:2px;margin-bottom:16px;}
+.hero h1{font-size:2.4rem;font-weight:300;line-height:1.15;margin-bottom:8px;}
+.hero h1 strong{font-weight:700;}
+.hero-sub{color:#a8c4e0;font-size:1rem;margin-bottom:32px;}
+.hero-meta{display:flex;gap:40px;flex-wrap:wrap;}
+.hero-meta-item{display:flex;flex-direction:column;gap:2px;}
+.hero-meta-item .label{color:#7a9fc0;font-size:11px;text-transform:uppercase;letter-spacing:.08em;}
+.hero-meta-item .value{color:#fff;font-size:15px;font-weight:600;}
+.container{max-width:1200px;margin:0 auto;padding:0 24px;}
+.content{padding:48px 0;}
+.section{margin-bottom:56px;}
+.section-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--navy);}
+.section-num{background:var(--navy);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;}
+.section-header h2{font-size:1.25rem;font-weight:700;color:var(--navy);}
+.section-header .tag{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:2px;white-space:nowrap;}
+.tag.remove{background:#fdecea;color:var(--accent);}
+.tag.add{background:#e6f4ea;color:var(--green);}
+.tag.new{background:#fff8e1;color:#8a6200;}
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.card-body{padding:24px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;}
+@media(max-width:800px){.two-col,.three-col{grid-template-columns:1fr;}}
+.spec-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+.spec-table th{background:var(--navy);color:#fff;text-align:left;padding:8px 12px;font-weight:600;font-size:11px;letter-spacing:.07em;text-transform:uppercase;}
+.spec-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+.spec-table tr:last-child td{border-bottom:none;}
+.spec-table tr:nth-child(even) td{background:#f8f9fc;}
+.spec-table td:first-child{font-weight:600;width:38%;color:var(--navy);}
+.location-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.loc-pill{background:var(--light);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:4px;padding:5px 12px;font-size:13px;color:var(--navy);font-weight:500;}
+.loc-pill.removed{border-left-color:var(--accent);background:#fdf4f3;text-decoration:line-through;color:var(--muted);}
+.plan-frame{background:#1a1a2e;border-radius:8px;overflow:hidden;margin-bottom:0;}
+.plan-label{background:rgba(26,46,74,.9);color:#a8c4e0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;}
+.plan-frame img{width:100%;display:block;cursor:zoom-in;}
+.plan-note{background:rgba(37,99,235,.12);border-left:3px solid var(--blue);color:#a8c4e0;font-size:12px;padding:8px 14px;}
+.callout{background:#e8f0fe;border-left:4px solid var(--blue);border-radius:0 6px 6px 0;padding:14px 18px;font-size:13.5px;margin-top:16px;color:var(--navy);}
+.callout.warn{background:#fff8e1;border-color:var(--gold);}
+.callout.remove-note{background:#fdecea;border-color:var(--accent);}
+.ref-card{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;margin-bottom:20px;}
+.ref-img{background:#f0f2f7;width:260px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+.ref-img img{max-width:100%;max-height:200px;object-fit:contain;cursor:zoom-in;border-radius:4px;}
+.ref-info{padding:20px 22px;flex:1;}
+.ref-info h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.ref-info .model-tag{display:inline-block;background:#e8f0fe;color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;border-radius:2px;margin-bottom:10px;letter-spacing:.05em;}
+.ref-info ul{list-style:none;}
+.ref-info ul li{font-size:13px;padding:3px 0;border-bottom:1px solid #f0f2f7;color:var(--text);display:flex;gap:6px;}
+.ref-info ul li::before{content:'›';color:var(--blue);font-weight:700;}
+.product-card{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;flex-direction:column;}
+.product-img{background:#f0f2f7;display:flex;align-items:center;justify-content:center;padding:20px;height:220px;overflow:hidden;}
+.product-img img{max-width:100%;max-height:180px;object-fit:contain;border-radius:4px;cursor:zoom-in;}
+.product-info{padding:16px 18px;flex:1;}
+.product-info h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.product-info ul{list-style:none;}
+.product-info ul li{font-size:13px;padding:3px 0;border-bottom:1px solid #f0f2f7;color:var(--text);display:flex;gap:6px;}
+.product-info ul li::before{content:'›';color:var(--blue);font-weight:700;}
+.summary-table{width:100%;border-collapse:collapse;font-size:14px;}
+.summary-table th{background:var(--navy);color:#fff;padding:10px 16px;text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;}
+.summary-table td{padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.summary-table tr:last-child td{border-bottom:none;}
+.summary-table tr:nth-child(even) td{background:#f8f9fc;}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+.badge.remove{background:#fdecea;color:var(--accent);}
+.badge.add{background:#e6f4ea;color:var(--green);}
+.badge.new{background:#fff8e1;color:#8a6200;}
+.sig-block{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:32px;}
+.sig-line{border-top:1.5px solid var(--navy);padding-top:8px;margin-top:48px;}
+.sig-line .name{font-weight:700;font-size:14px;color:var(--navy);}
+.sig-line .role{font-size:12px;color:var(--muted);margin-top:2px;}
+footer{background:var(--navy);color:#7a9fc0;text-align:center;padding:20px;font-size:12px;margin-top:24px;}
+#lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;align-items:center;justify-content:center;cursor:zoom-out;}
+#lb.open{display:flex;}
+#lb img{max-width:95vw;max-height:92vh;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.6);}
+#lb-close{position:fixed;top:16px;right:22px;color:#fff;font-size:32px;cursor:pointer;line-height:1;}
+</style></head><body>
+<div id="lb" onclick="closeLB()"><span id="lb-close">&times;</span><img id="lb-img" src="" alt=""></div>
+<div class="topbar"><strong>RAC Incorporated &nbsp;|&nbsp; Craig Engel, General Contractor</strong><span>1267 N 1390 W, Saint George, UT &nbsp;&middot;&nbsp; (435) 229-7360 &nbsp;&middot;&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="97e5f6f4fef9f4a6aed7f0faf6fefbb9f4f8fa">[email&#160;protected]</a></span></div>
+<div class="hero"><div class="container">
+  <div class="co-badge">Change Order CO-005</div>
+  <h1><strong>AV Panel &amp; Smart Fixture Upgrade</strong></h1>
+  <p class="hero-sub">Rodriguez Residence &nbsp;&middot;&nbsp; Oak Valley Estates Lot 5, Kanarraville, UT 84742</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><span class="label">CO Number</span><span class="value">CO-005</span></div>
+    <div class="hero-meta-item"><span class="label">Project</span><span class="value">Oak Valley Estates #5</span></div>
+    <div class="hero-meta-item"><span class="label">Owner</span><span class="value">Mr. &amp; Mrs. Rodriguez</span></div>
+    <div class="hero-meta-item"><span class="label">Prepared by</span><span class="value">Craig Engel &ndash; RAC Inc.</span></div>
+    <div class="hero-meta-item"><span class="label">Date</span><span class="value">February 25, 2026</span></div>
+  </div>
+</div></div>
+<div class="container content">
+
+<!-- SUMMARY -->
+<div class="section">
+  <div class="section-header"><div class="section-num">&#9670;</div><h2>Scope Summary</h2></div>
+  <div class="card"><div class="card-body" style="padding:0;">
+    <table class="summary-table"><thead><tr><th>Item</th><th>Description</th><th>Qty</th><th>Action</th></tr></thead><tbody>
+      <tr><td>Google Nest 10&quot; Hub Panels</td><td>Remove per AV Plans A111 / A112 &mdash; all locations</td><td>11</td><td><span class="badge remove">Remove / Credit</span></td></tr>
+      <tr><td>Axion Android PoE 8&quot; Touch Panel</td><td>Replace at all 11 original Nest locations</td><td>11</td><td><span class="badge add">Add</span></td></tr>
+      <tr><td>Axion Android PoE 5.5&quot; Touch Panel</td><td>All single gang light switching locations per electrical plan</td><td>TBD</td><td><span class="badge add">Add</span></td></tr>
+      <tr><td>Single Gang Smart On/Off Switch</td><td>All remaining single gang locations per electrical plan</td><td>TBD</td><td><span class="badge add">Add</span></td></tr>
+      <tr><td>Smart Mirror w/ 21.5&quot; Touchscreen</td><td>His vanity + Her vanity &mdash; Master Bath</td><td>2</td><td><span class="badge new">New</span></td></tr>
+      <tr><td>LED Medicine Cabinet w/ Motorized Uplift</td><td>Shared vanity space &mdash; Master Bath</td><td>1</td><td><span class="badge new">New</span></td></tr>
+    </tbody></table>
+  </div></div>
+</div>
+
+<!-- SECTION 1 -->
+<div class="section">
+  <div class="section-header"><div class="section-num">1</div><h2>Remove Google Nest 10&quot; Panels &mdash; All Locations</h2><span class="tag remove">Remove / Credit</span></div>
+  <div class="two-col">
+    <div><div class="card"><div class="card-body">
+      <p style="margin-bottom:14px;">The original AV design specified <strong>11&times; Google Nest 10&quot; Hub</strong> panels across all floors per AV Plans A111 and A112. All 11 units are removed from contract scope. A credit for the removed units is applied against CO-005 additions.</p>
+      <table class="spec-table">
+        <tr><td>Unit removed</td><td>Google Nest Hub 10&quot; Smart Display</td></tr>
+        <tr><td>Count</td><td>11 units total</td></tr>
+        <tr><td>Plan reference</td><td>A111 Main/Lower AV &amp; A112 Upper AV</td></tr>
+        <tr><td>Contract action</td><td>Delete from scope &mdash; credit applied</td></tr>
+      </table>
+      <div class="callout remove-note">All 11 Nest locations on AV Plans A111 and A112 are removed. Each is directly replaced by an Axion 8&quot; panel under Item 2.</div>
+      <p style="margin-top:16px;font-weight:600;color:var(--navy);font-size:13px;">Removal Locations (11 total):</p>
+      <div class="location-list">
+        <span class="loc-pill removed">Master Bedroom</span><span class="loc-pill removed">Master Bath</span><span class="loc-pill removed">Bedroom 2</span><span class="loc-pill removed">Bedroom 3</span><span class="loc-pill removed">Living / Great Room</span><span class="loc-pill removed">ADU Main</span><span class="loc-pill removed">ADU Bedroom</span><span class="loc-pill removed">Office</span><span class="loc-pill removed">Laundry</span><span class="loc-pill removed">Basement Panic Room</span><span class="loc-pill removed">Gun Range</span>
+      </div>
+    </div></div></div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="plan-frame"><div class="plan-label">A111 &ndash; Main / Lower AV Plan (click to zoom)</div><img src="CO-005_images/co005_01.jpg" alt="AV Plan A111" onclick="openLB(this)"><div class="plan-note">All &ldquo;10&quot; Google Nest&rdquo; symbols on this plan are removed under CO-005.</div></div>
+      <div class="plan-frame"><div class="plan-label">A112 &ndash; Upper AV Plan (click to zoom)</div><img src="CO-005_images/co005_02.jpg" alt="AV Plan A112" onclick="openLB(this)"><div class="plan-note">Upper floor Nest panels also removed &mdash; replaced 1:1 with Axion 8&quot;.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section">
+  <div class="section-header"><div class="section-num">2</div><h2>Install Axion Android PoE 8&quot; Touch Panels &mdash; All 11 Nest Locations</h2><span class="tag add">Add</span></div>
+  <div class="ref-card">
+    <div class="ref-img"><img src="CO-005_images/co005_03.png" alt="Axion Android PoE 8-inch Touch Panel" onclick="openLB(this)"></div>
+    <div class="ref-info">
+      <h3>Axion Android PoE Touch Screen &mdash; 8&quot;</h3>
+      <span class="model-tag">AXION &middot; 8&quot; &middot; $379</span>
+      <ul>
+        <li>8&quot; IPS capacitive touchscreen</li>
+        <li>Open Android OS &mdash; full Google Play access</li>
+        <li>PoE 802.3at &mdash; single Cat6, no separate power wire</li>
+        <li>2MP front-facing camera (motion sensing via Axion Kiosk App)</li>
+        <li>2&times; noise-canceling microphone + integrated speaker</li>
+        <li>US single gang back box, flush wall mount</li>
+        <li>FullyKiosk Browser locked to Homey dashboard URL</li>
+        <li>Available in Black or Silver</li>
+      </ul>
+    </div>
+  </div>
+  <div class="two-col">
+    <div><div class="card"><div class="card-body">
+      <p style="margin-bottom:14px;">One Axion 8&quot; panel installed at each of the 11 vacated Nest locations. Single Cat6 homerun to nearest PoE switch &mdash; no electrical rough-in changes required. Runs FullyKiosk Browser in kiosk mode locked to Homey dashboard URL.</p>
+      <table class="spec-table">
+        <tr><td>Count</td><td>11 units &mdash; 1:1 replacement of all Nest locations</td></tr>
+        <tr><td>Power</td><td>PoE 802.3at &mdash; single Cat6 only</td></tr>
+        <tr><td>Mount</td><td>Single gang back box, flush wall</td></tr>
+        <tr><td>Software</td><td>FullyKiosk Browser &mdash; Homey dashboard kiosk mode</td></tr>
+        <tr><td>Plan reference</td><td>A111 Main/Lower AV &amp; A112 Upper AV</td></tr>
+      </table>
+      <div class="callout warn"><strong>PoE note:</strong> Verify available ports on eufy Video Server/PoE switch and Eero Max 7 per AV plans. Add managed PoE switch to riser if additional ports required.</div>
+    </div></div></div>
+    <div>
+      <div class="plan-frame"><div class="plan-label">A111 &mdash; Every Nest location &rarr; Axion 8&quot; (click to zoom)</div><img src="CO-005_images/co005_04.jpg" alt="AV Plan A111 Axion 8 replacement" onclick="openLB(this)"><div class="plan-note">Each &ldquo;10&quot; Google Nest&rdquo; location on this plan receives an Axion 8&quot; PoE panel.</div></div>
+      <div class="location-list" style="margin-top:12px;">
+        <span class="loc-pill">Master Bedroom</span><span class="loc-pill">Master Bath</span><span class="loc-pill">Bedroom 2</span><span class="loc-pill">Bedroom 3</span><span class="loc-pill">Living / Great Room</span><span class="loc-pill">ADU Main</span><span class="loc-pill">ADU Bedroom</span><span class="loc-pill">Office</span><span class="loc-pill">Laundry</span><span class="loc-pill">Basement Panic Room</span><span class="loc-pill">Gun Range</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="section">
+  <div class="section-header"><div class="section-num">3</div><h2>Install Axion Android PoE 5.5&quot; Touch Panels &mdash; Single Gang Switching Locations</h2><span class="tag add">Add</span></div>
+  <div class="ref-card">
+    <div class="ref-img"><img src="CO-005_images/co005_05.png" alt="Axion Android PoE 5.5-inch Touch Panel" onclick="openLB(this)"></div>
+    <div class="ref-info">
+      <h3>Axion Android PoE Touch Screen &mdash; 5.5&quot;</h3>
+      <span class="model-tag">AXION &middot; 5.5&quot; &middot; $379</span>
+      <ul>
+        <li>5.5&quot; IPS capacitive touchscreen</li>
+        <li>Open Android OS &mdash; full Google Play access</li>
+        <li>PoE 802.3at &mdash; single Cat6, no separate power wire</li>
+        <li>2&times; microphone + integrated speaker (no camera on 5.5&quot;)</li>
+        <li>CNC aluminum housing &mdash; same family as 8&quot;</li>
+        <li>US single gang back box, flush wall mount</li>
+        <li>FullyKiosk Browser locked to Homey dashboard URL</li>
+        <li>Available in Black or Silver</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card"><div class="card-body">
+    <div class="two-col">
+      <div>
+        <p style="margin-bottom:14px;">Axion 5.5&quot; panels replace standard wall switches at all single gang light switching locations per the electrical plan. Touch interface integrates fully into Homey &mdash; scene control, dimming, and remote access with consistent finish and UX throughout the house.</p>
+        <table class="spec-table">
+          <tr><td>Count</td><td>TBD &mdash; field verified from electrical plan</td></tr>
+          <tr><td>Power</td><td>PoE 802.3at &mdash; single Cat6</td></tr>
+          <tr><td>Mount</td><td>Single gang back box, flush wall</td></tr>
+          <tr><td>Software</td><td>FullyKiosk Browser &mdash; Homey dashboard</td></tr>
+          <tr><td>Finish</td><td>CNC aluminum &mdash; matches 8&quot; panel family</td></tr>
+        </table>
+        <div class="callout">Quantity confirmed by field walk against electrical drawings prior to procurement. All locations require Cat6 homerun to nearest PoE switch.</div>
+      </div>
+      <div><div class="plan-frame"><div class="plan-label">Electrical Plan &mdash; Single Gang Locations (click to zoom)</div><img src="CO-005_images/co005_06.jpg" alt="Electrical plan single gang switching" onclick="openLB(this)"><div class="plan-note">5.5&quot; panels at all single gang switching locations per electrical plan. Count finalized at field verification.</div></div></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- SECTION 4 -->
+<div class="section">
+  <div class="section-header"><div class="section-num">4</div><h2>Single Gang Smart On/Off Switches &mdash; All Remaining Single Gang Locations</h2><span class="tag add">Add</span></div>
+  <div class="card"><div class="card-body">
+    <div class="two-col">
+      <div>
+        <p style="margin-bottom:14px;">Smart on/off switches added at all single gang locations not receiving an Axion 5.5&quot; panel. Each switch integrates with Homey (Z-Wave or Zigbee) for local on/off, remote control, and scene triggering. No standard switches anywhere in the house.</p>
+        <table class="spec-table">
+          <tr><td>Type</td><td>Single gang smart on/off switch</td></tr>
+          <tr><td>Locations</td><td>All single gang locations not receiving Axion 5.5&quot; per electrical plan</td></tr>
+          <tr><td>Integration</td><td>Homey Pro &mdash; Z-Wave or Zigbee</td></tr>
+          <tr><td>Function</td><td>Local on/off + remote + scene trigger</td></tr>
+          <tr><td>Mount</td><td>Single gang, standard back box</td></tr>
+          <tr><td>Count</td><td>TBD &mdash; field verified from electrical plan</td></tr>
+        </table>
+        <div class="callout">All single gang locations receive either an Axion 5.5&quot; panel or a smart switch. Final per-location assignment confirmed at field walk with GC.</div>
+      </div>
+      <div><div class="plan-frame"><div class="plan-label">Electrical Plan &mdash; All Single Gang Locations (click to zoom)</div><img src="CO-005_images/co005_07.jpg" alt="Electrical plan all single gang locations" onclick="openLB(this)"><div class="plan-note">Every single gang location on the electrical plan receives a smart device under this CO &mdash; no standard switches.</div></div></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section">
+  <div class="section-header"><div class="section-num">5</div><h2>Master Bath &mdash; Smart Mirror &amp; Uplift Cabinet Upgrade</h2><span class="tag new">New Scope</span></div>
+  <div class="card" style="margin-bottom:24px;"><div class="card-body">
+    <p style="font-weight:700;color:var(--navy);margin-bottom:12px;">Vanity Elevation &mdash; Master Bath (Reference Drawing)</p>
+    <div class="plan-frame"><div class="plan-label">Master Bath Vanity Elevation &mdash; His / Shared Center / Her (click to zoom)</div><img src="CO-005_images/co005_08.png" alt="Master Bath Vanity Elevation" onclick="openLB(this)"><div class="plan-note">Three-section vanity: His (left, 2&apos;-6&quot;) &nbsp;|&nbsp; Shared center (1&apos;-6&quot; + 1&apos;-6&quot;) &nbsp;|&nbsp; Her (right, 2&apos;-6&quot;). Smart mirrors at His and Her. Uplift medicine cabinet at shared center.</div></div>
+  </div></div>
+  <div class="three-col">
+    <div class="product-card">
+      <div class="product-img"><img src="CO-005_images/co005_09.png" alt="Smart Mirror His Vanity" onclick="openLB(this)"></div>
+      <div class="product-info"><h3>His Vanity &mdash; Smart Mirror</h3><ul>
+        <li>Leotachi 32&quot;&times;24&quot; Smart Mirror</li>
+        <li>Built-in 21.5&quot; touchscreen &mdash; 1080p / 60Hz</li>
+        <li>Android OS &mdash; streaming apps</li>
+        <li>Anti-fog &middot; waterproof</li>
+        <li>Adjustable 3-color LED backlight</li>
+        <li>Bluetooth / WiFi / HDMI</li>
+        <li>Wall mounted above his vanity sink</li>
+        <li>Requires: 120V outlet at mirror height</li>
+      </ul></div>
+    </div>
+    <div class="product-card">
+      <div class="product-img"><img src="CO-005_images/co005_10.png" alt="Smart Mirror Her Vanity" onclick="openLB(this)"></div>
+      <div class="product-info"><h3>Her Vanity &mdash; Smart Mirror</h3><ul>
+        <li>Leotachi 32&quot;&times;24&quot; Smart Mirror</li>
+        <li>Built-in 21.5&quot; touchscreen &mdash; 1080p / 60Hz</li>
+        <li>Android OS &mdash; streaming apps</li>
+        <li>Anti-fog &middot; waterproof</li>
+        <li>Adjustable 3-color LED backlight</li>
+        <li>Bluetooth / WiFi / HDMI</li>
+        <li>Wall mounted above her vanity sink</li>
+        <li>Requires: 120V outlet at mirror height</li>
+      </ul></div>
+    </div>
+    <div class="product-card">
+      <div class="product-img"><img src="CO-005_images/co005_11.png" alt="Motorized Uplift Medicine Cabinet" onclick="openLB(this)"></div>
+      <div class="product-info"><h3>Shared Center &mdash; Uplift Medicine Cabinet</h3><ul>
+        <li>LED backlit medicine cabinet</li>
+        <li>Motorized uplift door mechanism</li>
+        <li>Glass shelving interior</li>
+        <li>Integrated LED top panel lighting</li>
+        <li>Touch sensor controls</li>
+        <li>Wall recessed / surface mount</li>
+        <li>Shared center vanity section</li>
+        <li>Requires: 120V at cabinet location</li>
+      </ul></div>
+    </div>
+  </div>
+  <div class="callout warn" style="margin-top:20px;"><strong>Electrical coordination required:</strong> Each smart mirror and the uplift cabinet require a dedicated 120V outlet. Electrical contractor to confirm rough-in prior to procurement.</div>
+</div>
+
+<!-- AUTHORIZATION -->
+<div class="section">
+  <div class="section-header"><div class="section-num">&#9670;</div><h2>Authorization &amp; Owner Approval</h2></div>
+  <div class="card"><div class="card-body">
+    <p style="margin-bottom:20px;color:var(--muted);">By signing below, Owner authorizes RAC Incorporated to proceed with the scope of work described in Change Order CO-005. This change order becomes part of the contract documents upon execution. Pricing submitted under separate schedule.</p>
+    <div class="sig-block">
+      <div><div class="sig-line"><div class="name">Craig Engel</div><div class="role">RAC Incorporated &mdash; General Contractor</div></div></div>
+      <div><div class="sig-line"><div class="name">Mr. &amp; Mrs. Rodriguez &mdash; Owner</div><div class="role">Date: ___________________________</div></div></div>
+    </div>
+  </div></div>
+</div>
+
+</div>
+<footer>RAC Incorporated &nbsp;&middot;&nbsp; Craig Engel, General Contractor &nbsp;&middot;&nbsp; 1267 N 1390 W, Saint George, UT &nbsp;&middot;&nbsp; (435) 229-7360 &nbsp;&middot;&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="067467656f6865373f46616b676f6a2865696b">[email&#160;protected]</a><br><span style="color:#4a6a90;font-size:11px;">CO-005 &mdash; Rodriguez Residence, Oak Valley Estates Lot 5 &mdash; February 25, 2026</span></footer>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare
