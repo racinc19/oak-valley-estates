@@ -35,6 +35,9 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 .view-toggle{display:flex;background:var(--card);border:1px solid var(--bdr);border-radius:8px;overflow:hidden}
 .view-btn{padding:6px 18px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:none;color:var(--txt2);transition:all .2s}
 .view-btn.active{background:var(--blue);color:white}
+.view-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.view-row-label{font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.view-row .view-btn{padding:10px 20px;font-size:13px}
 .sel-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
 .sel-stat{background:var(--card);border-radius:10px;padding:12px 14px;border:1px solid var(--bdr);text-align:center}
 .sel-stat .num{font-size:24px;font-weight:800}.sel-stat .lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
@@ -161,6 +164,8 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
 .modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--blue)}
 .modal-field textarea{resize:vertical;min-height:60px}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn-reset-rooms{background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit}
+.btn-reset-rooms:hover{color:var(--cyan)}
 @media(max-width:768px){.sel-card{grid-template-columns:72px 1fr;gap:10px}.sel-status{grid-column:2}.finish-table{display:block;overflow-x:auto}}
 </style>
 </head>
@@ -177,7 +182,7 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
 <div id="toast" class="toast"></div>
 <div class="container">
   <div class="page-hdr">
-    <div><h1>🎨 Material Selections</h1><div style="font-size:12px;color:var(--dim)">Room-by-room finishes, fixtures &amp; materials <span style="color:var(--bdr2);font-size:10px">build 20260315</span></div></div>
+    <div><h1>🎨 Material Selections</h1><div style="font-size:12px;color:var(--dim)">Room-by-room finishes, fixtures &amp; materials <span style="color:var(--bdr2);font-size:10px">build 20260315</span> · <button type="button" class="btn-reset-rooms" onclick="resetToDefaultRooms()" title="Reload full room list from this page (fixes missing rooms)">Restore default rooms</button></div></div>
     <div class="page-hdr-right">
       <div class="view-toggle">
         <button class="view-btn active" id="btnRooms" onclick="setView('rooms')">🏠 Rooms</button>
@@ -190,6 +195,12 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
   </div>
   <div class="sel-stats" id="selStats"></div>
   <div class="pipeline"><div class="pipeline-label">Selection Progress</div><div class="pipeline-bar" id="pipelineBar"></div></div>
+  <div class="view-row">
+    <span class="view-row-label">View:</span>
+    <button type="button" class="view-btn active" id="btnRooms2" onclick="setView('rooms');syncViewBtns()">Rooms</button>
+    <button type="button" class="view-btn" id="btnMTO2" onclick="setView('mto');syncViewBtns()">MTO Summary</button>
+    <button type="button" class="view-btn" id="btnTrade2" onclick="setView('trade');syncViewBtns()">By Trade (quantity takeoff)</button>
+  </div>
   <div class="filter-row" id="filterRow">
     <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
     <button class="filter-btn" onclick="setFilter('not_started',this)">Not Started</button>
@@ -369,6 +380,16 @@ function loadAllPhotos(){
     });
   });
 }
+function resetToDefaultRooms(){
+  if(!confirm('Reload the full room list from this page? This will replace your saved data with the default rooms (your edits will be lost unless you have an export).'))return;
+  [SEL_KEY,SEL_KEY+'_chunks'].forEach(k=>localStorage.removeItem(k));
+  for(let i=0;i<20;i++){const k=SEL_KEY+'_c'+i;if(localStorage.getItem(k)!==null)localStorage.removeItem(k);else break;}
+  DATA=JSON.parse(JSON.stringify(SEED_ROOMS));
+  normalizeAllUrls();
+  saveData();
+  render();
+  showToast('✓ Restored default rooms');
+}
 // ─────────────────────────────────────────────────────────────────────────
 function loadData(){
   ['rodriguez_sel_v1','rodriguez_sel_v2','rodriguez_sel_v3','rodriguez_sel_v4','rodriguez_sel_v5','rodriguez_sel_v6'].forEach(k=>localStorage.removeItem(k));
@@ -458,11 +479,20 @@ function renderStats(){
   document.getElementById('pipelineBar').innerHTML=STATUS_ORDER.map(s=>{const p=counts[s]/n*100;return p>0?`<div class="pipeline-seg" style="width:${p}%;background:${STATUS_COLORS[s]}"></div>`:''}).join('');
 }
 
+function syncViewBtns(){
+  const v=curView;
+  ['btnRooms','btnRooms2'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('active',v==='rooms');});
+  ['btnMTO','btnMTO2'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('active',v==='mto');});
+  ['btnTrade','btnTrade2'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('active',v==='trade');});
+}
 function setView(v){
   curView=v;
   document.getElementById('btnRooms').classList.toggle('active',v==='rooms');
   document.getElementById('btnMTO').classList.toggle('active',v==='mto');
   document.getElementById('btnTrade').classList.toggle('active',v==='trade');
+  const r2=document.getElementById('btnRooms2');if(r2)r2.classList.toggle('active',v==='rooms');
+  const m2=document.getElementById('btnMTO2');if(m2)m2.classList.toggle('active',v==='mto');
+  const t2=document.getElementById('btnTrade2');if(t2)t2.classList.toggle('active',v==='trade');
   document.getElementById('filterRow').style.display=v==='rooms'?'':'none';
   const rn=document.getElementById('roomNav');if(rn)rn.style.display=v==='rooms'?'flex':'none';
   const rns=document.getElementById('roomNavSpacer');if(rns)rns.classList.toggle('visible',v==='rooms');
@@ -526,9 +556,11 @@ async function render(){
   if(curView==='trade'){renderByTrade();return;}
   const q=(document.getElementById('searchInput').value||'').toLowerCase().trim();
   const el=document.getElementById('body');const navEl=document.getElementById('roomNav');const navTabsEl=document.getElementById('roomNavTabs');let html='';let navHtml='';let lastLevel='';
-  if(navEl)navEl.style.display=curView==='rooms'?'flex':'none';
-  const sp=document.getElementById('roomNavSpacer');if(sp)sp.classList.toggle('visible',curView==='rooms');
-  for(const room of DATA){navHtml+=`<button type="button" class="room-nav-tab" onclick="scrollToRoom('${room.id}')">${esc(room.name)}</button>`;}
+  if(navEl){navEl.style.display='flex';navEl.style.visibility='visible';}
+  const sp=document.getElementById('roomNavSpacer');if(sp)sp.classList.add('visible');
+  const roomsForNav=DATA.length>0?DATA:SEED_ROOMS;
+  if(DATA.length===0){DATA=JSON.parse(JSON.stringify(SEED_ROOMS));saveData();}
+  for(const room of roomsForNav){navHtml+=`<button type="button" class="room-nav-tab" onclick="scrollToRoom('${room.id}')">${esc(room.name)}</button>`;}
   for(const room of DATA){
     let finishes=room.finishes,items=room.items;
     if(currentFilter!=='all'){finishes=finishes.filter(f=>(f.status||'not_started')===currentFilter);items=items.filter(i=>(i.status||'not_started')===currentFilter);}
@@ -991,6 +1023,7 @@ async function init(){
     }
   }catch(e){}
   _blockSync=false;
+  runMigrations();
   render();
 }
 
@@ -1014,10 +1047,13 @@ function pushToSheets(){
   },2000);
 }
 
-init();
-// ── Run migrations after loadData ───────────────────────────────────────────
-(function migrate(){
+function runMigrations(){
   let dirty=false;
+  if(DATA.length===0){DATA=JSON.parse(JSON.stringify(SEED_ROOMS));dirty=true;}
+  else {
+    const have=new Set(DATA.map(r=>r.id));
+    for(const seed of SEED_ROOMS){if(!have.has(seed.id)){DATA.push(JSON.parse(JSON.stringify(seed)));have.add(seed.id);dirty=true;}}
+  }
   // Remove rooms no longer in scope
   const REMOVE=new Set(['guest_suite','pw_doors','pw_windows','pw_paint','pw_roofing','bed3','adu_bath2','adu_laundry','pw_electrical','pw_plumbing','upper_bath']);
   for(let i=DATA.length-1;i>=0;i--){if(REMOVE.has(DATA[i].id)){DATA.splice(i,1);dirty=true;}}
@@ -1096,8 +1132,10 @@ init();
     }
   }
   normalizeAllUrls();
-  if(dirty){saveData();render();}
-})();
+  if(dirty)saveData();
+}
+
+init();
 
 function copyFinishToRooms(roomId, finishId){
   const srcRoom=DATA.find(r=>r.id===roomId);
