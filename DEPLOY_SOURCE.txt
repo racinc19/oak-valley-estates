@@ -1,0 +1,20 @@
+WHY TWO SITES LOOK DIFFERENT
+============================
+
+You have TWO deploy folders:
+  1. deploy_live      — used by deploy_ovesubs.ps1 → ovesubs.pages.dev
+  2. deploy_full_23_review — different layout, may be what oak-valley-estates uses
+
+If oak-valley-estates was deployed from deploy_full_23_review (or an old zip),
+it will show a different page than ovesubs (which uses deploy_live).
+
+FIX: Deploy the SAME folder to BOTH sites
+-----------------------------------------
+  .\deploy_ovesubs.ps1         → ovesubs.pages.dev
+  .\deploy_oak_valley.ps1      → oak-valley-estates.pages.dev
+
+Both scripts deploy from deploy_live. Run both after making changes.
+
+In Cloudflare Pages dashboard, ensure BOTH projects have:
+  - Build output directory: deploy_live (or "Direct Upload" if using the scripts)
+  - No build command needed (static files)
