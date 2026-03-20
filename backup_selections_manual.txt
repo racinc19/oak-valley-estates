@@ -1,0 +1,11 @@
+SElections backup — manual steps (if script fails or no API)
+
+1. Open Supabase dashboard: https://supabase.com
+2. Your project > Table Editor > selections table
+3. Find row where id = main
+4. Click the data cell (JSON)
+5. Ctrl+A to select all, Ctrl+C to copy
+6. Create file: backups\selections_backup_YYYY-MM-DD.json
+7. Paste and save
+
+Restore: copy that file's contents, paste into the data cell, save.
