@@ -169,16 +169,19 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
 .btn-reset-rooms{background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit}
 .btn-reset-rooms:hover{color:var(--cyan)}
 @media(max-width:768px){.sel-card{grid-template-columns:72px 1fr;gap:10px}.sel-status{grid-column:2}.finish-table{display:block;overflow-x:auto}}
+.topnav-right{display:flex;gap:8px;align-items:center;margin-left:auto}.topnav-btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--bdr);background:none;color:var(--txt2);cursor:pointer;transition:all .2s;white-space:nowrap}.topnav-btn:hover{border-color:var(--blue);color:var(--txt)}
 </style>
 </head>
 <body>
 <nav class="topnav"><div class="topnav-inner">
   <a href="index.html" class="topnav-brand"><span class="dot"></span>Rodriguez Residence</a>
   <div class="topnav-links">
-    <a href="index.html">Dashboard</a><a href="log.html">Daily Log</a>
-    <a href="selections.html?v=20260315" class="active">Selections</a><a href="accounting.html">Accounting</a>
-    <a href="gantt.html">Gantt</a><a href="draws.html">Draws</a><a href="budget.html">Budget &amp; Schedule</a>
-    <a href="https://drive.google.com/drive/u/0/folders/1kS-2awScLDAnGS973xD0D28RxynI49Si" target="_blank" style="color:var(--cyan)">📁 Drive</a>
+    <a href="index.html" style="padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;color:#fff;background:var(--blue);text-decoration:none">Dashboard</a>
+    <a href="https://drive.google.com/drive/u/0/folders/1kS-2awScLDAnGS973xD0D28RxynI49Si" target="_blank" style="padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--cyan);text-decoration:none;border:1px solid rgba(6,182,212,.3)">📁 Plans & Permits</a>
+    <a href="selections.html" style="padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--purple);text-decoration:none;border:1px solid rgba(139,92,246,.3)">🎨 Selections</a>
+  </div>
+  <div class="topnav-right">
+    <button class="topnav-btn" onclick="location.reload()">↻ Refresh</button>
   </div>
 </div></nav>
 <div id="toast" class="toast"></div>

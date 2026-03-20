@@ -1,5 +1,4 @@
 # Deploy deploy_live to oak-valley-estates.pages.dev
-# Both sites MUST use the same folder (deploy_live) to show identical content
 $envFile = Join-Path $PSScriptRoot ".env.cloudflare"
 if (Test-Path $envFile) {
     $line = Get-Content $envFile | Select-Object -First 1
