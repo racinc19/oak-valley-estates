@@ -120,6 +120,8 @@ function injectCOs(md,asList){
 function renderChart(data){
   var el=document.getElementById('chartBox');
   var md={};
+  var now=new Date();
+  var firstOfThisMonth=new Date(now.getFullYear(),now.getMonth(),1);
   for(var p=0;p<data.phases.length;p++){if(data.phases[p].name==='options')continue;
     for(var j=0;j<data.phases[p].items.length;j++){var item=data.phases[p].items[j];if(!item.endDate)continue;
       var k=item.endDate.getFullYear()+'-'+String(item.endDate.getMonth()+1).padStart(2,'0');
@@ -128,6 +130,10 @@ function renderChart(data){
     }}
   injectCOs(md,false);
   var sorted=Object.values(md).sort(function(a,b){return a.month-b.month});
+  sorted.forEach(function(d){
+    d.isPast=d.month<firstOfThisMonth;
+    d.display=d.isPast?d.paid:d.budget;
+  });
   el.innerHTML='<div class="sbox"><div class="shdr"><h2>💰 Monthly Draw Schedule</h2><div class="meta">Budget + approved COs by completion month</div></div><div style="padding:20px"><canvas id="drawCanvas" height="420"></canvas></div></div>';
 
   var canvas=document.getElementById('drawCanvas');
@@ -140,8 +146,8 @@ function renderChart(data){
 
   var pad={t:40,r:85,b:65,l:85};
   var cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
-  var maxBar=Math.max.apply(null,sorted.map(function(d){return d.budget}));
-  var maxCum=sorted.reduce(function(s,d){return s+d.budget},0);
+  var maxBar=Math.max.apply(null,sorted.map(function(d){return d.display}))||1;
+  var maxCum=Math.max(sorted.reduce(function(s,d){return s+d.display},0),1);
   var barW=Math.min(48,cW/sorted.length*.65);
   var gap=(cW-barW*sorted.length)/(sorted.length+1);
 
@@ -158,17 +164,16 @@ function renderChart(data){
   var cum=0;var pts=[];
   sorted.forEach(function(d,i){
     var x=pad.l+gap+(barW+gap)*i;
-    var bH=(d.budget/maxBar)*cH;var y2=pad.t+cH-bH;
+    var bH=(d.display/maxBar)*cH;var y2=pad.t+cH-bH;
     var grad=ctx.createLinearGradient(x,y2,x,y2+bH);
     grad.addColorStop(0,'rgba(59,130,246,.85)');grad.addColorStop(1,'rgba(59,130,246,.5)');
     ctx.fillStyle=grad;ctx.beginPath();
     if(ctx.roundRect)ctx.roundRect(x,y2,barW,bH,3);else ctx.rect(x,y2,barW,bH);
     ctx.fill();
-    if(d.paid>0){var pH=(d.paid/maxBar)*cH;ctx.fillStyle='rgba(34,197,94,.6)';ctx.fillRect(x,pad.t+cH-pH,barW,pH)}
-    if(bH>25){ctx.fillStyle='white';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(fmtK(d.budget),x+barW/2,y2+14)}
+    if(bH>25){ctx.fillStyle='white';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(fmtK(d.display),x+barW/2,y2+14)}
     ctx.save();ctx.fillStyle='#8899b0';ctx.font='10px sans-serif';ctx.textAlign='center';
     ctx.translate(x+barW/2,H-pad.b+14);if(sorted.length>10)ctx.rotate(-Math.PI/6);ctx.fillText(fmtMoShort(d.month),0,0);ctx.restore();
-    cum+=d.budget;pts.push({x:x+barW/2,y:pad.t+cH-(cum/maxCum)*cH});
+    cum+=d.display;pts.push({x:x+barW/2,y:pad.t+cH-(cum/maxCum)*cH});
   });
 
   if(pts.length>1){
@@ -183,6 +188,8 @@ function renderChart(data){
 function renderSchedule(data){
   var el=document.getElementById('schedBox');
   var months={};
+  var now=new Date();
+  var firstOfThisMonth=new Date(now.getFullYear(),now.getMonth(),1);
   for(var p=0;p<data.phases.length;p++){if(data.phases[p].name==='options')continue;
     for(var j=0;j<data.phases[p].items.length;j++){var item=data.phases[p].items[j];if(!item.endDate)continue;
       var k=item.endDate.getFullYear()+'-'+String(item.endDate.getMonth()+1).padStart(2,'0');
@@ -191,10 +198,11 @@ function renderSchedule(data){
     }}
   injectCOs(months,true);
   var sorted=Object.entries(months).sort(function(a,b){return a[0].localeCompare(b[0])});
+  sorted.forEach(function(entry){var m=entry[1];m.isPast=m.month<firstOfThisMonth;m.display=m.isPast?m.paid:m.total;});
   var cum=0,html='';
   for(var s=0;s<sorted.length;s++){
     var key=sorted[s][0],m=sorted[s][1];
-    cum+=m.total;
+    cum+=m.display;
     var itemsHtml='';
     for(var i=0;i<m.items.length;i++){
       var it=m.items[i];
@@ -206,7 +214,8 @@ function renderSchedule(data){
     var paidNote=m.paid>0?' · <span style="color:var(--green)">'+fmt(m.paid)+' drawn</span>':'';
     var coCount=m.items.filter(function(x){return x.isCO}).length;
     var coNote=coCount>0?' · <span style="color:var(--purple)">'+coCount+' CO'+(coCount>1?'s':'')+'</span>':'';
-    html+='<div class="draw-month"><div class="draw-month-hdr" onclick="toggleDraw(this)"><h3>'+fmtMo(m.month)+'</h3><div style="display:flex;align-items:center;gap:16px"><span style="font-size:12px;color:var(--dim)">'+m.items.length+' items · Cumul: '+fmtK(cum)+paidNote+coNote+'</span><span class="total">'+fmt(m.total)+'</span><span class="arrow">▼</span></div></div><div class="draw-items">'+itemsHtml+'</div></div>';
+    var amtLabel=m.isPast?' (actual)':'';
+    html+='<div class="draw-month"><div class="draw-month-hdr" onclick="toggleDraw(this)"><h3>'+fmtMo(m.month)+'</h3><div style="display:flex;align-items:center;gap:16px"><span style="font-size:12px;color:var(--dim)">'+m.items.length+' items · Cumul: '+fmtK(cum)+paidNote+coNote+'</span><span class="total">'+fmt(m.display)+amtLabel+'</span><span class="arrow">▼</span></div></div><div class="draw-items">'+itemsHtml+'</div></div>';
   }
   el.innerHTML='<div class="sbox"><div class="shdr"><h2>📑 Draw Schedule by Month</h2><div class="meta">Click to expand · '+sorted.length+' months · Includes approved COs</div></div>'+html+'</div>';
 }
