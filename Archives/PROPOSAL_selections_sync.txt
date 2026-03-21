@@ -1,0 +1,60 @@
+PROPOSAL: OVE Subs selections page = exact copy of Oak Valley selections page
+=============================================================================
+
+GOAL
+----
+- Oak Valley (oak-valley-estates) = client site, has the proper selections page (source of truth)
+- OVE Subs (ovesubs) = different site, different pages
+- OVE Subs selections.html = EXACT same file as Oak Valley selections.html
+- Both read from same Supabase → when client updates on Oak Valley, subs see it on OVE Subs
+
+CURRENT STATE
+-------------
+- Both deploy from deploy_live → identical sites
+- deploy_live/selections.html = the proper one (build:20260319cache)
+- deploy_full_23_review = alternate folder with different structure
+
+ASSUMPTION
+----------
+OVE Subs has different content. Need a source for deploy_ovesubs. Options:
+  A) deploy_full_23_review = OVE Subs base (different layout, nav, etc.)
+  B) You have another folder/source for OVE Subs content
+  C) OVE Subs = same as Oak Valley except we only care that selections matches
+
+If (C): No code change needed — both already deploy from deploy_live, selections already identical.
+If (A) or (B): Proceed below.
+
+PROPOSED CHANGES
+----------------
+
+1. Create deploy_ovesubs folder
+   - Copy from deploy_full_23_review (or your OVE Subs source)
+   - Overwrite selections.html with deploy_live/selections.html
+
+2. Create sync_selections.ps1
+   # Copies Oak Valley selections → OVE Subs (run before deploying ovesubs)
+   Copy-Item deploy_live\selections.html deploy_ovesubs\selections.html -Force
+
+3. Update deploy_oak_valley.ps1
+   - Deploy deploy_live → oak-valley-estates (unchanged)
+
+4. Update deploy_ovesubs.ps1
+   - Run sync_selections.ps1 first
+   - Deploy deploy_ovesubs → ovesubs
+
+5. Workflow
+   - Edit selections in deploy_live only
+   - Deploy Oak Valley: .\deploy_oak_valley.ps1
+   - Deploy OVE Subs: .\deploy_ovesubs.ps1 (sync runs automatically)
+
+FILES TO CREATE/MODIFY
+----------------------
+- deploy_ovesubs/          (new folder, copy from deploy_full_23_review)
+- deploy_ovesubs/selections.html  (overwritten by sync from deploy_live)
+- sync_selections.ps1      (new)
+- deploy_ovesubs.ps1       (add sync step, change deploy path to deploy_ovesubs)
+
+RISK
+----
+If deploy_full_23_review is NOT the OVE Subs source, we need the correct source.
+Tell me which folder/source OVE Subs should use and I'll adjust.

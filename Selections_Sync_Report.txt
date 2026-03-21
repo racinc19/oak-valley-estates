@@ -1,0 +1,46 @@
+SELECTIONS SYNC — OAK VALLEY ↔ OVE SUBS
+========================================
+
+REQUIREMENT
+-----------
+When the client (or RAC) adds or edits material selections on the Oak Valley Estates site, subcontractors must see those same selections on the OVE Subs site. Both sites must show the same data.
+
+CURRENT FLOW
+------------
+1. SOURCE OF TRUTH: Supabase database
+   - Both oak-valley-estates.pages.dev and ovesubs.pages.dev pull selections from the same Supabase project
+   - Same data, same API, same bucket
+
+2. PAGE FILES
+   - deploy_live/selections.html → deployed to oak-valley-estates.pages.dev (client site)
+   - deploy_ovesubs/selections.html → deployed to ovesubs.pages.dev (sub site)
+
+3. SYNC SCRIPT (sync_selections.ps1)
+   - Copies deploy_live/selections.html → deploy_ovesubs/selections.html
+   - Replaces the top nav with OVE Subs nav (Dashboard, Plans & Permits, Selections)
+   - Run before deploy_ovesubs.ps1 so subs get the same selections page as client
+
+HOW IT WORKS
+------------
+- Client adds/edits a selection on Oak Valley → saved to Supabase
+- Sub visits ovesubs.pages.dev/selections → page loads, fetches from Supabase
+- Sub sees the same data because both sites use the same Supabase backend
+
+The selections PAGE (HTML/JS) must be identical in behavior; only the nav bar differs. The sync script ensures deploy_ovesubs has the same selections logic as deploy_live.
+
+DEPLOY ORDER
+------------
+1. Update deploy_live/selections.html (client fixes, new features)
+2. Deploy Oak Valley: .\deploy_oak_valley.ps1
+3. Sync: .\sync_selections.ps1  (copies selections to deploy_ovesubs)
+4. Deploy OVE Subs: .\deploy_ovesubs.ps1
+
+WHAT CAN GO WRONG
+-----------------
+- deploy_ovesubs/selections.html gets out of sync with deploy_live
+- Sync script overwrites with wrong source (must copy FROM deploy_live)
+- Different Supabase URLs/keys between the two pages (would show different data)
+
+PROPER SOURCE
+-------------
+User indicated deploy_132.zip contains the proper selections page. When restoring or updating, that file should be the reference for selections.html content.

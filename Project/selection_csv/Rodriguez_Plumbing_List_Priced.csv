@@ -1,0 +1,39 @@
+Room,Level,Type,Material/Item,Qty,Unit,Vendor,Price,Notes
+Kitchen,Main Level,Item,Glacier Bay 33" Drop-In Sink,1,EA,Glacier Bay,$259,VT3322D1 SS single bowl w/ pull-down faucet (Home Depot)
+Kitchen,Main Level,Item,Kohler Crue Touchless Faucet (x2),2,EA,Kohler,$1500,#22974 ~$750 ea (polished chrome)
+Kitchen,Main Level,Item,Kitchen Island Sink,1,EA,TBD,$1500,Sink + disposal + air switch + labor (est.)
+Office Bath,Main Level,Item,HOROW Undermount Sink,1,EA,HOROW,$90,20–27 in undermount
+Office Bath,Main Level,Item,ARCORA Arc/Waterfall Bathroom Faucet,1,EA,ARCORA,$60,Single-handle waterfall (arcorafaucet.com)
+Office Bath,Main Level,Item,HOROW Smart Toilet T05,1,EA,HOROW,$949,Bidet combo elongated (horow.com)
+Office Bath,Main Level,Countertop,TBD,95,SF,Countertop Source,$666,From project
+Powder Bath,Main Level,Item,HOROW Undermount Sink,1,EA,HOROW,$90,
+Powder Bath,Main Level,Item,ARCORA Arc/Waterfall Bathroom Faucet,1,EA,ARCORA,$60,
+Powder Bath,Main Level,Item,HOROW Smart Toilet T05,1,EA,HOROW,$949,
+Powder Bath,Main Level,Countertop,TBD,TBD,SF,Countertop Source,$587,From project
+Garage,Main Level,Item,Mop Sink,1,EA,TBD,$200,Utility sink with faucet (est.)
+Garage,Main Level,Item,Moen M-DURA Wall Mount Utility Faucet (8126),1,EA,Moen,$383,Chrome 2-handle wall-mount utility (garage sink)
+Outdoor / BBQ / Patio,Main Level,Item,Outdoor BBQ Sink,1,EA,TBD,$350,Stainless outdoor sink + hot/cold faucet (est.)
+Outdoor / BBQ / Patio,Main Level,Item,Hose Bibbs w/ Vacuum Breaker (10 total),10,EA,TBD,$450,Frost-free bibbs + vacuum breakers ~$45 ea (est.)
+Primary Suite,Upper Level,Item,Fireplace (1 of 3),1,EA,TBD,$0,Gas line per plumbing bid (no fixture price)
+Primary Bath,Upper Level,Item,HOROW Undermount Sink Rectangular (x2),2,EA,HOROW,$180,$90 ea
+Primary Bath,Upper Level,Item,ARCORA Arc/Waterfall Bathroom Faucet,1,EA,ARCORA,$60,
+Primary Bath,Upper Level,Item,HOROW Smart Toilet T05 (x2),2,EA,HOROW,$1898,$949 ea
+Primary Bath,Upper Level,Item,GRANDJOY Thermostatic Shower Valve (x2),2,EA,GRANDJOY,$986,~$493 ea (thermostatic valve + trim)
+Primary Bath,Upper Level,Item,Freestanding Tub,1,EA,TBD,$1900,60" acrylic freestanding (mid-range)
+Primary Bath,Upper Level,Item,WOODBRIDGE Florence Single-Handle Freestanding Tub Faucet w/ Hand Shower Matte Black,1,EA,WOODBRIDGE,$222,Freestanding floor-mount; hand shower 60 in hose (F1015)
+Primary Bath,Upper Level,Item,Oatey 24" Linear Drain (x2),2,EA,Oatey,$245,$122.40 ea (Home Depot DLS2240R2)
+Primary Bath,Upper Level,Countertop,TBD,TBD,SF,Countertop Source,$1535,From project
+Upper Laundry,Upper Level,Item,Laundry Sink,1,EA,TBD,$156,Utility sink with pullout faucet (est.)
+Basement Living / Theater,Basement,Item,Fireplace (1 of 3),1,EA,TBD,$0,Gas line per plumbing bid
+Basement Bath,Basement,Item,HOROW Undermount Sink,1,EA,HOROW,$90,
+Basement Bath,Basement,Item,HOROW Smart Toilet T05,1,EA,HOROW,$949,
+Basement Bath,Basement,Countertop,TBD,TBD,SF,Countertop Source,$587,From project
+Mechanical Room,Basement,Item,Navien NPE-240A2 Tankless WH (x2),2,EA,Navien,$4378,$2189 ea (SupplyStop)
+Mechanical Room,Basement,Item,Water Softener,1,EA,TBD,$500,Rough-in labor + stub-out (est.)
+Mechanical Room,Basement,Item,Whole House Filtration,1,EA,TBD,$500,Rough-in labor + stub-out (est.)
+Mechanical Room,Basement,Item,Hot Water Circulation System,1,EA,Master Plumbing,$4000,Dedicated loop + pump (est. $2k–7k)
+ADU Kitchen,ADU / Casita,Item,Guest Kitchenette Sink,1,EA,TBD,$1200,Sink + disposal + air switch + icemaker line (est.)
+ADU Bath 1,ADU / Casita,Item,HOROW Undermount Sink,1,EA,HOROW,$90,
+ADU Bath 1,ADU / Casita,Item,ARCORA Arc/Waterfall Bathroom Faucet,1,EA,ARCORA,$60,
+ADU Bath 1,ADU / Casita,Item,HOROW Smart Toilet T05,1,EA,HOROW,$949,
+ADU Bath 1,ADU / Casita,Countertop,ADU Bath Countertop TBD,TBD,SF,Countertop Source,$697,From project

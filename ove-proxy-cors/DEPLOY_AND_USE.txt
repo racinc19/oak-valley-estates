@@ -1,0 +1,18 @@
+CORS proxy for OVE selections photos
+====================================
+
+The selections page fetches photos from ove-proxy.racinc19.workers.dev.
+If photos don't show (CORS error), deploy this worker and point selections to it.
+
+1. Deploy:
+   cd ove-proxy-cors
+   npx wrangler deploy
+
+2. Get your worker URL (e.g. ove-proxy-cors.<your-subdomain>.workers.dev)
+
+3. In selections.html, change SCRIPT_URL to your new worker URL:
+   const SCRIPT_URL='https://ove-proxy-cors.<your-subdomain>.workers.dev';
+
+4. Deploy the selections page again.
+
+This worker forwards requests to ove-proxy and adds CORS headers so browsers allow the fetch.

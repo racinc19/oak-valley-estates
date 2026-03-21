@@ -174,6 +174,24 @@ html{overflow-y:scroll}body{overflow-x:hidden}
     </div>
   </div>
 
+  <!-- Change Orders Section -->
+  <div class="co-sbox" style="margin-top:20px">
+    <div class="co-shdr">
+      <h2>📝 Change Orders</h2>
+      <div class="meta" id="coMeta"></div>
+      <button class="co-add-btn" onclick="openCOModal()">+ Add Change Order</button>
+    </div>
+    <div class="co-summary" id="coSummary"></div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>CO#</th><th>Description</th><th>Vendor</th><th class="right">Amount</th><th class="right">Paid</th><th class="right">Remaining</th><th class="ctr">%</th><th class="ctr">Date</th><th class="ctr">Status</th><th class="ctr">Actions</th>
+        </tr></thead>
+        <tbody id="coBody"></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <!-- CO Modal -->
@@ -203,6 +221,7 @@ html{overflow-y:scroll}body{overflow-x:hidden}
       <input class="co-input" id="coPct" type="number" min="0" max="100" step="1" placeholder="0">
     </label>
   </div>
+  <label class="co-label">Document link<input class="co-input" id="coDocUrl" placeholder="Drive or URL to view the CO document"></label>
   <label class="co-label">Notes<input class="co-input" id="coNotes" placeholder="Optional notes"></label>
   <div class="co-modal-btns">
     <button class="co-btn co-btn-cancel" onclick="closeCOModal()">Cancel</button>
@@ -240,6 +259,7 @@ function openCOModal(idx){
     document.getElementById('coDate').value=co.date||'';
     document.getElementById('coStatus').value=co.status||'pending';
     document.getElementById('coPct').value=co.pct||0;
+    document.getElementById('coDocUrl').value=co.docUrl||co.docLink||'';
     document.getElementById('coNotes').value=co.notes||'';
   }else{
     document.getElementById('coNum').value='CO-'+String(changeOrders.length+1).padStart(3,'0');
@@ -250,6 +270,7 @@ function openCOModal(idx){
     document.getElementById('coDate').value=new Date().toISOString().slice(0,10);
     document.getElementById('coStatus').value='pending';
     document.getElementById('coPct').value='0';
+    document.getElementById('coDocUrl').value='';
     document.getElementById('coNotes').value='';
   }
   document.getElementById('coOverlay').classList.add('open');
@@ -261,6 +282,7 @@ function closeCOModal(){
 }
 function saveCO(){
   var idx=parseInt(document.getElementById('coEditIdx').value);
+  var docUrl=(document.getElementById('coDocUrl')&&document.getElementById('coDocUrl').value||'').trim();
   var co={
     num:document.getElementById('coNum').value.trim()||'CO-???',
     desc:document.getElementById('coDesc').value.trim(),
@@ -270,8 +292,10 @@ function saveCO(){
     date:document.getElementById('coDate').value,
     status:document.getElementById('coStatus').value,
     pct:parseInt(document.getElementById('coPct').value)||0,
-    notes:document.getElementById('coNotes').value.trim()
+    notes:document.getElementById('coNotes').value.trim(),
+    docUrl:docUrl||undefined
   };
+  if(!co.docUrl)delete co.docUrl;
   if(idx>=0)changeOrders[idx]=co;else changeOrders.push(co);
   saveCOs();closeCOModal();doRefresh();
 }
@@ -482,7 +506,7 @@ function render(phases,paidData){
         '<td style="text-align:center"><span class="mini-bar"><span class="mini-fill" style="width:'+coPct+'%;background:'+ciColor+'"></span></span> <span style="color:'+ciColor+';font-size:11px;font-weight:600">'+coPct+'%</span></td>'+
         '<td class="date">'+(co.date||'—')+'</td>'+
         '<td style="text-align:center"><span class="badge '+coBadge+'">'+coSt+'</span></td>'+
-        '<td style="text-align:center;white-space:nowrap"><button class="co-act co-act-edit" onclick="openCOModal('+i+')">✏ Edit</button><button class="co-act co-act-del" onclick="deleteCO('+i+')">🗑</button></td></tr>';
+        '<td style="text-align:center;white-space:nowrap">'+(co.docUrl||co.docLink?'<a href="'+coEsc(co.docUrl||co.docLink)+'" target="_blank" rel="noopener" class="co-act" style="color:var(--cyan);text-decoration:none">📄 View</a> ':'')+'<button class="co-act co-act-edit" onclick="openCOModal('+i+')">✏ Edit</button><button class="co-act co-act-del" onclick="deleteCO('+i+')">🗑</button></td></tr>';
     }
     // CO total row
     coHtml+='<tr class="co-total">'+

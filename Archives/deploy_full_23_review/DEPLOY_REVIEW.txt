@@ -1,0 +1,40 @@
+DEPLOY REVIEW — deploy_full_23.zip (Rodriguez Residence Tracker)
+================================================================
+
+SUMMARY
+-------
+Reviewed all HTML pages and shared.js. Fixed 3 categories of issues in the extracted folder. Use the files in deploy_full_23_review as the corrected deploy (re-zip or upload from here).
+
+
+ERRORS FIXED
+------------
+1. selections.html — CSS typo
+   - Lines 116–118: ".select.st-researching", ".select.st-ordered", ".select.st-installed" targeted a class "select" that does not exist. The element is <select class="st-...">.
+   - Fixed: Replaced with "select.st-researching", "select.st-ordered", "select.st-installed" so status dropdowns get the correct border/color styling.
+
+2. HTML entity — Unescaped "&" in "Budget & Schedule"
+   - In HTML text/content, "&" must be "&amp;".
+   - Updated in: index.html, accounting.html, budget.html (nav + title), gantt.html, draws.html.
+   - log.html and selections.html already had "&amp;".
+
+3. Deploy hygiene — Backup file removed
+   - selections.html.bak was included in the zip (~117 KB). Removed from the review folder so it is not deployed to production.
+
+
+NOTED (NO CHANGE)
+-----------------
+- shared.js: PHASE_NAMES / PHASE_SPELL_FIX use "wall/cieling" and "carpentery" on purpose to match the Google Sheet column values; display names are corrected via PHASE_SPELL_FIX. No code change.
+- All pages load shared.js with the same query string (v20260224b). Nav links and Drive link are consistent.
+- migrate_photos.html is a standalone migration utility (no nav, no shared.js); fine as-is.
+- Budget/Schedule CSV URLs in shared.js point to a single published sheet (different gid for schedule). Ensure the sheet is published to the web and IDs are correct for your environment.
+
+
+FILES IN CORRECTED DEPLOY
+-------------------------
+accounting.html, budget.html, draws.html, gantt.html, index.html, log.html, selections.html, shared.js, migrate_photos.html.
+(selections.html.bak removed.)
+
+
+RECOMMENDATION
+--------------
+When building the next deploy zip, exclude *.bak and run a quick check for "Budget & Schedule" (should be "Budget &amp; Schedule") and for select/status CSS in selections if that file changes.

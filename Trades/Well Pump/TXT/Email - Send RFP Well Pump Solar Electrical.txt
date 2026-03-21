@@ -1,0 +1,12 @@
+Subject: RFP — Well Pump Solar Electrical Install (Labor Only), Rodriguez Residence — Oak Valley Estates Lot 5
+
+Hi [Name],
+
+Hope you’re doing well. We’re requesting quotes for the electrical installation only of the well pump solar system at the Rodriguez Residence (Oak Valley Estates Lot 5, Kanarraville). All equipment is already specified and will be on site — we need labor to wire per the attached scope (panel → combiner → vault → MPPT, batteries, inverter → VFD). Panel and VFD/pump are already in place.
+
+Please find attached the RFP and the installer reference (4_Well_Solar_Visual.html) from the Well Pump folder so you have the full flow and sequence. If you have any questions or need a site visit, let me know and we’ll coordinate.
+
+Thanks for your time — we look forward to your proposal.
+
+Best,
+[Your name]

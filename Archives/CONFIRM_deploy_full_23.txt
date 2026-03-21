@@ -1,0 +1,31 @@
+CONFIRMATION: deploy_full_23_review
+==================================
+
+SOURCE
+------
+deploy_full_23_review = extracted from deploy_full_23.zip
+(DEPLOY_REVIEW.txt line 1: "DEPLOY REVIEW — deploy_full_23.zip (Rodriguez Residence Tracker)")
+
+CONTENTS
+--------
+Same Rodriguez Residence Tracker pages as deploy_live:
+  index.html, log.html, selections.html, accounting.html, gantt.html, draws.html, budget.html, shared.js, migrate_photos.html
+
+DEPLOY_REVIEW fixes applied:
+  - selections.html: CSS typo fix (select.st-* not .select.st-*)
+  - Budget & Schedule → Budget &amp; Schedule in nav
+  - selections.html.bak removed
+
+BUILD TAGS (for reference)
+--------------------------
+deploy_full_23_review/index.html:  build:20260218183456 (same as deploy_live)
+deploy_full_23_review/selections:  build:20260315trade (older)
+deploy_live/selections:            build:20260319cache (newer, proper one)
+
+VERDICT
+-------
+Yes — deploy_full_23_review is the right folder for OVE Subs base.
+
+Same project, same pages. We overwrite its selections.html with deploy_live/selections.html so OVE Subs shows the exact Oak Valley selections page.
+
+NOTE: deploy_91 (3).zip exists in the repo — that's a different zip. deploy_full_23_review comes from deploy_full_23.zip only.

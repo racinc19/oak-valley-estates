@@ -1,0 +1,1 @@
+CONFIRMED. The location drawings from the client show every door (DOOR 1, 2, 3, 4 by location). Use these drawings as the basis for ordering — they are the source of what to order. The door schedule in this folder should align to the drawings; if anything conflicts, the location drawings govern.

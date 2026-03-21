@@ -1,0 +1,16 @@
+DEPLOY BOTH SITES FROM SAME FOLDER
+==================================
+
+oak-valley-estates.pages.dev and ovesubs.pages.dev must show the same selections.
+
+DONE:
+  - deploy_live/selections.html and deploy_full_23_review/selections.html are identical
+  - Both use Supabase as single source of truth; sync every 30 seconds
+  - wrangler.toml added: pages_build_output_dir = "./deploy_live"
+
+NEXT: In Cloudflare Pages dashboard, set BOTH projects:
+  - Build output directory: deploy_live
+  - Build command: (leave empty, or "echo ok")
+  - Redeploy both
+
+They will share data via Supabase.

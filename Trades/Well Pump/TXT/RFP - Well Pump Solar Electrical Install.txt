@@ -1,0 +1,77 @@
+REQUEST FOR PROPOSAL
+Well Pump Solar Power System — Electrical Installation Only (Solar Electrical Vault)
+
+--------------------------------------------------------------------------------
+
+Project: Rodriguez Residence
+Location: Oak Valley Estates Lot 5, Kanarraville, UT — Well vault and fence-mounted solar array
+Delivery: Lump sum for electrical labor per attached scope
+Reference: All equipment and design are Owner-furnished. See installer reference in this project: Well Pump\HTML\4_Well_Solar_Visual.html (and related Well Pump folder docs).
+
+--------------------------------------------------------------------------------
+
+DEFINITION — SOLAR ELECTRICAL VAULT SCOPE
+
+• **Vault**: Underground enclosure, 36" x 42", with hatch at grade. Contains: Victron MPPT charge controller, 24V battery bank (100Ah x2 in series), Victron MultiPlus-II 24/3000 2x120V. DC in from solar; AC out to VFD.
+• **Already installed (do not touch)**: 705W solar panel (fence-mounted); Franklin pump, pump wire, VFD Commander Pro at wellhead.
+• **Contractor electrical scope**: (1) PV combiner box at array (not in vault). (2) DC cable from array to vault. (3) All vault interior wiring and component connections. (4) AC cable from vault to VFD AC input only. (5) Commissioning and labeling.
+
+--------------------------------------------------------------------------------
+
+1. SCOPE OF WORK — ELECTRICAL INSTALLATION ONLY
+
+The Owner/General Contractor requests proposals for the **electrical installation only** of the well pump solar power system (panel to VFD). All equipment is Owner-furnished. Contractor shall perform electrical labor and wiring per the attached installer reference. No structural work, no fence, no concrete — electrical only.
+
+System flow (per reference): 705W Solar Panel (already installed at fence) → PV Combiner Box (at array) → DC cable to vault → Victron MPPT → 24V Battery Bank → Victron MultiPlus-II 24/3000 → AC cable to VFD Commander Pro (at wellhead). Franklin pump and VFD are already installed; connect to VFD AC input terminals only.
+
+Required electrical work includes:
+
+• **PV Combiner Box at array**: Mount PJERJZN 1-string combiner (1000VDC, 40A MCB, 20–40KA SPD, IP65) within ~10 ft of panel. MC4 from panel in; DC cable out to vault. Bond ground to array frame and GEC.
+• **DC cable — panel to vault**: Run USE-2 / PV wire in conduit from combiner to vault. Route per site (existing 2" PVC Solar Conduit or as shown). Terminate at vault entry for charge controller.
+• **Vault interior — wiring**: (1) Mount Victron MPPT charge controller on vault wall; wire PV input from solar DC cable, output to battery bank. (2) Place and wire 24V battery bank (100Ah x2 in series); fuse on positive; connect to controller output and to inverter DC input. (3) Mount Victron MultiPlus-II 24/3000 2x120V; DC from battery, AC output L1/L2 to run to VFD. **Wire sequence**: connect batteries to controller and inverter first; then connect PV to controller. Never connect PV before batteries.
+• **AC cable — vault to VFD**: Run AC from inverter output (L1, L2, ground) to VFD Commander Pro AC input terminals only. 240V split phase. Do not open VFD or modify pump wiring. Confirm 240V across L1 and L2 before energizing VFD.
+• **Commissioning**: (1) Batteries on. (2) Charge controller — confirm PV input reading. (3) Inverter on — confirm AC output voltage. (4) Confirm VFD receives power. Do not test pump — already commissioned. Document string voltage and current as requested.
+• **Labeling**: Label all components and connections per reference. Leave vault and array neat and code-compliant.
+
+--------------------------------------------------------------------------------
+
+2. OWNER-FURNISHED / ALREADY INSTALLED
+
+• 705W solar panel (fence-mounted, already installed). Franklin pump, pump wire, VFD Commander Pro at wellhead (already installed — do not touch).
+• All electrical equipment: PV combiner box (PJERJZN or equivalent specified), Victron MPPT charge controller, 24V battery bank (100Ah x2), Victron MultiPlus-II 24/3000 2x120V, cable (USE-2/PV, AC cable), conduit as specified, fuses, terminals, and misc. per reference. Vault structure (36" x 42" underground enclosure) and location — by excavator (by others); electrical scope assumes vault is in place.
+
+--------------------------------------------------------------------------------
+
+3. CONTRACTOR PROVIDES
+
+• Labor: mount combiner at array; run DC cable panel to vault; vault wiring (MPPT, batteries, inverter) per sequence; run AC cable vault to VFD; terminate at VFD AC input only; commissioning and verification; labeling.
+• Any Contractor-furnished consumables (e.g. additional cable ties, tape, labels) unless otherwise specified. Tools and test equipment (multimeter, etc.).
+• Confirmation of end-to-end operation (PV → battery → inverter → VFD power) and documentation of string voltage/current if requested.
+
+--------------------------------------------------------------------------------
+
+4. PRICING
+
+• Lump sum for electrical installation only (labor and any Contractor-furnished incidentals). No equipment supply.
+• Payment terms: e.g. balance on completion; or per GC draw schedule.
+• Exclusions: state any assumptions (e.g. conduit path already in place, vault access, Owner presence for coordination).
+
+--------------------------------------------------------------------------------
+
+5. PROPOSAL FORMAT AND DUE DATE
+
+Please provide:
+
+1. Cover letter with company name, contact person, phone, and email.
+2. Confirmation that scope is electrical installation only per attached reference documents.
+3. Lump sum for electrical install; payment terms; exclusions or assumptions.
+4. Availability and lead time to schedule (after equipment on site).
+5. Any questions or clarifications needed from the reference docs.
+
+Submit proposals to: [Insert contact name/email]
+
+Due date: [Insert date]
+
+--------------------------------------------------------------------------------
+
+This RFP is for electrical installation labor only at the solar electrical vault and related runs (array combiner, DC to vault, AC to VFD). All equipment and design are specified in the Well Pump folder (e.g. HTML\4_Well_Solar_Visual.html). Panel and VFD/pump are already in place; Contractor wires per reference.

@@ -70,6 +70,28 @@ function parseBudgetTab(rows){
     totalBudget=parseAmt(rows[3][6])||parseAmt(rows[3][2])||parseAmt(rows[3][1])||0;
     totalProfit=parseAmt(rows[3][13])||0
   }
+  let totalPaidOverride=0;
+  let paidCol=5;
+  for(let r=0;r<Math.min(5,rows.length);r++){
+    const row=rows[r];if(!row)continue;
+    for(let c=0;c<Math.min(row.length,15);c++){
+      const cell=(row[c]||'').trim().toLowerCase();
+      if(cell==='paid'){paidCol=c;break}
+    }
+  }
+  for(let r=1;r<Math.min(8,rows.length);r++){
+    const row=rows[r];if(!row||!row[paidCol])continue;
+    const a0=(row[0]||'').trim().toLowerCase();
+    const a1=(row[1]||'').trim().toLowerCase();
+    if(/build gross|^total$/.test(a0)||/build gross|^total$/.test(a1)){
+      const v=parseAmt(row[paidCol]);
+      if(v>1000){totalPaidOverride=v;break}
+    }
+  }
+  if(totalPaidOverride===0&&rows[3]&&rows[3][5]){
+    const v=parseAmt(rows[3][5]);
+    if(v>0)totalPaidOverride=v;
+  }
 
   // Parse Change Orders from rows 5-8 (before phase data)
   const changeOrdersFromSheet=[];
@@ -153,7 +175,7 @@ function parseBudgetTab(rows){
   }
 
   const headerInfo={sqft,budget:totalBudget,duration:0,completion:''};
-  return{phases,headerInfo,changeOrders:changeOrdersFromSheet}
+  return{phases,headerInfo,changeOrders:changeOrdersFromSheet,totalPaidOverride}
 }
 
 // ═══ PARSE SCHEDULE TAB ═══
@@ -350,7 +372,7 @@ async function loadProjectData(){
   ]);
 
   const budgetRows=parseCSV(budgetCSV);
-  const{phases,headerInfo,changeOrders:sheetCOs}=parseBudgetTab(budgetRows);
+  const{phases,headerInfo,changeOrders:sheetCOs,totalPaidOverride}=parseBudgetTab(budgetRows);
 
   let scheduleTasks=[];
   if(scheduleCSV){
@@ -367,6 +389,7 @@ async function loadProjectData(){
     totalBudget+=p.markupTotal;
     totalPaid+=p.paidTotal;
   }
+  if(totalPaidOverride>0)totalPaid=totalPaidOverride;
   const totals={totalBudget,totalPaid,progress:totalBudget>0?(totalPaid/totalBudget*100):0};
 
   const main={phases,headerInfo,totals,scheduleTasks,sheetCOs};

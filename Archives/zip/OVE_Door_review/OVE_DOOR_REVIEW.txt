@@ -1,0 +1,50 @@
+OVE Door.zip — Review for Correctness
+======================================
+Oak Valley Estates Lot 5 | Rodriguez Residence | Door package
+Reviewed: contents of zip/OVE Door.zip (extracted to zip/OVE_Door_review).
+
+SUMMARY
+-------
+- Package is usable but has one correctness error: Door 2.pdf and Door 3.pdf are swapped relative to the schedule.
+- Schedule and location maps align. Excel has three sheets and matches project.
+
+CONTENTS CHECKED
+---------------
+1. Rodriguez_Door_Schedule_Sunpro (1).xlsx
+   - Sheets: "Door Schedule", "Sunpro Procurement", "TruStile Spec Reference".
+   - Door Schedule: Mark, Level, Room, Plan Tag (DOOR 1–4, SPECIAL), TruStile Model, Style, Material, Finish, sizes, Notes, Status.
+   - Plan Tags: DOOR 1 = FL100 Full-Lite (Bright Gray), DOOR 2 = TMF1000 Flush (Off-White), DOOR 3 = TS1000 Shaker (Bright Gray), DOOR 4 = TMF1000 Flush (Bright Gray exterior/garage). SPECIAL = Panic Room (N/A – ballistic).
+   - Design codes in schedule: DOOR 1 → C8ZT9dSob; DOOR 2 → 1tRmHbBwT; DOOR 3 → Au31tRnqMY; DOOR 4 → EICnMYsYv.
+   - Total door count (excl. Panic Room): 23. Legend and header (RAC Inc., Sunpro, quote SQAQGI000175-1, date March 05, 2026) present.
+
+2. Location maps (PNG)
+   - Location - Main Floor.png, Location - Upstairs.png, Location - Basement.png, Location - ADU & Garage.png.
+   - Align with schedule levels: Main Level, Upper Level, Basement, ADU/Casita (+ garage on main).
+
+3. Door spec PDFs (TruStile)
+   - Door 1.pdf: FL100, Bright Gray, C8ZT9dSob → matches schedule DOOR 1.
+   - Door 2.pdf: TS1000 Shaker, Bright Gray, Au31tRnqMY → this is the DOOR 3 spec (wrong file for "Door 2").
+   - Door 3.pdf: TMF1000, Off-White, 1tRmHbBwT → this is the DOOR 2 spec (wrong file for "Door 3").
+   - Door 4.pdf: TMF1000, Bright Gray, EICnMYsYv → matches schedule DOOR 4.
+
+ERROR FOUND
+-----------
+Door 2.pdf and Door 3.pdf are swapped:
+- The schedule labels Plan Tag "DOOR 2" = TMF1000 Flush Off-White (design 1tRmHbBwT) and "DOOR 3" = TS1000 Shaker Bright Gray (design Au31tRnqMY).
+- In the zip, the file named Door 2.pdf contains the TS1000 Shaker spec (DOOR 3), and the file named Door 3.pdf contains the TMF1000 Off-White spec (DOOR 2).
+
+Fix: Swap the two PDFs so that:
+- Door 2.pdf = TMF1000 Off-White, design code 1tRmHbBwT (current content of Door 3.pdf).
+- Door 3.pdf = TS1000 Shaker Bright Gray, design code Au31tRnqMY (current content of Door 2.pdf).
+
+After the swap, the PDF filenames will match the Plan Tag column and the legend in the schedule.
+
+MINOR NOTES (no change required)
+--------------------------------
+- Excel filename "(1)" suggests a duplicate save; consider renaming to "Rodriguez_Door_Schedule_Sunpro.xlsx" in future packages if you want a clean name.
+- Panic Room is correctly SPECIAL / N/A (no TruStile PDF); no fifth door PDF needed.
+- All schedule rows show status "CONFIRM SIZE" or "SPEC TBD" (Panic Room); consistent.
+
+CONCLUSION
+---------
+Correctness issue: swap Door 2.pdf and Door 3.pdf so file names match the Door Schedule Plan Tag and legend. Everything else in the zip is consistent and correct.

@@ -1,6 +1,9 @@
 <!DOCTYPE html><!-- build:20260218183456 -->
 <html lang="en">
 <head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rodriguez Residence — Draws</title>
@@ -40,6 +43,18 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .draw-item.co-item .name{color:var(--purple)}
 .draw-item.co-item .amount{color:var(--purple)}
 .co-tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;background:rgba(139,92,246,.15);color:var(--purple);margin-left:6px;vertical-align:middle}
+/* history bar */
+.hist-bar{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px 20px;margin-bottom:20px}
+.hist-bar h2{font-size:15px;font-weight:800;margin-bottom:12px;color:var(--txt2)}
+.hist-card{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:12px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.hist-card:last-child{margin-bottom:0}
+.hc-num{font-size:13px;font-weight:800;color:var(--cyan)}
+.hc-meta{font-size:11px;color:var(--dim);margin-top:2px}
+.hc-amt{font-size:16px;font-weight:800}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.b-paid{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.b-sent{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
+.hist-total{font-size:14px;font-weight:700;color:var(--green);margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)}
 .topnav{position:fixed;top:0;left:0;width:100vw;z-index:50;background:var(--card);border-bottom:1px solid var(--bdr);padding:0 20px}
 .topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px;position:relative}
 .topnav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700;font-size:16px;white-space:nowrap}
@@ -73,11 +88,12 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 <div id="error"><h2>⚠ Failed to load data</h2><div class="detail" id="errorDetail"></div><br><button style="background:var(--blue);padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;border:none;cursor:pointer;color:white" onclick="doRefresh()">Retry</button></div>
 
 <div id="app" class="container">
+  <div id="histBar"></div>
   <div id="chartBox"></div>
   <div id="schedBox"></div>
 </div>
 
-<script src="shared.js?v20260224b"></script>
+<script src="shared.js?v20260320feb"></script>
 <script>
 var CO_KEY='rodriguez_change_orders_v3';
 var CO_SEED=[{
@@ -117,22 +133,84 @@ function injectCOs(md,asList){
   }
 }
 
+var RODRIGUEZ_BILLED=400154.48;
+var INV_KEY='rac_invoices_v2';
+function getInvoiceTotal(){
+  try{
+    var invs=JSON.parse(localStorage.getItem(INV_KEY)||'[]');
+    return invs.reduce(function(s,i){return s+(parseFloat(i.total)||0);},0);
+  }catch(e){return 0;}
+}
+function fmtDateStr(s){if(!s)return'—';var d=new Date(s+'T12:00:00');return(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()}
+function renderHistoryBar(){
+  var invs;try{invs=JSON.parse(localStorage.getItem(INV_KEY)||'[]')}catch(e){invs=[]}
+  var total=getInvoiceTotal();
+  var el=document.getElementById('histBar');
+  if(!invs.length){el.innerHTML='<div class="hist-bar"><h2>📋 Invoice History</h2><div style="color:var(--dim);font-size:13px">No saved invoices — February draw will use sheet total or default. Add invoices in <a href="accounting.html" style="color:var(--cyan)">Accounting</a>.</div></div>';return;}
+  var html='<div class="hist-bar"><h2>📋 Invoice History</h2><p style="font-size:12px;color:var(--dim);margin-bottom:12px">February draw = sum of saved invoices</p>';
+  invs.slice().reverse().forEach(function(inv){
+    var bc=inv.status==='paid'?'b-paid':'b-sent';
+    html+='<div class="hist-card"><div><div style="display:flex;align-items:center;gap:10px"><span class="hc-num">'+String(inv.id||'').replace(/[<>]/g,'')+'</span><span class="badge '+bc+'">'+(inv.status||'sent').toUpperCase()+'</span></div><div class="hc-meta">📅 '+fmtDateStr(inv.date)+' · '+(inv.lineItems||[]).length+' items</div></div><div class="hc-amt">'+fmt(parseFloat(inv.total)||0)+'</div></div>';
+  });
+  html+='<div class="hist-total">Total: '+fmt(total)+' → February draw</div></div>';
+  el.innerHTML=html;
+}
 function renderChart(data){
+  var main=data.main||data;
+  var phases=main.phases||[];
+  var totals=data.totals||{};
+  var invTotal=getInvoiceTotal();
+  var totalPaid=(totals.totalPaid>0)?totals.totalPaid:(invTotal>0?invTotal:RODRIGUEZ_BILLED);
   var el=document.getElementById('chartBox');
   var md={};
   var now=new Date();
   var firstOfThisMonth=new Date(now.getFullYear(),now.getMonth(),1);
-  for(var p=0;p<data.phases.length;p++){if(data.phases[p].name==='options')continue;
-    for(var j=0;j<data.phases[p].items.length;j++){var item=data.phases[p].items[j];if(!item.endDate)continue;
-      var k=item.endDate.getFullYear()+'-'+String(item.endDate.getMonth()+1).padStart(2,'0');
-      if(!md[k])md[k]={month:new Date(item.endDate.getFullYear(),item.endDate.getMonth(),1),budget:0,paid:0};
-      md[k].budget+=item.markup;md[k].paid+=item.paid||0;
+  function addToMonth(y,m,bud,pad){
+    var k=y+'-'+String(m).padStart(2,'0');
+    if(!md[k])md[k]={month:new Date(y,m-1,1),budget:0,paid:0};
+    md[k].budget+=bud;md[k].paid+=pad;
+  }
+  for(var p=0;p<phases.length;p++){if(phases[p].name==='options')continue;
+    for(var j=0;j<phases[p].items.length;j++){var item=phases[p].items[j];
+      var start=item.startDate,end=item.endDate;
+      var amt=item.markup||0;var pvd=item.paid||0;
+      if(!end&&!start)continue;
+      if(end){
+        var ey=end.getFullYear(),em=end.getMonth()+1;
+        addToMonth(ey,em,amt,pvd);
+      }
+      if(start&&end&&start.getTime()!==end.getTime()){
+        var sy=start.getFullYear(),sm=start.getMonth()+1;
+        for(var y=sy;y<=end.getFullYear();y++){
+          var mStart=(y===sy)?sm:1;
+          var mEnd=(y===end.getFullYear())?end.getMonth()+1:12;
+          for(var m=mStart;m<=mEnd;m++){
+            if(y===ey&&m===em)continue;
+            var firstOfM=new Date(y,m-1,1);
+            var lastOfM=new Date(y,m,0);
+            if(start<=lastOfM&&end>=firstOfM){addToMonth(y,m,amt*0.5,0);}
+          }
+        }
+      }
     }}
   injectCOs(md,false);
   var sorted=Object.values(md).sort(function(a,b){return a.month-b.month});
+  var sumSheetPaid=sorted.reduce(function(s,d){return s+(d.paid||0);},0);
+  if(totalPaid>0&&sumSheetPaid<totalPaid){
+    var lastPast=sorted.filter(function(d){return d.month<firstOfThisMonth}).pop();
+    if(lastPast){lastPast.paid=totalPaid;}
+    else{
+      var priorMonth=new Date(now.getFullYear(),now.getMonth()-1,1);
+      var pk=priorMonth.getFullYear()+'-'+String(priorMonth.getMonth()+1).padStart(2,'0');
+      if(!md[pk])md[pk]={month:priorMonth,budget:0,paid:0};
+      md[pk].paid=totalPaid;
+      sorted=Object.values(md).sort(function(a,b){return a.month-b.month});
+    }
+  }
   sorted.forEach(function(d){
     d.isPast=d.month<firstOfThisMonth;
-    d.display=d.isPast?d.paid:d.budget;
+    d.paidAmount=d.paid||0;
+    d.display=Math.max(d.budget,d.paidAmount)||d.budget;
   });
   el.innerHTML='<div class="sbox"><div class="shdr"><h2>💰 Monthly Draw Schedule</h2><div class="meta">Budget + approved COs by completion month</div></div><div style="padding:20px"><canvas id="drawCanvas" height="420"></canvas></div></div>';
 
@@ -147,16 +225,16 @@ function renderChart(data){
   var pad={t:40,r:85,b:65,l:85};
   var cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
   var maxBar=Math.max.apply(null,sorted.map(function(d){return d.display}))||1;
-  var maxCum=Math.max(sorted.reduce(function(s,d){return s+d.display},0),1);
+  var maxCum=Math.max(sorted.reduce(function(s,d){return s+((d.isPast&&d.paidAmount>0)?d.paidAmount:d.budget)},0),1);
   var barW=Math.min(48,cW/sorted.length*.65);
   var gap=(cW-barW*sorted.length)/(sorted.length+1);
 
   ctx.clearRect(0,0,W,H);
   ctx.strokeStyle='rgba(42,58,85,.4)';ctx.lineWidth=1;
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='10px sans-serif';
   for(var i=0;i<=5;i++){
     var y=pad.t+cH*(1-i/5);
     ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
-    ctx.fillStyle='#5a6d85';ctx.font='10px sans-serif';
     ctx.textAlign='right';ctx.fillText(fmtK(maxBar*i/5),pad.l-8,y+4);
     ctx.textAlign='left';ctx.fillText(fmtK(maxCum*i/5),W-pad.r+8,y+4);
   }
@@ -170,10 +248,12 @@ function renderChart(data){
     ctx.fillStyle=grad;ctx.beginPath();
     if(ctx.roundRect)ctx.roundRect(x,y2,barW,bH,3);else ctx.rect(x,y2,barW,bH);
     ctx.fill();
+    if(d.paidAmount>0){var pH=Math.min((d.paidAmount/maxBar)*cH,bH);ctx.fillStyle='rgba(34,197,94,.7)';ctx.fillRect(x,pad.t+cH-pH,barW,pH)}
     if(bH>25){ctx.fillStyle='white';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(fmtK(d.display),x+barW/2,y2+14)}
-    ctx.save();ctx.fillStyle='#8899b0';ctx.font='10px sans-serif';ctx.textAlign='center';
-    ctx.translate(x+barW/2,H-pad.b+14);if(sorted.length>10)ctx.rotate(-Math.PI/6);ctx.fillText(fmtMoShort(d.month),0,0);ctx.restore();
-    cum+=d.display;pts.push({x:x+barW/2,y:pad.t+cH-(cum/maxCum)*cH});
+    ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(fmtMoShort(d.month),x+barW/2,H-pad.b+14);
+    cum+=((d.isPast&&d.paidAmount>0)?d.paidAmount:d.budget);
+    pts.push({x:x+barW/2,y:pad.t+cH-(cum/maxCum)*cH});
   });
 
   if(pts.length>1){
@@ -181,24 +261,64 @@ function renderChart(data){
     pts.forEach(function(p,i){i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)});ctx.stroke();
     pts.forEach(function(p){ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill()});
   }
-  ctx.fillStyle='#3b82f6';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('Monthly Budget ($)',W/2,H-4);
-  ctx.fillStyle='#22c55e';ctx.font='10px sans-serif';ctx.save();ctx.translate(W-8,pad.t+cH/2);ctx.rotate(Math.PI/2);ctx.fillText('Cumulative',0,0);ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('Monthly Budget ($)',W/2,H-4);
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='10px sans-serif';ctx.save();ctx.translate(W-8,pad.t+cH/2);ctx.rotate(Math.PI/2);ctx.fillText('Cumulative',0,0);ctx.restore();
 }
 
 function renderSchedule(data){
+  var main=data.main||data;
+  var phases=main.phases||[];
+  var totals=data.totals||{};
+  var invTotal=getInvoiceTotal();
+  var totalPaid=(totals.totalPaid>0)?totals.totalPaid:(invTotal>0?invTotal:RODRIGUEZ_BILLED);
   var el=document.getElementById('schedBox');
   var months={};
   var now=new Date();
   var firstOfThisMonth=new Date(now.getFullYear(),now.getMonth(),1);
-  for(var p=0;p<data.phases.length;p++){if(data.phases[p].name==='options')continue;
-    for(var j=0;j<data.phases[p].items.length;j++){var item=data.phases[p].items[j];if(!item.endDate)continue;
-      var k=item.endDate.getFullYear()+'-'+String(item.endDate.getMonth()+1).padStart(2,'0');
-      if(!months[k])months[k]={month:new Date(item.endDate.getFullYear(),item.endDate.getMonth(),1),total:0,paid:0,items:[]};
-      months[k].total+=item.markup;months[k].paid+=item.paid||0;months[k].items.push(item);
+  function addItem(k,item,bud,pvd){
+    if(!months[k])months[k]={month:new Date(parseInt(k.split('-')[0],10),parseInt(k.split('-')[1],10)-1,1),total:0,paid:0,items:[]};
+    months[k].total+=bud;months[k].paid+=pvd;
+    if(pvd>0||bud>0)months[k].items.push({name:item.name,vendor:item.vendor||'',markup:bud,paid:pvd,phase:item.phase});
+  }
+  for(var p=0;p<phases.length;p++){if(phases[p].name==='options')continue;
+    var phase=phases[p];
+    for(var j=0;j<phase.items.length;j++){var item=phase.items[j];item.phase=phase.display||phase.name;
+      var start=item.startDate,end=item.endDate;
+      var amt=item.markup||0;var pvd=item.paid||0;
+      if(!end&&!start)continue;
+      if(end){var k=end.getFullYear()+'-'+String(end.getMonth()+1).padStart(2,'0');addItem(k,item,amt,pvd);}
+      if(start&&end&&start.getTime()!==end.getTime()){
+        var ey=end.getFullYear(),em=end.getMonth()+1;
+        for(var y=start.getFullYear();y<=ey;y++){
+          var mStart=(y===start.getFullYear())?start.getMonth()+1:1;
+          var mEnd=(y===ey)?em:12;
+          for(var m=mStart;m<=mEnd;m++){
+            if(y===ey&&m===em)continue;
+            var firstOfM=new Date(y,m-1,1);var lastOfM=new Date(y,m,0);
+            if(start<=lastOfM&&end>=firstOfM){var k=y+'-'+String(m).padStart(2,'0');addItem(k,item,amt*0.5,0);}
+          }
+        }
+      }
     }}
   injectCOs(months,true);
   var sorted=Object.entries(months).sort(function(a,b){return a[0].localeCompare(b[0])});
-  sorted.forEach(function(entry){var m=entry[1];m.isPast=m.month<firstOfThisMonth;m.display=m.isPast?m.paid:m.total;});
+  var sumSheetPaid=0;
+  sorted.forEach(function(entry){sumSheetPaid+=entry[1].paid||0;});
+  if(totalPaid>0&&sumSheetPaid<totalPaid){
+    var lastPast=sorted.filter(function(e){return e[1].month<firstOfThisMonth});
+    if(lastPast.length){lastPast[lastPast.length-1][1].paid=totalPaid;}
+    else{
+      var priorMonth=new Date(now.getFullYear(),now.getMonth()-1,1);
+      var pk=priorMonth.getFullYear()+'-'+String(priorMonth.getMonth()+1).padStart(2,'0');
+      if(!months[pk])months[pk]={month:priorMonth,total:0,paid:0,items:[]};
+      months[pk].paid=totalPaid;
+      sorted=Object.entries(months).sort(function(a,b){return a[0].localeCompare(b[0])});
+    }
+  }
+  sorted.forEach(function(entry){var m=entry[1];
+    m.isPast=m.month<firstOfThisMonth;
+    m.display=(m.isPast&&m.paid>0)?m.paid:m.total;
+  });
   var cum=0,html='';
   for(var s=0;s<sorted.length;s++){
     var key=sorted[s][0],m=sorted[s][1];
@@ -211,11 +331,13 @@ function renderSchedule(data){
       var tag=it.isCO?'<span class="co-tag">CO</span>':'';
       itemsHtml+='<div class="'+cls+'"><div><span class="name">'+it.name+'</span>'+tag+'<span class="vendor">'+(it.vendor||'')+'</span></div><div><span class="amount">'+fmt(it.markup)+'</span>'+drawn+'</div></div>';
     }
-    var paidNote=m.paid>0?' · <span style="color:var(--green)">'+fmt(m.paid)+' drawn</span>':'';
+    var drawnAmt=m.paid||0;
+    var paidNote=drawnAmt>0?' · <span style="color:var(--green)">'+fmt(drawnAmt)+' drawn</span>':'';
     var coCount=m.items.filter(function(x){return x.isCO}).length;
     var coNote=coCount>0?' · <span style="color:var(--purple)">'+coCount+' CO'+(coCount>1?'s':'')+'</span>':'';
-    var amtLabel=m.isPast?' (actual)':'';
-    html+='<div class="draw-month"><div class="draw-month-hdr" onclick="toggleDraw(this)"><h3>'+fmtMo(m.month)+'</h3><div style="display:flex;align-items:center;gap:16px"><span style="font-size:12px;color:var(--dim)">'+m.items.length+' items · Cumul: '+fmtK(cum)+paidNote+coNote+'</span><span class="total">'+fmt(m.display)+amtLabel+'</span><span class="arrow">▼</span></div></div><div class="draw-items">'+itemsHtml+'</div></div>';
+    var amtLabel=(m.isPast&&m.paid>0)?' (actual)':'';
+    var totalStyle=(drawnAmt>0)?'color:var(--green);font-weight:700':'';
+    html+='<div class="draw-month"><div class="draw-month-hdr" onclick="toggleDraw(this)"><h3>'+fmtMo(m.month)+'</h3><div style="display:flex;align-items:center;gap:16px"><span style="font-size:12px;color:var(--dim)">'+m.items.length+' items · Cumul: '+fmtK(cum)+paidNote+coNote+'</span><span class="total" style="'+totalStyle+'">'+fmt(m.display)+amtLabel+'</span><span class="arrow">▼</span></div></div><div class="draw-items">'+itemsHtml+'</div></div>';
   }
   el.innerHTML='<div class="sbox"><div class="shdr"><h2>📑 Draw Schedule by Month</h2><div class="meta">Click to expand · '+sorted.length+' months · Includes approved COs</div></div>'+html+'</div>';
 }
@@ -229,8 +351,9 @@ async function doRefresh(){
 async function init(){
   try{
     var d=await loadProjectData();
-    _data=d.main;
+    _data={main:d.main,totals:d.totals};
     document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block';
+    renderHistoryBar();
     setTimeout(function(){renderChart(_data);renderSchedule(_data)},50);
   }catch(e){document.getElementById('loading').style.display='none';document.getElementById('error').style.display='block';document.getElementById('errorDetail').textContent=e.message}
 }

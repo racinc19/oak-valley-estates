@@ -1,9 +1,6 @@
 <!DOCTYPE html><!-- build:20260218183733 -->
 <html lang="en">
 <head>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rodriguez Residence — Invoice</title>
@@ -197,7 +194,6 @@ html{overflow-y:scroll}body{overflow-x:hidden}
     <a href="gantt.html">Gantt</a>
     <a href="draws.html">Draws</a>
     <a href="budget.html">Budget & Schedule</a>
-    <a href="subs.html">Subs</a>
     <a href="https://drive.google.com/drive/u/0/folders/1kS-2awScLDAnGS973xD0D28RxynI49Si" target="_blank" style="color:var(--cyan)">📁 Drive</a>
   </div>
 </div></nav>
@@ -257,18 +253,22 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="shared.js?v1772133761"></script>
+<script src="shared.js?v20260224b"></script>
 <script>
 var INV_KEY='rac_invoices_v2';
-var CO_KEY='rac_cos_v1';
+var BUDGET_CO_KEY='rodriguez_change_orders_v3';
+var CO_SEED=[{num:'CO-001',desc:'Door Automation — Upgrade (3) sliding doors to automatic',vendor:'AutoSlide',amount:20038.95,paid:0,date:'2026-02-06',status:'approved',pct:0,notes:''}];
 var INVOICES=[];
 var COS=[];
 var LIVE=null;
 
 function loadInvoices(){try{INVOICES=JSON.parse(localStorage.getItem(INV_KEY))||[];}catch(e){INVOICES=[];}}
 function saveInvoices(){localStorage.setItem(INV_KEY,JSON.stringify(INVOICES));}
-function loadCOs(){try{COS=JSON.parse(localStorage.getItem(CO_KEY))||[];}catch(e){COS=[];}}
-function saveCOs(){localStorage.setItem(CO_KEY,JSON.stringify(COS));}
+function loadCOs(){
+  try{COS=JSON.parse(localStorage.getItem(BUDGET_CO_KEY))||[];}catch(e){COS=[];}
+  if(COS.length===0){COS=CO_SEED.slice();localStorage.setItem(BUDGET_CO_KEY,JSON.stringify(COS));}
+}
+function saveCOs(){localStorage.setItem(BUDGET_CO_KEY,JSON.stringify(COS));}
 
 function showToast(msg,col){var t=document.getElementById('toast');t.textContent=msg;t.style.background=col||'var(--green)';t.className='toast show';setTimeout(function(){t.classList.remove('show');},2200);}
 function money(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -391,7 +391,7 @@ function renderInvoice(){
     '<div class="inv-billing">'+
       '<div class="bill-col">'+
         '<div class="bill-lbl">Bill To</div>'+
-        '<div class="bill-name">Jessica &amp; Adrian Rodriguez</div>'+
+        '<div class="bill-name">ARJR Kanarraville Holdings LLC</div>'+
         '<div class="bill-addr">Oak Valley Estates Lot 5<br>646 W Liberty Lane<br>Kanarraville, UT 84742</div>'+
       '</div>'+
       '<div class="bill-col">'+
@@ -562,7 +562,7 @@ function exportQB(){
 
   // Customer header
   lines.push('!CUST\tNAME\tBSTREET\tBCITY\tBSTATE\tBZIP');
-  lines.push('CUST\tJessica & Adrian Rodriguez\t646 W Liberty Lane\tKanarraville\tUT\t84742');
+  lines.push('CUST\tARJR Kanarraville Holdings LLC\t646 W Liberty Lane\tKanarraville\tUT\t84742');
   lines.push('');
 
   // Invoice header definition
@@ -578,7 +578,7 @@ function exportQB(){
     'TRNS\t'+'INVOICE\t'+
     qbDate+'\t'+
     'Accounts Receivable\t'+
-    'Jessica & Adrian Rodriguez\t'+
+    'ARJR Kanarraville Holdings LLC\t'+
     total.toFixed(2)+'\t'+
     num+'\t'+
     'Rodriguez Residence\t'+
@@ -603,15 +603,71 @@ function exportQB(){
   lines.push('ENDTRNS');
   lines.push('');
 
-  var iif=lines.join('\r\n');
-  var blob=new Blob([iif],{type:'text/plain'});
+  // Build CSV using QuickBooks Online exact required column headers
+  var csvLines=[];
+  csvLines.push('*InvoiceNo,*Customer,*InvoiceDate,*DueDate,Terms,Location,Memo,Item(Product/Service),Item Descrip,Item Qty,Item Rate,*ItemAmount,Taxable');
+  lineItems.forEach(function(item,idx){
+    var desc=item.pct.toFixed(0)+'% Complete - '+item.name+(item.vendor?' ('+item.vendor+')':'');
+    csvLines.push([
+      num,
+      idx===0?'ARJR Kanarraville Holdings LLC':'',
+      idx===0?qbDate:'',
+      idx===0?qbDue:'',
+      idx===0?'Net 30':'',
+      '',
+      idx===0?'Rodriguez Residence':'',
+      '',
+      '"'+desc.replace(/"/g,'""')+'"',
+      '1',
+      item.thisAmt.toFixed(2),
+      item.thisAmt.toFixed(2),
+      'N'
+    ].join(','));
+  });
+  var csv=csvLines.join('\r\n');
+  var blob=new Blob([csv],{type:'text/csv'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
   a.href=url;
-  a.download=num+'.iif';
+  a.download=num+'.csv';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('✓ '+num+'.iif downloaded — import via QB File → Import → IIF');
+  showToast('✓ '+num+'.csv downloaded — import via QB File → Utilities → Import → Excel Files');
+}
+
+// ── CO DOCUMENT STORAGE (IndexedDB) ──
+var CO_DB='rodriguez_co_docs';
+var pendingParseFile=null;
+var pendingAttachFile=null;
+function storeCODoc(key,file,cb){
+  var req=indexedDB.open(CO_DB,1);
+  req.onupgradeneeded=function(e){e.target.result.createObjectStore('docs',{keyPath:'id'});};
+  req.onsuccess=function(e){
+    var db=e.target.result;
+    var r=new FileReader();
+    r.onload=function(){
+      var tx=db.transaction('docs','readwrite');
+      tx.objectStore('docs').put({id:key,data:r.result,filename:file.name,type:file.type});
+      db.close();
+      if(cb)cb();
+    };
+    r.readAsDataURL(file);
+  };
+}
+function viewCODoc(key){
+  var req=indexedDB.open(CO_DB,1);
+  req.onsuccess=function(e){
+    var db=e.target.result;
+    var tx=db.transaction('docs','readonly');
+    var get=tx.objectStore('docs').get(key);
+    get.onsuccess=function(){
+      if(get.result){
+        var w=window.open('','_blank');
+        w.document.write('<iframe src="'+get.result.data+'" style="width:100%;height:100%;border:none"></iframe>');
+      }else{showToast('No stored document for this CO','var(--orange)');}
+      db.close();
+    };
+  };
 }
 
 // ── CHANGE ORDERS ──
@@ -642,7 +698,10 @@ function approveViaSigned(idx,input){
         COS[idx].approvedDate=new Date().toISOString().slice(0,10);
         COS[idx].approvedBy=result.signerName||'Client';
         COS[idx].signedDoc=file.name;
-        saveCOs();renderCOs();showToast('✓ Signature detected — CO Approved');
+        COS[idx].docStored=true;
+        storeCODoc((COS[idx].num||COS[idx].name||'CO-'+idx),file,function(){
+          saveCOs();renderCOs();showToast('✓ Signature detected — CO Approved');
+        });
       } else {
         showToast('⚠️ No signature detected');
       }
@@ -669,7 +728,10 @@ function approveViaSigned(idx,input){
           COS[idx].approvedDate=new Date().toISOString().slice(0,10);
           COS[idx].approvedBy=result.signerName||'Client';
           COS[idx].signedDoc=file.name;
-          saveCOs();renderCOs();showToast('✓ Signature detected — CO Approved');
+          COS[idx].docStored=true;
+          storeCODoc((COS[idx].num||COS[idx].name||'CO-'+idx),file,function(){
+            saveCOs();renderCOs();showToast('✓ Signature detected — CO Approved');
+          });
         } else {
           showToast('⚠️ No signature detected');
         }
@@ -684,17 +746,18 @@ function approveViaSigned(idx,input){
     r2.readAsArrayBuffer(file);
   }
 }
+function coDisplay(c){return{name:c.name||c.num||'CO',desc:(c.description||c.desc||''),vendor:c.vendor,amount:c.amount,date:c.date,status:c.status};}
 function renderCOs(){
   loadCOs();
   var q=(document.getElementById('coSearch').value||'').toLowerCase();
-  var list=COS.filter(function(c){return !q||((c.name||'')+(c.vendor||'')+(c.description||'')).toLowerCase().includes(q);});
+  var list=COS.filter(function(c){var d=coDisplay(c);return !q||((d.name||'')+(d.desc||'')+(d.vendor||'')).toLowerCase().includes(q);});
   var grid=document.getElementById('coGrid');
   if(!list.length){grid.innerHTML='<div class="empty">No change orders yet</div>';return;}
-  // approved total banner
   var approvedTotal=COS.filter(function(c){return c.status==='approved';}).reduce(function(s,c){return s+parseFloat(c.amount||0);},0);
-  var banner=approvedTotal>0?'<div style="background:rgba(16,185,129,.15);border:1px solid #10b981;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center"><span style="color:#10b981;font-weight:700;font-size:13px">✓ APPROVED CO TOTAL — ADD TO BUDGET</span><span style="color:#10b981;font-size:18px;font-weight:800">'+money(approvedTotal)+'</span><a href="https://docs.google.com/spreadsheets/d/1RUC_dbWiRjrpBf9L9UKYWQkjQfYPKVK9881uXAwKcS8/edit" target="_blank" style="background:#10b981;color:#000;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none">📊 Open Sheet</a></div>':'';
+  var banner=approvedTotal>0?'<div style="background:rgba(16,185,129,.15);border:1px solid #10b981;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center"><span style="color:#10b981;font-weight:700;font-size:13px">✓ APPROVED CO TOTAL — ADD TO BUDGET</span><span style="color:#10b981;font-size:18px;font-weight:800">'+money(approvedTotal)+'</span></div>':'';
   grid.innerHTML=banner+list.map(function(c){
     var i=COS.indexOf(c);
+    var d=coDisplay(c);
     var bc=c.status==='approved'?'b-paid':c.status==='rejected'?'b-rej':'b-sent';
     var approveBtns=c.status!=='approved'?
       '<label style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;background:none;border:1px solid #10b981;color:#10b981;cursor:pointer;font-size:11px;font-weight:600">'
@@ -702,12 +765,15 @@ function renderCOs(){
       +'📄 Upload Signed</label>'
       +' <button onclick="approveCO('+i+')" style="padding:4px 10px;border-radius:6px;background:none;border:1px solid #10b981;color:#10b981;cursor:pointer;font-size:11px;font-weight:600">✓ Approve</button>'
       :'<span style="font-size:11px;color:#10b981">✓ Approved'+(c.approvedDate?' '+c.approvedDate:'')+(c.approvedBy?' by '+safeEsc(c.approvedBy):'')+(c.signedDoc?' 📄':'')+'</span>';
+    var coKey=c.num||c.name||'CO-'+i;
+    var viewDocBtn=(c.docUrl||c.docLink)?'<a href="'+safeEsc(c.docUrl||c.docLink)+'" target="_blank" rel="noopener" style="padding:4px 10px;border-radius:6px;background:none;border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;font-size:11px;font-weight:600;text-decoration:none">📄 View document</a>':c.docStored?'<button onclick="viewCODoc('+JSON.stringify(coKey)+')" style="padding:4px 10px;border-radius:6px;background:none;border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;font-size:11px;font-weight:600">📄 View document</button>':'';
     return '<div class="doc-card"><span class="doc-type">Change Order</span> <span class="badge '+bc+'">'+safeEsc(c.status||'pending').toUpperCase()+'</span>'
-      +'<div class="doc-name" style="margin-top:8px">'+safeEsc(c.name||'Untitled')+'</div>'
-      +(c.vendor?'<div style="font-size:12px;color:var(--cyan);margin-bottom:4px">'+safeEsc(c.vendor)+'</div>':'')
-      +(c.amount?'<div class="doc-amt">'+money(parseFloat(c.amount))+'</div>':'')
-      +'<div class="doc-meta">'+(c.date?c.date:'')+(c.description?' · '+safeEsc(c.description):'')+'</div>'
-      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+approveBtns
+      +'<div class="doc-name" style="margin-top:8px">'+safeEsc(d.name||'Untitled')+'</div>'
+      +(d.vendor?'<div style="font-size:12px;color:var(--cyan);margin-bottom:4px">'+safeEsc(d.vendor)+'</div>':'')
+      +(d.amount?'<div class="doc-amt">'+money(parseFloat(d.amount))+'</div>':'')
+      +'<div class="doc-meta">'+(d.date?d.date:'')+(d.desc?' · '+safeEsc(d.desc):'')+'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center">'+viewDocBtn+approveBtns
+      +' <button onclick="openCOModal(COS['+i+'],'+i+')" style="padding:4px 10px;border-radius:6px;background:none;border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;font-size:11px;font-weight:600">✏ Edit</button>'
       +' <button onclick="deleteCO('+i+')" style="padding:4px 10px;border-radius:6px;background:none;border:1px solid var(--red);color:var(--red);cursor:pointer;font-size:11px;font-weight:600">🗑️ Delete</button></div>'
       +'</div>';
   }).join('');
@@ -717,6 +783,7 @@ function parseCODoc(input){
   var file=input.files[0];
   if(!file) return;
   input.value='';
+  pendingParseFile=file;
   showToast('🤖 Reading doc...');
   var isPdf=file.name.toLowerCase().endsWith('.pdf');
   if(isPdf){
@@ -762,43 +829,94 @@ function callWorker(userMsg){
     openCOModal();
   });
 }
-function openCOModal(pre){
+function openCOModal(pre,editIdx){
   pre=pre||{};
+  var nameVal=(pre.num||pre.name||'');
+  var descVal=(pre.desc||pre.description||'');
+  var urlVal=(pre.docUrl||pre.docLink||'');
+  var coKey=pre.num||pre.name||'';
+  var viewDocHtml=(urlVal||pre.docStored)?'<a href="'+(urlVal||'#')+'" '+(urlVal?'target="_blank" rel="noopener"':'onclick="event.preventDefault();viewCODoc('+JSON.stringify(coKey)+');return false"')+' style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;background:rgba(6,182,212,.15);border:1px solid var(--cyan);color:var(--cyan);font-size:13px;font-weight:700;text-decoration:none;margin-bottom:16px">📄 View document</a>':'';
   document.getElementById('modalWrap').innerHTML='<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">'+
-    '<h3>'+(pre.name?'🤖 Review Parsed CO':'Add Change Order')+'</h3>'+
-    (pre.name?'<div style="font-size:11px;color:var(--dim);margin-bottom:12px">Fields pre-filled from uploaded doc. Review and save.</div>':'')+
-    '<label>CO Name</label><input id="mName" placeholder="e.g. CO-002 Camera Addition" value="'+(pre.name||'')+'">'+
-    '<div class="modal-row"><div><label>Vendor</label><input id="mVendor" value="'+(pre.vendor||'')+'"></div><div><label>Amount ($)</label><input type="number" step="0.01" id="mAmt" value="'+(pre.amount||'')+'"></div></div>'+
+    '<h3>'+(editIdx>=0?'Edit Change Order':pre.name?'🤖 Review Parsed CO':'Add Change Order')+'</h3>'+
+    viewDocHtml+
+    (pre.name&&!pre.num?'<div style="font-size:11px;color:var(--dim);margin-bottom:12px">Fields pre-filled from uploaded doc. Review and save.</div>':'')+
+    '<label>CO Name</label><input id="mName" placeholder="e.g. CO-002 Camera Addition" value="'+safeEsc(nameVal)+'">'+
+    '<div class="modal-row"><div><label>Vendor</label><input id="mVendor" value="'+safeEsc(pre.vendor||'')+'"></div><div><label>Amount ($)</label><input type="number" step="0.01" id="mAmt" value="'+(pre.amount||'')+'"></div></div>'+
     '<div class="modal-row"><div><label>Date</label><input type="date" id="mDate" value="'+(pre.date||todayStr())+'"></div><div><label>Status</label><select id="mSt"><option value="pending"'+((!pre.status||pre.status==="pending")?" selected":"")+'>Pending</option><option value="approved"'+(pre.status==="approved"?" selected":"")+'>Approved</option><option value="rejected"'+(pre.status==="rejected"?" selected":"")+'>Rejected</option></select></div></div>'+
-    '<label>Notes</label><textarea id="mDesc" placeholder="Optional...">'+(pre.description||'')+'</textarea>'+
+    '<label>Document link</label><input id="mDocUrl" placeholder="Paste Drive link or URL (optional)" value="'+safeEsc(urlVal)+'">'+
+    (editIdx>=0?'<label>Or upload a file</label><label style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg);border:1px dashed var(--bdr);border-radius:8px;cursor:pointer"><input type="file" id="mDocFile" accept=".pdf,.docx" style="display:none" onchange="onAttachDoc(this)"> <span id="mDocFileLbl">Choose PDF or docx — one click to view</span></label>':'')+
+    '<label>Notes</label><textarea id="mDesc" placeholder="Optional...">'+safeEsc(descVal)+'</textarea>'+
+    '<input type="hidden" id="mEditIdx" value="'+(editIdx>=0?editIdx:'-1')+'">'+
     '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveCO()">Save</button></div>'+
   '</div></div>';
 }
 function saveCO(){
-  var co={name:document.getElementById('mName').value,vendor:document.getElementById('mVendor').value,amount:document.getElementById('mAmt').value,date:document.getElementById('mDate').value,description:document.getElementById('mDesc').value,status:document.getElementById('mSt').value};
-  loadCOs();COS.push(co);saveCOs();closeModal();renderCOs();showToast('✓ Saved');
+  var n=document.getElementById('mName').value;
+  var docUrl=(document.getElementById('mDocUrl')&&document.getElementById('mDocUrl').value||'').trim();
+  var co={num:n,desc:document.getElementById('mDesc').value,vendor:document.getElementById('mVendor').value,amount:parseFloat(document.getElementById('mAmt').value)||0,paid:0,date:document.getElementById('mDate').value,status:document.getElementById('mSt').value,pct:0,notes:'',docUrl:docUrl||undefined};
+  if(!co.docUrl)delete co.docUrl;
+  loadCOs();
+  var idx=parseInt(document.getElementById('mEditIdx')&&document.getElementById('mEditIdx').value||'-1',10);
+  if(idx>=0&&idx<COS.length){
+    if(pendingAttachFile){
+      co.docStored=true;
+      storeCODoc(n,pendingAttachFile,function(){
+        pendingAttachFile=null;
+        COS[idx]=co;
+        saveCOs();closeModal();renderCOs();showToast('✓ Saved — document attached, one click to view');
+      });
+    }else{
+      COS[idx]=co;
+      pendingAttachFile=null;
+      saveCOs();closeModal();renderCOs();showToast('✓ Saved');
+    }
+  }else{
+    if(pendingParseFile){
+      co.docStored=true;
+      storeCODoc(n,pendingParseFile,function(){
+        pendingParseFile=null;
+        COS.push(co);
+        saveCOs();closeModal();renderCOs();showToast('✓ Saved');
+      });
+    }else{
+      COS.push(co);
+      saveCOs();closeModal();renderCOs();showToast('✓ Saved');
+    }
+  }
 }
 function deleteCO(idx){loadCOs();if(!confirm('Delete?'))return;COS.splice(idx,1);saveCOs();renderCOs();showToast('✓ Deleted');}
-function closeModal(){document.getElementById('modalWrap').innerHTML='';}
+function onAttachDoc(input){pendingAttachFile=input.files[0]||null;var lbl=document.getElementById('mDocFileLbl');if(lbl)lbl.textContent=pendingAttachFile?pendingAttachFile.name:'Choose PDF or docx — one click to view';input.value='';}
+function closeModal(){pendingParseFile=null;pendingAttachFile=null;document.getElementById('modalWrap').innerHTML='';}
 
-// ── MIGRATE OLD DATA (rodriguez_docs_v1 → rac_cos_v1) ──
+// ── MIGRATE OLD DATA ──
 (function migrate(){
+  // 1) Restore from old Accounting store (rac_cos_v1) — one-time recovery
+  try{
+    var oldAcct=JSON.parse(localStorage.getItem('rac_cos_v1')||'[]');
+    if(oldAcct.length>0&&!localStorage.getItem('rac_cos_v1_restored')){
+      var converted=oldAcct.map(function(c){
+        return {num:c.name||'CO',desc:c.description||'',vendor:c.vendor||'',amount:parseFloat(c.amount)||0,paid:0,date:c.date||'',status:c.status||'pending',pct:0,notes:c.approvedBy?'Approved by '+c.approvedBy:'',approvedDate:c.approvedDate,approvedBy:c.approvedBy,signedDoc:c.signedDoc,docUrl:c.docUrl||c.docLink};
+      });
+      localStorage.setItem('rodriguez_change_orders_v3',JSON.stringify(converted));
+      localStorage.setItem('rac_cos_v1_restored','1');
+    }
+  }catch(e){}
+  // 2) rodriguez_docs_v1 → Budget store
+  loadCOs();
+  var added=0;
   try{
     var old=JSON.parse(localStorage.getItem('rodriguez_docs_v1')||'[]');
-    if(!old.length) return;
-    loadCOs();
-    var existingKeys=COS.map(function(c){return c.name+c.date;});
-    var added=0;
+    var existingKeys=COS.map(function(c){return (c.num||c.name||'')+(c.date||'');});
     old.forEach(function(doc){
       if(doc.type==='co'){
         var k=(doc.name||'')+(doc.date||'');
         if(existingKeys.indexOf(k)===-1){
-          COS.push({name:doc.name,vendor:doc.vendor,amount:doc.amount,date:doc.date,description:doc.description,status:doc.status||'pending'});
-          added++;
+          COS.push({num:doc.name||'CO',desc:doc.description||'',vendor:doc.vendor||'',amount:doc.amount||0,paid:0,date:doc.date||'',status:doc.status||'pending',pct:0,notes:''});
+          existingKeys.push(k);added++;
         }
       }
     });
-    if(added){saveCOs();console.log('Migrated '+added+' change order(s) from old store');}
+    if(added)saveCOs();
   }catch(e){}
 })();
 

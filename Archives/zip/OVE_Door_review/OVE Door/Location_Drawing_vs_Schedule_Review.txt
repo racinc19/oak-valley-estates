@@ -1,0 +1,81 @@
+LOCATION DRAWINGS vs DOOR SCHEDULE — CONFIRMATION REVIEW
+========================================================
+Rodriguez Residence | OVE Lot 5 | Door package
+
+DOOR SCHEDULE SUMMARY (from Rodriguez_Door_Schedule_Sunpro (1).xlsx — Door Schedule sheet)
+--------------------------------------------------------------------------------------------
+
+MAIN LEVEL (11 doors)
+  DOOR 1 (FL100):  Office (D-ML-07) ................................. 1 door
+  DOOR 2 (TMF1000 Off-White):  Entry Closet, Great Room, Kitchen, Pantry, Dining, Office Closet (D-ML-02 to -06, -08) .. 6 doors
+  DOOR 3 (TS1000 Shaker):  Office Bath, Powder Bath (D-ML-09, -10) ... 2 doors
+  DOOR 4 (TMF1000 Ext):  Entry/Foyer Exterior, Garage house-to-garage (D-ML-01, -11) .. 2 doors
+
+UPPER LEVEL (4 doors)
+  DOOR 1 (FL100):  Primary Suite Entry — pair (D-UL-01) ............ 2 doors
+  DOOR 2:  Primary Closet (D-UL-03) ................................ 1 door
+  DOOR 3:  Primary Bath, Upper Laundry (D-UL-02, -04) .............. 2 doors
+
+BASEMENT (5 doors + 1 special)
+  DOOR 2:  Basement Living/Theater, Basement Storage (D-BM-01, -02) . 2 doors
+  DOOR 3:  Basement Bath (D-BM-03) ................................. 1 door
+  DOOR 4:  Gun Range/Gun Room (D-BM-04) ............................ 1 door
+  SPECIAL: Panic Room (D-BM-05) ..................................... 1 (not TruStile)
+
+ADU / CASITA (4 doors)
+  DOOR 4 (TMF1000 Ext):  ADU Living Exterior Entry (D-AD-01) ....... 1 door
+  DOOR 2:  ADU Kitchen, ADU Bedroom (D-AD-02, -04) ................. 2 doors
+  DOOR 3:  ADU Bath 1 (D-AD-03) ..................................... 1 door
+
+TOTAL: 23 doors (excl. Panic Room) | DOOR 1 = 3 (Office + Primary Suite pair)
+
+
+WHAT THE LOCATION DRAWINGS SHOW (from your provided drawings — confirmed)
+---------------------------------------------------------------------------
+
+Sheet "1 - Main D&W" (scale 1/8" = 1'-0") — rooms 107, 108, 100
+  DOOR 2: 5 instances (two clustered upper-left with openings 3-3 1/4" and 6-0 1/2"; one bottom-left exterior; one central interior; one mid-left).
+  DOOR 4: 4 instances (top-left into small room; top-central; central-left; bottom-right exterior angled wall).
+  DOOR 1 / DOOR 3: None on this sheet.
+  Note: This is the main floor plan with only DOOR 2 and DOOR 4 tagged. Schedule has Main Level with 1x DOOR 1 (Office), 6x DOOR 2, 2x DOOR 3 (Office Bath, Powder Bath), 2x DOOR 4 — so DOOR 1 and DOOR 3 are not shown on this drawing.
+
+Drawing with UP/DN stairs and long hallway (28'-6 7/8")
+  DOOR 1: 3 instances (all on right side — one exterior lower-right, two into rooms).
+  DOOR 2: 5 instances (two near DN stairs; two side-by-side into room; one far right next to DOOR 1).
+  DOOR 3: 3 instances (two along central interior wall; one lower-left near UP stairs).
+  DOOR 4: 2 instances (one at top of DN stairs; one far left exterior — label "100" or "G100" nearby, possible ADU entry).
+  Note: This plan shows all four door types. Exterior DOOR 4 on left with "100" could align with ADU entry; the three DOOR 1 on the right could align with Office / Office bath area if this is main floor.
+
+Sheet with deck (ADU / Upper level — stairs "DN", deck, dotted exterior)
+  DOOR 4: 2 — top-left exterior; bottom-left near DN stairs (likely ADU entry).
+  DOOR 2: 4 — left-center from entry to central room; two in top-right cluster (office? office bath?); one to deck.
+  DOOR 3: 2 — one to deck from central room; one in top-right cluster (office bath ext?).
+  DOOR 1: None on this sheet.
+  Note: Client says FL100 (DOOR 1) are at ADU entry, Office, and Office bath ext. On this drawing those locations are currently tagged DOOR 4 (ADU entry) and DOOR 2 / DOOR 3 (office cluster). To match client intent, those three should be DOOR 1 on the plan (and schedule).
+
+"Lower D&W" (scale 3/16" = 1'-0") — sheet 3
+  DOOR 2: 2 (side-by-side into space 302; circular callouts "302" above).
+  Door 300: 1 (into room with toilet — bathroom). No "DOOR 1/3/4" tag.
+  Note: Schedule Basement has 2x DOOR 2, 1x DOOR 3, 1x DOOR 4, 1 SPECIAL. Marks 300/302 need mapping to schedule (e.g. 302 = two DOOR 2; 300 = bath, likely DOOR 3 or separate).
+
+
+DISCREPANCIES (confirmed from your drawings)
+--------------------------------------------
+1. "1 - Main D&W" (main floor, rooms 107, 108, 100): Shows only DOOR 2 and DOOR 4. Schedule has 1x DOOR 1 (Office), 2x DOOR 3 (Office Bath, Powder Bath) on Main — those are missing on this sheet. Either add DOOR 1 and DOOR 3 tags to this plan or confirm Office/Office Bath are on a different sheet.
+2. ADU / deck sheet: ADU entry (bottom-left near DN) is tagged DOOR 4. Office/office bath cluster (top-right) is tagged DOOR 2 and DOOR 3. Client intent: FL100 (DOOR 1) at ADU entry, Office, and Office bath ext. So these three locations on the drawing should be DOOR 1, not DOOR 4 and DOOR 2/3.
+3. Schedule: Currently has ADU exterior entry as DOOR 4 (TMF1000) and Primary Suite Entry as DOOR 1 (pair). Client says FL100 are at ADU entry, Office, Office bath ext — so schedule should show DOOR 1 (FL100) at those three, and Primary Suite may be a different type unless client changes intent.
+4. Lower D&W (Basement): Marks 300 (bath) and 302 (two DOOR 2). Need to tie 300/302 to schedule marks (D-BM-01 through D-BM-05) and confirm 300 = which door type (e.g. DOOR 3 for bath).
+
+
+RECOMMENDED ACTIONS
+-------------------
+1. **Client intent — FL100 (DOOR 1) in 3 places:** Update both schedule and location drawings so that:
+   - ADU entry (bottom-left near DN on deck sheet) → Plan Tag **DOOR 1** (FL100), and schedule row for that door = DOOR 1.
+   - Office (top-right cluster on deck sheet, first DOOR 2 from central room) → Plan Tag **DOOR 1** (FL100), schedule = DOOR 1.
+   - Office bath ext (door in that same cluster, currently DOOR 3) → Plan Tag **DOOR 1** (FL100), schedule = DOOR 1.
+   Then re-issue schedule and plans to Sunpro; electric film applies to these 3 DOOR 1 panels.
+2. **"1 - Main D&W":** Add DOOR 1 and DOOR 3 tags for Office and Office Bath/Powder Bath if they fall on this sheet; otherwise note on the drawing that Office/Office Bath are on the other plan (with UP/DN stairs).
+3. **Primary Suite:** If FL100 are only at ADU entry + Office + Office bath ext, then Primary Suite Entry may remain as currently drawn (DOOR 2/3/4 on Upstairs sheet) and schedule row D-UL-01 should be updated to the correct type (not DOOR 1 if client intent is only 3x FL100).
+4. **Lower D&W (300/302):** Map 300 and 302 to schedule marks and door types; confirm 300 = Basement Bath (DOOR 3) and 302 = the two DOOR 2 (e.g. Basement Living, Storage).
+
+CONFIRMED: Per client, FL100 (DOOR 1) = 3 doors at ADU entry, Office, Office bath ext. Location drawings and schedule must both show DOOR 1 at those three locations.

@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260319cache -->
+<!DOCTYPE html><!-- build:20260319sticky -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -12,7 +12,7 @@
 html{font-size:14px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.4}
-html{overflow-y:scroll}body{overflow-x:hidden}
+html{overflow-y:scroll}body{overflow-x:clip}
 .container{max-width:1200px;margin:0 auto;padding:20px;padding-top:80px}
 .topnav{position:fixed;top:0;left:0;width:100vw;z-index:50;background:var(--card);border-bottom:1px solid var(--bdr);padding:0 20px}
 .topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px;position:relative}
@@ -26,15 +26,19 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 .toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-20px);padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:200;opacity:0;transition:all .3s;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast-success{background:var(--green);color:white}.toast-warn{background:var(--red);color:white}
-.page-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
-.page-hdr h1{font-size:18px;font-weight:800}
+.page-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:0;margin-top:12px;flex-wrap:nowrap;gap:12px}
+.page-hdr h1{font-size:11px;font-weight:600;white-space:nowrap}
+.nav-action-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;border:1px solid var(--bdr);background:none;color:var(--txt2);cursor:pointer;line-height:1.2;font-family:inherit}
+.nav-action-btn:hover{border-color:var(--blue);color:var(--txt)}
+.nav-action-btn.active,.nav-action-btn.btn-save{background:var(--blue);border-color:var(--blue);color:white}
+.page-hdr .page-hdr-sub{display:none}
 .page-hdr-right{display:flex;gap:8px;align-items:center}
 .btn{padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;border:none;cursor:pointer;color:white;transition:all .2s}
 .btn-blue{background:var(--blue)}.btn-blue:hover{background:#2563eb}
 .btn-dim{background:var(--bdr2);color:var(--txt2);border:1px solid var(--bdr)}.btn-dim:hover{background:var(--hover);color:var(--txt)}
 .btn-sm{padding:5px 12px;font-size:11px;border-radius:6px}
 .view-toggle{display:flex;background:var(--card);border:1px solid var(--bdr);border-radius:8px;overflow:hidden}
-.view-btn{padding:5px 12px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:none;color:var(--txt2);transition:all .2s}
+.view-btn{padding:4px 10px;font-size:11px;font-weight:500;border:none;cursor:pointer;background:none;color:var(--txt2);transition:all .2s;font-family:inherit}
 .view-btn.active{background:var(--blue);color:white}
 .view-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--bdr)}
 .view-row-label{font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
@@ -47,13 +51,15 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 .pipeline-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
 .pipeline-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--bg);gap:2px}
 .pipeline-seg{border-radius:3px;transition:width .5s}
+.nav-sticky{position:fixed;top:56px;left:0;right:0;z-index:40;background:var(--bg);box-shadow:0 4px 12px rgba(0,0,0,.2);padding:0 20px 12px;border-bottom:1px solid var(--bdr)}
+.nav-sticky-spacer{flex-shrink:0}
 .filter-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.type-filter-row{margin-top:50px}
+.type-filter-row{margin-top:12px}
 .filter-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;border:1px solid var(--bdr);background:none;color:var(--txt2);cursor:pointer;transition:all .2s;line-height:1.2}
 .filter-btn:hover{border-color:var(--blue);color:var(--txt)}.filter-btn.active{background:var(--blue);border-color:var(--blue);color:white}
 .search-input{background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:6px 10px;color:var(--txt);font-size:12px;font-family:inherit;outline:none;width:180px;margin-left:auto}
 .search-input:focus{border-color:var(--blue)}.search-input::placeholder{color:var(--dim)}
-.room-nav{position:fixed;top:56px;left:0;right:0;z-index:40;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--bdr);min-height:40px;background:var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.room-nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 0;min-height:40px;border-bottom:1px solid var(--bdr)}
 .room-nav-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%}
 .room-nav-spacer{display:none;height:88px;flex-shrink:0}
 .room-nav-spacer.visible{display:block}
@@ -80,6 +86,14 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 .auto-badge{font-size:11px;color:#22c55e;font-weight:700}
 .finish-table{width:100%;border-collapse:collapse;border-bottom:1px solid var(--bdr)}
 .finish-table th{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);padding:6px 12px;text-align:left;background:rgba(0,0,0,.2);font-weight:600}
+.finish-table thead th{position:sticky;top:180px;z-index:3;background:var(--card)!important;box-shadow:0 1px 0 var(--bdr)}
+.finish-table thead th:nth-child(1),.finish-table thead th:nth-child(2){left:0;z-index:4}
+.finish-table thead th:nth-child(1){box-shadow:1px 1px 0 var(--bdr)}
+.finish-table thead th:nth-child(2){left:60px;box-shadow:1px 1px 0 var(--bdr)}
+.finish-table td:nth-child(1),.finish-table td:nth-child(2){position:sticky;background:var(--card);z-index:1}
+.finish-table td:nth-child(1){left:0;box-shadow:1px 0 0 var(--bdr)}
+.finish-table td:nth-child(2){left:60px;box-shadow:1px 0 0 var(--bdr)}
+.finish-table .finish-row:hover td:nth-child(1),.finish-table .finish-row:hover td:nth-child(2){background:var(--hover)}
 .finish-row{border-top:1px solid rgba(42,58,85,.4);transition:background .15s}
 .finish-row:hover{background:var(--hover)}
 .finish-row td{padding:8px 12px;vertical-align:middle;font-size:13px}
@@ -149,8 +163,19 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
 .mto-table th{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);padding:6px 14px;text-align:left;background:rgba(0,0,0,.15);font-weight:600}
 .mto-table td{padding:8px 14px;font-size:12px;border-top:1px solid rgba(42,58,85,.3);vertical-align:middle}
 .mto-table tr:hover td{background:var(--hover)}
+.mto-table thead th{position:sticky;top:180px;z-index:3;background:var(--card2)!important;box-shadow:0 1px 0 var(--bdr)}
+.mto-table thead th:nth-child(1),.mto-table thead th:nth-child(2){left:0;z-index:4}
+.mto-table thead th:nth-child(1){box-shadow:1px 1px 0 var(--bdr)}
+.mto-table thead th:nth-child(2){left:140px;box-shadow:1px 1px 0 var(--bdr)}
+.mto-table td:nth-child(1),.mto-table td:nth-child(2){position:sticky;background:var(--card);z-index:1}
+.mto-table td:nth-child(1){left:0;box-shadow:1px 0 0 var(--bdr)}
+.mto-table td:nth-child(2){left:140px;box-shadow:1px 0 0 var(--bdr)}
+.mto-table tr:hover td:nth-child(1),.mto-table tr:hover td:nth-child(2){background:var(--hover)}
+.mto-body{overflow-x:auto}
 .mto-room-tag{font-size:10px;color:var(--cyan);background:var(--card2);padding:1px 6px;border-radius:3px;display:inline-block}
-.trade-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;align-items:center}
+.trade-bar{display:flex;align-items:center;gap:10px;padding:12px 0;margin-bottom:12px;border-bottom:1px solid var(--bdr)}
+.trade-bar .view-row-label{margin-right:4px}
+.trade-tabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .trade-tab{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--bdr);background:var(--card);color:var(--txt2);cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
 .trade-tab:hover{border-color:var(--blue);color:var(--txt);background:var(--hover)}
 .trade-tab.active{background:var(--blue);border-color:var(--blue);color:white}
@@ -185,7 +210,7 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
   </div>
 </div></nav>
 <div id="toast" class="toast"></div>
-<div class="container">
+<div class="nav-sticky" id="navSticky">
   <div class="room-nav" id="roomNav"><div class="room-nav-inner"><span class="room-nav-label">Jump to room:</span><div class="room-nav-tabs" id="roomNavTabs"></div></div></div>
   <div class="filter-row type-filter-row" id="typeFilterRow">
     <span class="view-row-label">Type:</span>
@@ -203,19 +228,30 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
     <button class="filter-btn type-filter-btn" onclick="setTypeFilter('paint',this)">Paint</button>
   </div>
   <div class="page-hdr">
-    <div><h1>🎨 Material Selections</h1><div style="font-size:12px;color:var(--dim)">Room-by-room finishes, fixtures &amp; materials <span style="color:var(--bdr2);font-size:10px">sync 20260319 - fixture default room</span></div></div>
-    <div class="page-hdr-right">
+    <div><h1>🎨 Material Selections</h1><div class="page-hdr-sub" style="font-size:12px;color:var(--dim)">Room-by-room finishes, fixtures &amp; materials <span style="color:var(--bdr2);font-size:10px">sync 20260319 - fixture default room</span></div></div>
+    <div class="page-hdr-right" style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">
+      <button class="nav-action-btn btn-save" id="btnSave" onclick="saveNow()">💾 Save</button>
       <div class="view-toggle">
         <button class="view-btn active" id="btnRooms" onclick="setView('rooms')">🏠 Rooms</button>
         <button class="view-btn" id="btnMTO" onclick="setView('mto')">📋 Sub Schedule</button>
         <button class="view-btn" id="btnTrade" onclick="setView('trade')">🛒 Purchase List</button>
       </div>
+      <div id="exportRow" style="display:none;align-items:center;gap:8px">
+        <button class="nav-action-btn" onclick="doExport()">📥 Export CSV</button>
+        <button class="nav-action-btn" onclick="window.print()">🖨️ Print</button>
+      </div>
     </div>
   </div>
+</div>
+<div class="container">
+  <div class="nav-sticky-spacer" id="navStickySpacer"></div>
   <div class="sel-stats" id="selStats"></div>
   <div class="pipeline"><div class="pipeline-label">Selection Progress</div><div class="pipeline-bar" id="pipelineBar"></div></div>
   <div class="room-nav-spacer" id="roomNavSpacer"></div>
-  <div id="tradeTabs" class="trade-tabs" style="display:none"></div>
+  <div id="tradeBar" class="trade-bar" style="display:none">
+    <span class="view-row-label">Trade:</span>
+    <div id="tradeTabs" class="trade-tabs"></div>
+  </div>
   <div id="body"></div>
 </div>
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')"><img id="lightboxImg"></div>
@@ -509,6 +545,10 @@ function renderStats(){
   document.getElementById('pipelineBar').innerHTML=STATUS_ORDER.map(s=>{const p=counts[s]/n*100;return p>0?`<div class="pipeline-seg" style="width:${p}%;background:${STATUS_COLORS[s]}"></div>`:''}).join('');
 }
 
+function updateNavSpacer(){
+  const h=document.getElementById('navSticky');const s=document.getElementById('navStickySpacer');
+  if(h&&s)s.style.height=h.offsetHeight+'px';
+}
 function syncViewBtns(){
   const v=curView;
   ['btnRooms','btnRooms2'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('active',v==='rooms');});
@@ -523,11 +563,13 @@ function setView(v){
   const r2=document.getElementById('btnRooms2');if(r2)r2.classList.toggle('active',v==='rooms');
   const m2=document.getElementById('btnMTO2');if(m2)m2.classList.toggle('active',v==='mto');
   const t2=document.getElementById('btnTrade2');if(t2)t2.classList.toggle('active',v==='trade');
-  const fr=document.getElementById('filterRow');if(fr)fr.style.display=v==='rooms'?'':'none';
+  const fr=document.getElementById('typeFilterRow');if(fr)fr.style.display=v==='rooms'?'flex':'none';
   const rn=document.getElementById('roomNav');if(rn)rn.style.display=v==='rooms'?'flex':'none';
   const rns=document.getElementById('roomNavSpacer');if(rns)rns.classList.toggle('visible',v==='rooms');
-  const tt=document.getElementById('tradeTabs');if(tt)tt.style.display=v==='trade'?'flex':'none';
-  if(v!=='trade')curTradeTab='all';
+  setTimeout(updateNavSpacer,0);
+  const tb=document.getElementById('tradeBar');if(tb)tb.style.display=(v==='trade'||v==='mto')?'flex':'none';
+  const er=document.getElementById('exportRow');if(er)er.style.display=(v==='trade'||v==='mto')?'flex':'none';
+  if(v!=='trade'&&v!=='mto')curTradeTab='all';
   render();
 }
 function setFilter(f,btn){currentFilter=f;const row=document.getElementById('filterRow');if(row)row.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');render();}
@@ -582,7 +624,7 @@ function materialCell(roomId,fid,type,material,notes){
   </div>`;
 }
 async function render(){
-  renderStats();
+  renderStats();updateNavSpacer();
   if(curView==='mto'){renderMTO();return;}
   if(curView==='trade'){renderByTrade();return;}
   const q=((document.getElementById('searchInput')||{}).value||'').toLowerCase().trim();
@@ -752,25 +794,43 @@ async function render(){
   }catch(e){}
 }
 
-const MTO_CATS=[
-  {label:'🧱 Flooring & Tile',fn:r=>r.finishes.filter(f=>['Floor','Wall Tile','Deck / Membrane'].includes(f.type))},
-  {label:'🎨 Wall, Ceiling & Trim',fn:r=>r.finishes.filter(f=>['Wall','Ceiling','Trim / Base'].includes(f.type))},
-  {label:'🪨 Countertops',fn:r=>r.finishes.filter(f=>f.type==='Countertop')},
-  {label:'🔧 Fixtures & Equipment',fn:r=>r.items},
-  {label:'🏛️ Other Finishes',fn:r=>r.finishes.filter(f=>f.type==='Other')},
-];
+function buildByTrade(){
+  const byTrade={};
+  for(const r of DATA){
+    if(!r)continue;
+    for(const f of r.finishes||[]){
+      const trade=TRADE_BY_TYPE[f.type]||'Other';
+      if(!byTrade[trade])byTrade[trade]=[];
+      byTrade[trade].push({room:r.name,level:r.level,item:f,isFinish:true});
+    }
+    for(const i of r.items||[]){
+      const trade=suggestTradeForItem(i);
+      if(!byTrade[trade])byTrade[trade]=[];
+      byTrade[trade].push({room:r.name,level:r.level,item:i,isFinish:false});
+    }
+  }
+  return byTrade;
+}
+function populateTradeTabs(byTrade){
+  const tabEl=document.getElementById('tradeTabs');
+  if(!tabEl)return;
+  let tabHtml='<button type="button" class="trade-tab '+(curTradeTab==='all'?'active':'')+'" onclick="setTradeTab(\'all\',this)">All</button>';
+  for(const trade of TRADE_ORDER){
+    const n=(byTrade[trade]||[]).length;
+    if(n===0)continue;
+    tabHtml+=`<button type="button" class="trade-tab ${curTradeTab===trade?'active':''}" data-trade="${escAttr(trade)}" onclick="setTradeTab(this.dataset.trade,this)">${esc(trade)} (${n})</button>`;
+  }
+  tabEl.innerHTML=tabHtml;
+}
 
 function renderMTO(){
+  const byTrade=buildByTrade();
+  populateTradeTabs(byTrade);
   const el=document.getElementById('body');let html='';
-  for(const cat of MTO_CATS){
-    let rows=[];
-    for(const room of DATA){const xs=cat.fn(room);for(const x of xs)rows.push({room:room.name,level:room.level,item:x,isFinish:!!x.type});}
-    if(!rows.length)continue;
-    html+=`<div class="mto-section"><div class="mto-cat-hdr open" onclick="toggleMTO(this)">
-      <h4>${cat.label} <span style="color:var(--dim);font-weight:400;font-size:11px">(${rows.length})</span></h4>
-      <span class="arrow">▶</span>
-    </div><div class="mto-body open"><table class="mto-table">
-      <thead><tr><th width="140">Room</th><th width="80">Type</th><th>Material / Item</th><th width="110">SF / Qty</th><th width="150">Vendor</th><th width="120">Status</th><th width="28"></th></tr></thead><tbody>`;
+  const tradesToShow=curTradeTab==='all'?TRADE_ORDER:[curTradeTab];
+  for(const trade of tradesToShow){
+    const rows=byTrade[trade];if(!rows||!rows.length)continue;
+    html+=`<div class="mto-section"><div class="mto-cat-hdr open" onclick="toggleMTO(this)"><h4>${esc(trade)} <span style="color:var(--dim);font-weight:400;font-size:11px">(${rows.length})</span></h4><span class="arrow">▶</span></div><div class="mto-body open"><table class="mto-table"><thead><tr><th width="140">Room</th><th width="80">Type</th><th>Material / Item</th><th width="110">SF / Qty</th><th width="150">Vendor</th><th width="120">Status</th><th width="28"></th></tr></thead><tbody>`;
     for(const {room,item,isFinish} of rows){
       const st='st-'+(item.status||'not_started');
       const tc=isFinish?(FIN_TYPES[item.type]||'ft-other'):'ft-other';
@@ -779,13 +839,7 @@ function renderMTO(){
       const note=(item.notes||'').substring(0,70);
       const link=cleanUrl(item.link||item.manual||'');
       const linkOk=link&&isExternalUrl(link);
-      html+=`<tr><td><span class="mto-room-tag">${esc(room)}</span></td><td>${typeCell}</td>
-        <td><strong>${esc(name)}</strong>${linkOk?' '+extLink(link,'🔗','blue','','12px'):''}${note?`<br><span style="font-size:10px;color:var(--dim)">${esc(note)}${item.notes.length>70?'…':''}</span>`:''}</td>
-        <td style="font-size:11px">${esc(isFinish?(item.qty||'—'):(item.model||''))}</td>
-        <td style="font-size:11px;color:var(--txt2)">${esc(isFinish?(item.vendor||'TBD'):(item.color||''))}</td>
-        <td><select class="${st}" style="min-width:95px;font-size:10px" onchange="updateAnyStatus('${item.id}',this)">${STATUS_ORDER.map(s=>`<option value="${s}"${(item.status||'not_started')===s?' selected':''}>${STATUS_LABELS[s]}</option>`).join('')}</select></td>
-        <td>${linkOk?extLink(link,'↗','blue','Open'):''}</td>
-      </tr>`;
+      html+=`<tr><td><span class="mto-room-tag">${esc(room)}</span></td><td>${typeCell}</td><td><strong>${esc(name)}</strong>${linkOk?' '+extLink(link,'🔗','blue','','12px'):''}${note?`<br><span style="font-size:10px;color:var(--dim)">${esc(note)}${item.notes.length>70?'…':''}</span>`:''}</td><td style="font-size:11px">${esc(isFinish?(item.qty||'—'):(item.model||''))}</td><td style="font-size:11px;color:var(--txt2)">${esc(isFinish?(item.vendor||'TBD'):(item.color||''))}</td><td><select class="${st}" style="min-width:95px;font-size:10px" onchange="updateAnyStatus('${item.id}',this)">${STATUS_ORDER.map(s=>`<option value="${s}"${(item.status||'not_started')===s?' selected':''}>${STATUS_LABELS[s]}</option>`).join('')}</select></td><td>${linkOk?extLink(link,'↗','blue','Open'):''}</td></tr>`;
     }
     html+=`</tbody></table></div></div>`;
   }
@@ -800,30 +854,16 @@ function setTradeTab(tab,btn){
   render();
 }
 function renderByTrade(){
-  const byTrade={};
-  for(const r of DATA){
-    if(!r)continue;
-    for(const f of r.finishes||[]){
-      const trade=TRADE_BY_TYPE[f.type]||'Other';
-      if(!byTrade[trade])byTrade[trade]=[];
-      byTrade[trade].push({room:r.name,level:r.level,type:f.type,material:f.material||'',qty:f.qty||'—',unit:f.unit||'',isFinish:true});
-    }
-    for(const i of r.items||[]){
-      const trade=suggestTradeForItem(i);
-      if(!byTrade[trade])byTrade[trade]=[];
-      byTrade[trade].push({room:r.name,level:r.level,type:'Item',material:i.name||'',qty:i.model||'—',unit:'',isFinish:false,vendor:i.vendor});
+  const byTrade=buildByTrade();
+  for(const t in byTrade){
+    for(const row of byTrade[t]){
+      row.type=row.isFinish?row.item.type:'Item';
+      row.material=row.isFinish?row.item.material:(row.item.name||'');
+      row.qty=row.isFinish?(row.item.qty||'—'):(row.item.model||'—');
+      row.unit=row.isFinish?(row.item.unit||''):'';
     }
   }
-  const tabEl=document.getElementById('tradeTabs');
-  if(tabEl){
-    let tabHtml='<button type="button" class="trade-tab '+(curTradeTab==='all'?'active':'')+'" onclick="setTradeTab(\'all\',this)">All</button>';
-    for(const trade of TRADE_ORDER){
-      const n=(byTrade[trade]||[]).length;
-      if(n===0)continue;
-      tabHtml+=`<button type="button" class="trade-tab ${curTradeTab===trade?'active':''}" data-trade="${escAttr(trade)}" onclick="setTradeTab(this.dataset.trade,this)">${esc(trade)} (${n})</button>`;
-    }
-    tabEl.innerHTML=tabHtml;
-  }
+  populateTradeTabs(byTrade);
   const el=document.getElementById('body');let html='';
   const tradesToShow=curTradeTab==='all'?TRADE_ORDER:[curTradeTab];
   for(const trade of tradesToShow){
@@ -838,20 +878,27 @@ function renderByTrade(){
   el.innerHTML=html;
 }
 
-function exportByTrade(){
+function exportByTrade(tradeFilter){
   let csv='Trade,Room,Level,Type,Material/Item,Qty,Unit\n';
   for(const r of DATA){
     if(!r)continue;
     for(const f of r.finishes||[]){
       const trade=TRADE_BY_TYPE[f.type]||'Other';
+      if(tradeFilter&&trade!==tradeFilter)continue;
       csv+=`"${trade}","${(r.name||'').replace(/"/g,'""')}","${(r.level||'').replace(/"/g,'""')}","${(f.type||'').replace(/"/g,'""')}","${(f.material||'').replace(/"/g,'""')}","${(f.qty||'').replace(/"/g,'""')}","${(f.unit||'').replace(/"/g,'""')}"\n`;
     }
     for(const i of r.items||[]){
       const trade=suggestTradeForItem(i);
+      if(tradeFilter&&trade!==tradeFilter)continue;
       csv+=`"${trade}","${(r.name||'').replace(/"/g,'""')}","${(r.level||'').replace(/"/g,'""')}","Item","${(i.name||'').replace(/"/g,'""')}","${(i.model||'').replace(/"/g,'""')}",""\n`;
     }
   }
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='rodriguez_quantities_by_trade.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('✓ Exported by trade');
+  const fn=tradeFilter?'rodriguez_'+tradeFilter.replace(/\s+/g,'_').toLowerCase()+'.csv':'rodriguez_quantities_by_trade.csv';
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=fn;document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('✓ Exported');
+}
+function doExport(){
+  if(curView==='trade'||curView==='mto')exportByTrade(curTradeTab==='all'?null:curTradeTab);
+  else exportSelections();
 }
 
 function updateAnyStatus(id,sel){
@@ -1057,6 +1104,7 @@ async function init(){
   _blockSync=false;
   runMigrations();
   render();
+  window.addEventListener('resize',updateNavSpacer);
 }
 
 // ── Push changes to Supabase in background (never overwrite with seed) ──
@@ -1069,6 +1117,14 @@ function sortedStringify(obj){
   return JSON.stringify(obj);
 }
 function isSeedData(clean){return clean.length===SEED_ROOMS.length&&sortedStringify(clean)===sortedStringify(SEED_ROOMS);}
+async function saveNow(){
+  saveData();
+  clearTimeout(_saveTimer);
+  _saveTimer=null;
+  const clean=DATA.map(r=>{const {lightingPhoto,...rr}=r;return {...rr,finishes:r.finishes.map(f=>{const {photo,...rest}=f;return rest;}),items:r.items.map(i=>{const {photo,...rest}=i;return rest;})};});
+  if(!isSeedData(clean)){try{await supabaseSave(clean);showToast('✓ Saved to cloud');}catch(e){showToast('Saved locally. Cloud sync failed.',true);}}
+  else showToast('✓ Saved');
+}
 function pushToSheets(){
   if(_blockSync)return;
   clearTimeout(_saveTimer);
