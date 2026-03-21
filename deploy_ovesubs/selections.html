@@ -154,7 +154,7 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
 .add-btn{background:none;border:1px dashed var(--bdr);color:var(--dim);padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .2s}
 .add-btn:hover{border-color:var(--blue);color:var(--blue)}
 .mto-section{background:var(--card);border:1px solid var(--bdr);border-radius:12px;margin-bottom:12px;overflow:hidden}
-.mto-cat-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card2);border-bottom:1px solid var(--bdr);cursor:pointer}
+.mto-cat-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card2);border-bottom:1px solid var(--bdr);cursor:pointer;position:sticky;top:220px;z-index:2}
 .mto-cat-hdr h4{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
 .mto-cat-hdr .arrow{color:var(--dim);font-size:11px;transition:transform .2s}
 .mto-cat-hdr.open .arrow{transform:rotate(90deg)}
@@ -163,10 +163,7 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
 .mto-table th{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);padding:6px 14px;text-align:left;background:rgba(0,0,0,.15);font-weight:600}
 .mto-table td{padding:8px 14px;font-size:12px;border-top:1px solid rgba(42,58,85,.3);vertical-align:middle}
 .mto-table tr:hover td{background:var(--hover)}
-.mto-table thead th{position:sticky;top:180px;z-index:3;background:var(--card2)!important;box-shadow:0 1px 0 var(--bdr)}
-.mto-table thead th:nth-child(1),.mto-table thead th:nth-child(2){left:0;z-index:4}
-.mto-table thead th:nth-child(1){box-shadow:1px 1px 0 var(--bdr)}
-.mto-table thead th:nth-child(2){left:140px;box-shadow:1px 1px 0 var(--bdr)}
+.mto-table thead th{background:var(--card2)!important;box-shadow:0 1px 0 var(--bdr)}
 .mto-table td:nth-child(1),.mto-table td:nth-child(2){position:sticky;background:var(--card);z-index:1}
 .mto-table td:nth-child(1){left:0;box-shadow:1px 0 0 var(--bdr)}
 .mto-table td:nth-child(2){left:140px;box-shadow:1px 0 0 var(--bdr)}
@@ -242,16 +239,16 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
       </div>
     </div>
   </div>
+  <div id="tradeBar" class="trade-bar" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
+    <span class="view-row-label">Trade:</span>
+    <div id="tradeTabs" class="trade-tabs"></div>
+  </div>
 </div>
 <div class="container">
   <div class="nav-sticky-spacer" id="navStickySpacer"></div>
   <div class="sel-stats" id="selStats"></div>
   <div class="pipeline"><div class="pipeline-label">Selection Progress</div><div class="pipeline-bar" id="pipelineBar"></div></div>
   <div class="room-nav-spacer" id="roomNavSpacer"></div>
-  <div id="tradeBar" class="trade-bar" style="display:none">
-    <span class="view-row-label">Trade:</span>
-    <div id="tradeTabs" class="trade-tabs"></div>
-  </div>
   <div id="body"></div>
 </div>
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')"><img id="lightboxImg"></div>
