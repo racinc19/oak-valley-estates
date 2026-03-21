@@ -1,0 +1,28 @@
+RESTORE POINT — March 20, 2026
+================================
+Use this to get both sites back to this exact state.
+
+OAK VALLEY ESTATES (oak-valley-estates.pages.dev)
+OVE SUBS (ovesubs.pages.dev)
+
+--- CODE (both sites) ---
+Commit: 906768d
+  git checkout 906768d
+
+Deploy Oak Valley:  .\deploy_oak_valley.ps1
+Deploy OVE Subs:    .\deploy_ovesubs.ps1
+
+--- SELECTIONS DATA (shared by both sites) ---
+Supabase backup: backups/selections_backup_2026-03-20_2007.json
+
+To restore selections data:
+  1. Open Supabase Dashboard > Table Editor > selections table
+  2. Find row with id = main
+  3. Open backups/selections_backup_2026-03-20_2007.json
+  4. Copy entire contents, paste into the "data" cell for row main
+  5. Save
+
+--- FILES AT THIS RESTORE POINT ---
+  deploy_live/selections.html      (Oak Valley)
+  deploy_ovesubs/selections.html    (OVE Subs)
+  Both use same Supabase selections data.
