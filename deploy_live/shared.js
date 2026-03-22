@@ -93,11 +93,13 @@ function parseBudgetTab(rows){
     if(v>0)totalPaidOverride=v;
   }
 
-  // Parse Change Orders from rows 5-8 (before phase data)
+  // Parse Change Orders — scan rows until we hit Deposit or a phase (no fixed row cap)
   const changeOrdersFromSheet=[];
-  for(let i=4;i<16;i++){
+  for(let i=4;i<rows.length;i++){
     const r=rows[i];if(!r||!r[0])continue;
     const n=(r[0]||'').trim();
+    const nL=norm(n);
+    if(PHASE_NAMES.includes(nL))break;
     if(!n.match(/^Change\s+\d+/i))continue;
     changeOrdersFromSheet.push({
       num:n,
