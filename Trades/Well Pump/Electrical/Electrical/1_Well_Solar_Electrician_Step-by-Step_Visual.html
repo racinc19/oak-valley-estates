@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAC Development — Well Solar Electrician Step-by-Step</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0e14; color: #e8edf2; font-family: 'Space Grotesk', sans-serif; min-height: 100vh; padding: 28px 20px; line-height: 1.6; }
+
+  header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid #1e2733; padding-bottom: 16px; margin-bottom: 28px; }
+  .logo { font-family: 'Space Mono', monospace; font-size: 10px; color: #f59e0b; letter-spacing: 2px; text-transform: uppercase; }
+  h1 { font-size: 20px; font-weight: 700; color: #fff; }
+  .sub { font-size: 12px; color: #6b7a8d; font-family: 'Space Mono', monospace; margin-top: 3px; }
+  .contact { text-align: right; font-family: 'Space Mono', monospace; font-size: 10px; color: #4a6080; }
+  .contact a { color: #3b8fff; text-decoration: none; }
+
+  .warn-banner { background: #1a1500; border: 1px solid #f59e0b; border-radius: 10px; padding: 14px 20px; margin-bottom: 28px; }
+  .warn-banner strong { color: #fbbf24; display: block; font-size: 13px; margin-bottom: 6px; }
+  .warn-banner p { font-size: 12px; color: #94a3b8; margin: 4px 0; }
+
+  .part { margin-bottom: 36px; }
+  .part-title { font-size: 14px; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 2px; color: #f59e0b; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #1e2733; }
+  .part-loc { font-size: 11px; color: #4a6080; margin-bottom: 16px; }
+
+  .step { background: #0f1520; border: 1px solid #1e2733; border-radius: 12px; padding: 20px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 700px) { .step { grid-template-columns: 1fr; } }
+  .step-num { font-family: 'Space Mono', monospace; font-size: 10px; color: #f59e0b; letter-spacing: 1px; margin-bottom: 6px; }
+  .step-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+  .step-body { font-size: 13px; color: #94a3b8; line-height: 1.65; }
+  .img-placeholder { background: #0a0e14; border: 2px dashed #2a3a50; border-radius: 8px; padding: 40px 20px; text-align: center; font-family: 'Space Mono', monospace; font-size: 11px; color: #4a6080; min-height: 180px; display: flex; align-items: center; justify-content: center; }
+  .img-placeholder img { max-width: 100%; max-height: 320px; border-radius: 6px; }
+  .step.single-col .img-placeholder { grid-column: 1 / -1; }
+
+  .asbuilt { background: #0f1520; border: 1px solid #1e2733; border-radius: 12px; padding: 24px; margin-top: 32px; }
+  .asbuilt h3 { font-size: 13px; color: #f59e0b; margin-bottom: 16px; font-family: 'Space Mono', monospace; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table td { padding: 8px 12px; border-bottom: 1px solid #1e2733; color: #94a3b8; }
+  table td:first-child { color: #e2e8f0; font-weight: 500; width: 40%; }
+  .fill-cell { color: #4a6080; font-style: italic; }
+
+  footer { text-align: center; margin-top: 40px; font-family: 'Space Mono', monospace; font-size: 10px; color: #2a3a50; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">RAC Development — Installer Reference</div>
+    <h1>Solar Electrical — Step-by-Step</h1>
+    <div class="sub">Rodriguez Residence · Oak Valley Estates, Lot 5 · Kanarraville, UT</div>
+  </div>
+  <div class="contact">
+    Craig Engel | RAC Development<br>
+    (435) 229-7360<br>
+    <a href="mailto:racinc19@gmail.com">racinc19@gmail.com</a>
+  </div>
+</header>
+
+<div class="warn-banner">
+  <strong>⚠ READ BEFORE STARTING</strong>
+  <p>Franklin pump, pump wire, and VFD Commander Pro are already installed and operational. DO NOT disturb these components.</p>
+  <p>Solar panel mounting is complete (by fence installer). Your scope begins at the panel output terminals.</p>
+</div>
+
+<!-- ═══ PART 1 ═══ -->
+<div class="part">
+  <div class="part-title">Part 1 — Solar DC Wiring (Panels to Vault)</div>
+  <div class="part-loc">Location: Solar array at fence line → underground vault near wellhead</div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 1</div>
+      <div class="step-title">Safety lockout</div>
+      <div class="step-body">Before touching any terminals, verify all panel output is isolated. Cover panels with opaque material or work at dawn/dusk. Confirm 0V DC at panel terminals with a meter before proceeding.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 1: Panel terminals locked out / meter reading 0V]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 2</div>
+      <div class="step-title">Verify panel string voltage and current</div>
+      <div class="step-body">Measure and document: open-circuit voltage (Voc), short-circuit current (Isc), and operating voltage (Vmp) for each string. Record on the as-built sheet at the end of this guide. This is a required deliverable.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 2: Meter readings / string voltage]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 3</div>
+      <div class="step-title">Install PV combiner box at array</div>
+      <div class="step-body">Mount PJERJZN 1-string PV combiner box (1000VDC, 40A MCB, 20-40KA SPD) within 10 ft of the array. This single unit combines the DC disconnect, fuse, and lightning arrestor/SPD. Connect MC4 cables from panel to combiner box input. DC output cable runs to vault charge controller. Bond combiner box ground terminal to array frame ground and grounding electrode conductor (GEC). Confirm green SPD indicator is lit before energizing system.</div>
+    </div>
+    <div class="img-placeholder"><img src="images/combiner-box.png" alt="PJERJZN PV combiner box"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 4</div>
+      <div class="step-title">Run DC cable from array to vault</div>
+      <div class="step-body">Use USE-2 or PV wire rated for outdoor/direct burial. Run in 1" conduit where exposed. Conduit must be sunlight-resistant (gray PVC or metal) above grade. Bury per NEC 300.5 — minimum 24" depth for PV DC circuits in conduit. Seal conduit entry points.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 4: Conduit run / trench / entry seal]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 5</div>
+      <div class="step-title">Verify combiner box breaker is off before connecting to charge controller</div>
+      <div class="step-body">The PV combiner box already contains the fuse and 40A DC breaker. Before connecting DC output cable to the Victron MPPT charge controller, confirm the combiner box breaker is in the OFF position. Turn on only after all vault connections are complete and verified.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 5: Breaker OFF / connection point]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 6</div>
+      <div class="step-title">Label all DC conductors</div>
+      <div class="step-body">Red = positive, Black = negative. Mark voltage and current at each termination point. Apply SOLAR DC — DO NOT ENERGIZE labels at both ends.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 6: Labeled conductors]<br>Drop your image here</div>
+  </div>
+</div>
+
+<!-- ═══ PART 2 ═══ -->
+<div class="part">
+  <div class="part-title">Part 2 — Victron System & Battery Bank (In Vault)</div>
+  <div class="part-loc">Location: Underground precast concrete vault, near wellhead</div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 7</div>
+      <div class="step-title">Inspect vault environment</div>
+      <div class="step-body">Verify vault is dry, ventilated, and accessible. Confirm watertight hatch seals properly. Ventilation is required for battery off-gassing — do not seal vault airtight.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 7: Vault interior / ventilation]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 8</div>
+      <div class="step-title">Mount Victron charge controller</div>
+      <div class="step-body">Mount MPPT charge controller on vault wall. Allow 4" clearance on all sides for airflow. Victron SmartSolar MPPT recommended — confirm model with RAC before ordering if not yet procured.</div>
+    </div>
+    <div class="img-placeholder"><img src="images/victron-mppt.png" alt="Victron SmartSolar MPPT 150|35 charge controller"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 9</div>
+      <div class="step-title">Install battery bank</div>
+      <div class="step-body">Install battery bank per design spec. If lithium (LiFePO4): confirm BMS is present and wired. If AGM: ensure batteries are vented. Connect batteries in series/parallel to achieve design voltage (likely 24V or 48V — confirm with RAC). Torque all terminals to spec. Apply anti-corrosion compound.</div>
+    </div>
+    <div class="img-placeholder"><img src="images/redodo-batteries.png" alt="Redodo 25.6V 100Ah LiFePO4 batteries"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 10</div>
+      <div class="step-title">Wire charge controller to battery bank</div>
+      <div class="step-body">Connect MPPT output to battery bank: positive through a DC fuse sized per controller output rating, then to battery positive bus. Negative direct to battery negative bus. Follow Victron wiring sequence: batteries first, then PV input — NEVER connect PV before batteries.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 10: Controller-to-battery wiring]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 11</div>
+      <div class="step-title">Connect DC input from solar array</div>
+      <div class="step-body">Connect the DC cable from Step 1-5 to the MPPT PV input terminals. Verify polarity before connecting. Confirm voltage reading on controller display matches documented string voltage.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 11: PV input connected / display]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 12</div>
+      <div class="step-title">Install and wire Victron inverter</div>
+      <div class="step-body">Mount Victron MultiPlus-II 24/3000/70-50 2x120V (split phase) inverter in vault. Connect DC input from battery bank: positive through main DC fuse/breaker (250A per Victron spec for 3000VA/24V), then to inverter DC positive. Negative to inverter DC negative. Keep DC cable runs as short as possible — use 2/0 AWG or per Victron MultiPlus-II wiring guide to minimize voltage drop.</div>
+    </div>
+    <div class="img-placeholder"><img src="images/victron-multiplus.png" alt="Victron MultiPlus-II 24|3000 inverter"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 13</div>
+      <div class="step-title">Wire inverter AC output to VFD Commander Pro</div>
+      <div class="step-body">Run AC output from Victron MultiPlus-II 2x120V to the existing VFD Commander Pro AC input. Wire L1 and L2 from inverter output to VFD AC input terminals for 240V split phase. The VFD is already installed — connect to its AC input terminals only. Do not open or modify the VFD enclosure beyond the AC input wiring. Confirm 240V across L1 and L2 before energizing VFD.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 13: Inverter to VFD connection]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 14</div>
+      <div class="step-title">Ground fault protection</div>
+      <div class="step-body">Install ground fault protection device (GFPD) per NEC 690. Bond all metal enclosures, conduit, and equipment to grounding electrode system. Document ground rod location and resistance reading.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 14: GFPD / grounding]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 15</div>
+      <div class="step-title">Label all circuits</div>
+      <div class="step-body">Label every breaker, fuse, conductor, and enclosure. Minimum labels: SOLAR INPUT, BATTERY BANK, INVERTER OUTPUT TO VFD, DC DISCONNECT, SYSTEM GROUND. Use UV-resistant labels.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 15: Labeled breakers / circuits]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 16</div>
+      <div class="step-title">System commissioning — verify end-to-end</div>
+      <div class="step-body">Energize in sequence: (1) batteries, (2) charge controller with PV, (3) inverter. Confirm charge controller shows PV input and charging. Confirm inverter output voltage is correct. Confirm VFD receives power. Document all readings. Do NOT test pump operation — pump and VFD are already commissioned by RAC.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 16: Commissioning / display readings]<br>Drop your image here</div>
+  </div>
+</div>
+
+<!-- ═══ PART 3 ═══ -->
+<div class="part">
+  <div class="part-title">Part 3 — Booster Pump Motor (At House)</div>
+  <div class="part-loc">Location: House pressure station — Grundfos booster pump</div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 17</div>
+      <div class="step-title">Confirm power source</div>
+      <div class="step-body">Determine if booster pump runs on grid power or solar/inverter output. Confirm with RAC before running circuits. This guide assumes a dedicated circuit from the house panel (grid-tied) unless RAC specifies otherwise.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 17: Power source / panel]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 18</div>
+      <div class="step-title">Install dedicated circuit and disconnect</div>
+      <div class="step-body">Run a dedicated circuit from the house panel to the pressure station location. Install a clearly labeled disconnect within sight of the pump. Size wire and breaker per Grundfos motor nameplate (HP, FLA, voltage).</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 18: Disconnect / circuit]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 19</div>
+      <div class="step-title">Wire pressure switch (40/60 PSI)</div>
+      <div class="step-body">Wire the pressure switch in series with the booster pump motor circuit. Pressure switch cuts pump on at 40 PSI, off at 60 PSI. Confirm switch is rated for motor load amperage. Use weatherproof enclosure if in an unconditioned space.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 19: Pressure switch wired]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 20</div>
+      <div class="step-title">Wire Grundfos booster pump motor</div>
+      <div class="step-body">Connect motor leads per Grundfos wiring diagram (inside motor junction box). Confirm voltage configuration matches supply (120V or 240V). Torque terminals to spec. Seal motor junction box.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 20: Motor junction box]<br>Drop your image here</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <div class="step-num">Step 21</div>
+      <div class="step-title">Test booster pump operation</div>
+      <div class="step-body">Energize circuit. Confirm pump starts when pressure drops below 40 PSI and stops at 60 PSI. Verify no overload trip on breaker. Check for unusual noise or vibration. Document operating pressure range and motor amperage draw under load.</div>
+    </div>
+    <div class="img-placeholder">[IMAGE 21: Pump running / pressure gauge]<br>Drop your image here</div>
+  </div>
+</div>
+
+<!-- ═══ AS-BUILT ═══ -->
+<div class="asbuilt">
+  <h3>AS-BUILT DOCUMENTATION (Required Deliverable)</h3>
+  <p style="font-size:12px;color:#94a3b8;margin-bottom:16px;">Complete and leave on site / submit to RAC Development upon completion.</p>
+  <table>
+    <tr><td>Solar string Voc (V)</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Solar string Isc (A)</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Solar string Vmp (V)</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Battery bank voltage (V)</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Battery bank capacity (Ah)</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Charge controller model</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Inverter model</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Inverter output voltage confirmed</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Ground resistance (Ohms)</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Booster pump FLA measured (A)</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Pressure switch range confirmed</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>All circuits labeled (Y/N)</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>System energized end-to-end (Y/N)</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Installer name / license #</td><td class="fill-cell">___________________________</td></tr>
+    <tr><td>Date completed</td><td class="fill-cell">___________________________</td></tr>
+  </table>
+</div>
+
+<footer>RAC Development · Rodriguez Residence · Oak Valley Estates Lot 5 · Kanarraville, UT</footer>
+
+</body>
+</html>

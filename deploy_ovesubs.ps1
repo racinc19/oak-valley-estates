@@ -6,4 +6,4 @@ if (Test-Path $envFile) {
     if ($line -match 'CLOUDFLARE_API_TOKEN=(.+)') { $env:CLOUDFLARE_API_TOKEN = $matches[1].Trim() }
 }
 & "$PSScriptRoot\sync_selections.ps1"
-npx wrangler pages deploy deploy_ovesubs --project-name=ovesubs
+npx wrangler pages deploy Deploy/deploy_ovesubs --project-name=ovesubs

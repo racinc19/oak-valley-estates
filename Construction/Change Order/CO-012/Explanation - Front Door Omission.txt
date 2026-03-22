@@ -1,0 +1,54 @@
+EXPLANATION — Front Entry & Casita Door Changes
+================================================
+For use when presenting CO-012 to the owner.
+
+---
+
+WHAT HAPPENED
+-------------
+1. FRONT DOOR: The front entry door (Main Entry / Foyer Exterior, D-ML-01) was in the plans but was left out of our door scope and subcontract. That's our error — we missed it in takeoff. The door costs $5,450 (supply, install, and hardware).
+
+2. CASITA DOOR: The Casita exterior entry (D-AD-01) is being upgraded from the original DOOR 4 spec to a new door at $3,190. The change to the owner = $3,190 minus the original door price (from Sunpro/RIGAN schedule).
+
+---
+
+WHAT WE'RE PROPOSING
+--------------------
+FRONT DOOR: We're adding it and splitting the cost 50/50:
+  • Total cost:              $5,450
+  • We're absorbing:         $2,725 (our responsibility for the omission)
+  • Owner add:               $2,725
+
+CASITA DOOR: Upgrade from original spec:
+  • New door:                $3,190 (incl. install, hardware)
+  • Less original (from schedule): (fill in from Sunpro)
+  • Owner add:               $3,190 − original
+
+We're not asking you to pay for our front-door mistake in full. We're owning half. The Casita is a straightforward upgrade — you pay the delta only.
+
+---
+
+SCRIPT (if presenting in person or by phone)
+--------------------------------------------
+"We've got two door items for you. First, we missed the front entry door in our scope — our error. It's $5,450. We're eating half and asking you to add $2,725. Second, the Casita door — you're upgrading from the original spec. New door is $3,190; we'll credit the original and you pay the difference. I've got CO-012 with both items — need to fill in the Casita original from the door schedule, then you can sign."
+
+---
+
+EMAIL (if sending CO-012)
+-------------------------
+Subject: Change Order CO-012 — Front Entry & Casita Door Changes
+
+Hi Jessica & Adrian,
+
+Attached is Change Order CO-012 covering two door items:
+
+1. Front entry door — We omitted the main entry (D-ML-01) from our original door scope. That was our error. The full cost is $5,450; we’re absorbing half and requesting $2,725 from you.
+
+2. Casita door — Upgrade from the original spec to the new door. Total cost $3,190, less a $867.40 credit from the original RIGAN price. Net add for you: $2,322.60.
+
+Total owner add for this change order: $5,047.60.
+
+Please review the attached CO-012 and sign and return when convenient. If you have any questions, just reply to this email.
+
+Thanks,
+[Your name]

@@ -1,8 +1,8 @@
 # Copy Oak Valley selections (deploy_live) to OVE Subs (deploy_ovesubs)
 # Run before deploying ovesubs so subs see the same selections as client
 # Then replace nav with OVE Subs nav (Dashboard, Plans & Permits, Selections)
-Copy-Item deploy_live\selections.html deploy_ovesubs\selections.html -Force
-$c = Get-Content deploy_ovesubs\selections.html -Raw
+Copy-Item Deploy/deploy_live\selections.html Deploy/deploy_ovesubs\selections.html -Force
+$c = Get-Content Deploy/deploy_ovesubs\selections.html -Raw
 $oveNav = @'
 <nav class="topnav"><div class="topnav-inner">
   <a href="index.html" class="topnav-brand"><span class="dot"></span>Rodriguez Residence</a>
@@ -23,5 +23,5 @@ if ($c -notmatch '\.topnav-right') {
   $navCss = ".topnav-right{display:flex;gap:8px;align-items:center;margin-left:auto}.topnav-btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--bdr);background:none;color:var(--txt2);cursor:pointer;transition:all .2s;white-space:nowrap}.topnav-btn:hover{border-color:var(--blue);color:var(--txt)}"
   $c = $c -replace '</style>', "$navCss`n</style>"
 }
-Set-Content deploy_ovesubs\selections.html -Value $c -NoNewline
+Set-Content Deploy/deploy_ovesubs\selections.html -Value $c -NoNewline
 Write-Host "Synced selections.html to deploy_ovesubs (OVE Subs nav)"

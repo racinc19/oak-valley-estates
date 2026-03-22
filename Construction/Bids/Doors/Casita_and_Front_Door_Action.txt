@@ -1,0 +1,51 @@
+DOOR SITUATION — Casita & Front Door (GC Perspective)
+======================================================
+Rodriguez Residence | Oak Valley Estates Lot 5
+You're the GC — scope/omission issues to fix.
+
+PRICES YOU HAVE
+---------------
+  Casita door:  $3,190 (includes install + hardware) — UPGRADE from original entry spec
+  Front door:   $5,450 (includes install + hardware) — OMITTED from your scope
+
+PROBLEM 1: Casita — Change Price to Owner
+-----------------------------------------
+Casita was spec'd as DOOR 4 (TruStile TMF1000 Exterior). Owner upgraded to a different door at $3,190.
+
+Change amount = $3,190 − (original entry door price you had in the door package)
+
+Where to find original price:
+  • Rodriguez_Door_Schedule_Sunpro (1).xlsx — Sunpro Procurement sheet
+  • Rodriguez_Door_Order.xlsx
+  • Sunpro quote SQAQGI000175-1
+  • Craig Engel.REV-A.pdf
+  • RIGAN Quote 936543
+
+Action: Get the line for Casita exterior entry (D-AD-01). CO to owner = $3,190 − that number.
+
+PROBLEM 2: Front Door — You Omitted It
+--------------------------------------
+Main Entry (D-ML-01) was never in your door subcontract or owner contract.
+
+Your options:
+
+  A) Eat it
+     • Absorb the $5,450. No CO to owner. Cleanest if you can afford it and want to own the mistake.
+
+  B) CO to owner — full add
+     • "Add front entry door — omitted from original scope. $5,450 including supply, install, hardware."
+     • Owner may push back ("it was in the plans") — you'll need to own the error but request they add it.
+     • Some owners will add it; some will expect you to eat it.
+
+  C) CO to owner — split or discounted
+     • "We missed this in our scope. Our cost is $5,450. We're requesting $X to add it (e.g. 50%, 75%, or full)."
+     • Shows you're owning it while asking for relief.
+
+  D) Owner direct
+     • Suggest owner pay the door guy directly. You still coordinate rough opening and schedule.
+     • Keeps it out of your contract; owner may be okay with that.
+
+RECOMMENDATION
+--------------
+• Casita: Find original price, issue CO for the upgrade delta only.
+• Front: Own the omission. Either eat it, or go to owner honestly: "We missed the front door in our scope. It's $5,450. Can we add it via change order?" Be straight — most owners respect that.

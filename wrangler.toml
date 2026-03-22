@@ -1,4 +1,4 @@
 # Cloudflare Pages — both oak-valley-estates and ovesubs deploy from deploy_live
 name = "rodriguez-residence"
 compatibility_date = "2024-01-01"
-pages_build_output_dir = "./deploy_live"
+pages_build_output_dir = "./Deploy/deploy_live"
