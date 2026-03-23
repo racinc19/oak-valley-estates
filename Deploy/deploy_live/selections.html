@@ -847,25 +847,49 @@ function setTradeTab(tab,btn){
   document.querySelectorAll('.trade-tab').forEach(b=>{b.classList.toggle('active',b===btn);});
   render();
 }
+function parseQtyForAgg(s, isItem){
+  if(isItem)return 1;
+  const v=String(s||'').trim();if(!v||v==='—')return 1;
+  const m=v.replace(/,/g,'').match(/(\d+(?:\.\d+)?)/);
+  return m?parseFloat(m[1]):1;
+}
+function buildPurchaseListByTrade(){
+  const byTrade=buildByTrade();
+  const aggregated={};
+  for(const trade of TRADE_ORDER){
+    const rows=byTrade[trade];if(!rows||!rows.length)continue;
+    const map={};
+    for(const row of rows){
+      const material=row.isFinish?row.item.material:(row.item.name||'');
+      const vendor=(row.isFinish?row.item.vendor:row.item.vendor)||'TBD';
+      const type=row.isFinish?row.item.type:'Item';
+      const unit=row.isFinish?(row.item.unit||''):'EA';
+      const key=`${material}|${vendor}|${type}`;
+      if(!map[key]){
+        map[key]={material,vendor,type,unit,isFinish:row.isFinish,totalQty:0,rooms:[]};
+      }
+      const entry=map[key];
+      entry.totalQty+=parseQtyForAgg(row.isFinish?row.item.qty:null, !row.isFinish);
+      if(entry.rooms.indexOf(row.room)===-1)entry.rooms.push(row.room);
+    }
+    aggregated[trade]=Object.values(map);
+  }
+  return aggregated;
+}
 function renderByTrade(){
   const byTrade=buildByTrade();
-  for(const t in byTrade){
-    for(const row of byTrade[t]){
-      row.type=row.isFinish?row.item.type:'Item';
-      row.material=row.isFinish?row.item.material:(row.item.name||'');
-      row.qty=row.isFinish?(row.item.qty||'—'):(row.item.model||'—');
-      row.unit=row.isFinish?(row.item.unit||''):'';
-    }
-  }
+  const agg=buildPurchaseListByTrade();
   populateTradeTabs(byTrade);
   const el=document.getElementById('body');let html='';
   const tradesToShow=curTradeTab==='all'?TRADE_ORDER:[curTradeTab];
   for(const trade of tradesToShow){
-    const rows=byTrade[trade];if(!rows||!rows.length)continue;
-    html+=`<div class="mto-section"><div class="mto-cat-hdr open" onclick="toggleMTO(this)"><h4>${esc(trade)} <span style="color:var(--dim);font-weight:400;font-size:11px">(${rows.length})</span></h4><span class="arrow">▶</span></div><div class="mto-body open"><table class="mto-table"><thead><tr><th width="140">Room</th><th width="90">Type</th><th>Material / Item</th><th width="100">Qty / SF</th><th width="80">Unit</th></tr></thead><tbody>`;
-    for(const row of rows){
-      const typeCell=row.isFinish?`<span class="finish-type ${FIN_TYPES[row.type]||'ft-other'}">${esc(row.type)}</span>`:`<span style="font-size:10px;color:var(--txt2)">Item</span>`;
-      html+=`<tr><td><span class="mto-room-tag">${esc(row.room)}</span></td><td>${typeCell}</td><td><strong>${esc(row.material)}</strong></td><td style="font-size:11px">${esc(row.qty)}</td><td style="font-size:11px;color:var(--txt2)">${esc(row.unit)}</td></tr>`;
+    const rows=agg[trade];if(!rows||!rows.length)continue;
+    html+=`<div class="mto-section"><div class="mto-cat-hdr open" onclick="toggleMTO(this)"><h4>${esc(trade)} <span style="color:var(--dim);font-weight:400;font-size:11px">(${rows.length})</span></h4><span class="arrow">▶</span></div><div class="mto-body open"><table class="mto-table"><thead><tr><th width="200">Rooms</th><th width="90">Type</th><th>Material / Item</th><th width="100">Qty / SF</th><th width="120">Vendor</th></tr></thead><tbody>`;
+    for(const r of rows){
+      const typeCell=r.isFinish?`<span class="finish-type ${FIN_TYPES[r.type]||'ft-other'}">${esc(r.type)}</span>`:`<span style="font-size:10px;color:var(--txt2)">Item</span>`;
+      const roomsStr=r.rooms.length>3?r.rooms.slice(0,3).join(', ')+' +'+(r.rooms.length-3)+' more':r.rooms.join(', ');
+      const qtyDisplay=r.unit?r.totalQty+' '+r.unit:String(r.totalQty);
+      html+=`<tr><td style="font-size:11px;color:var(--txt2)">${esc(roomsStr)}</td><td>${typeCell}</td><td><strong>${esc(r.material)}</strong></td><td style="font-size:11px">${esc(qtyDisplay)}</td><td style="font-size:11px;color:var(--txt2)">${esc(r.vendor)}</td></tr>`;
     }
     html+=`</tbody></table></div></div>`;
   }
