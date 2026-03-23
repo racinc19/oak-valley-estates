@@ -21,6 +21,16 @@ const SCHEDULE_PHASE_NAMES=['deposit','pre construction','site','structural','me
   'contingency','options'];
 const PHASE_KEYS=PHASE_NAMES.slice();
 
+// Hosted CO document URLs (relative to site root) — used when CO has no docUrl/docLink
+const CO_DOC_URLS={
+  'CO-001':'co_docs/CO-001.pdf','CO-002':'co_docs/CO-002.docx','CO-003':'co_docs/CO-003.pdf',
+  'CO-004':'co_docs/CO-004.pdf','CO-005':'co_docs/CO-005.pdf','CO-006':'co_docs/CO-006.pdf',
+  'CO-007':'co_docs/CO-007.pdf','CO-008':'co_docs/CO-008.docx','CO-010':'co_docs/CO-010.docx',
+  'CO-011':'co_docs/CO-011.pdf','CO-012':'co_docs/CO-012.pdf'
+};
+function coDocKey(co){const n=(co.num||co.name||'').trim();const m=n.match(/^Change\s+(\d+)$/i);return m?'CO-'+String(parseInt(m[1],10)).padStart(3,'0'):(n.match(/^CO-\d+/i)?n:null);}
+function coDocUrl(co){return co.docUrl||co.docLink||(coDocKey(co)&&CO_DOC_URLS[coDocKey(co)]||null);}
+
 let P_START=new Date(2026,1,7);
 let P_END=new Date(2027,0,14);
 let TOTAL_DAYS=Math.round((P_END-P_START)/864e5);

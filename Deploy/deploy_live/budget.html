@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rodriguez Residence — Budget & Schedule</title>
+<title>Rodriguez Residence — Budget</title>
 <style>
 :root{--bg:#0c1220;--card:#141e30;--card2:#1a2640;--hover:#1e2d4a;--bdr:#2a3a55;--bdr2:#354766;--txt:#e8edf5;--txt2:#8899b0;--dim:#5a6d85;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#8b5cf6}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -112,9 +112,10 @@ html{overflow-y:scroll}body{overflow-x:hidden}
     
     <a href="selections.html">Selections</a>
     <a href="accounting.html">Accounting</a>
+    <a href="accounting.html#co">Change Orders</a>
     <a href="gantt.html">Gantt</a>
     <a href="draws.html">Draws</a>
-    <a href="budget.html" class="active">Budget & Schedule</a>
+    <a href="budget.html" class="active">Budget</a>
     <a href="https://drive.google.com/drive/u/0/folders/1kS-2awScLDAnGS973xD0D28RxynI49Si" target="_blank" style="color:var(--cyan)">📁 Drive</a>
   </div>
   <button class="topnav-refresh" onclick="doRefresh()">↻ Refresh</button>
@@ -143,37 +144,6 @@ html{overflow-y:scroll}body{overflow-x:hidden}
     </div>
   </div>
 
-  <!-- Schedule Section -->
-  <div class="sbox" style="margin-top:20px">
-    <div class="shdr">
-      <h2>📅 Schedule</h2>
-      <div class="meta" id="scheduleMeta"></div>
-    </div>
-    <div style="overflow-x:auto">
-      <table style="table-layout:fixed;width:100%;min-width:800px">
-        <colgroup>
-          <col style="width:24%">
-          <col style="width:14%">
-          <col style="width:11%">
-          <col style="width:6%">
-          <col style="width:11%">
-          <col style="width:7%">
-          <col style="width:27%">
-        </colgroup>
-        <thead><tr>
-          <th>Trade</th>
-          <th class="ctr">Progress</th>
-          <th class="ctr">Start</th>
-          <th class="ctr">Days</th>
-          <th class="ctr">Finish</th>
-          <th class="ctr">Delay</th>
-          <th>Vendor</th>
-        </tr></thead>
-        <tbody id="scheduleBody"></tbody>
-      </table>
-    </div>
-  </div>
-
   <!-- Change Orders Section -->
   <div class="co-sbox" style="margin-top:20px">
     <div class="co-shdr">
@@ -181,7 +151,6 @@ html{overflow-y:scroll}body{overflow-x:hidden}
       <div class="meta" id="coMeta"></div>
       <button class="co-add-btn" onclick="openCOModal()">+ Add Change Order</button>
     </div>
-    <div class="co-summary" id="coSummary"></div>
     <div style="overflow-x:auto">
       <table>
         <thead><tr>
@@ -437,47 +406,9 @@ function render(phases,paidData){
     '<td class="amount" style="color:var(--red)">'+fmt(totalOutstanding)+'</td></tr>';
   document.getElementById('budgetBody').innerHTML=html;
 
-  // ── Schedule Table (Trade | Progress | Start | Days | Finish | Delay | Notes) ──
-  var tasks=paidData.scheduleTasks||[];
-  var sHtml='';
-  var scheduleCount=0;
-  try{
-  for(var t=0;t<tasks.length;t++){
-    var task=tasks[t];
-    if(task.name==='-Duration')continue;
-    scheduleCount++;
-    var tPct=(task.progress||0).toFixed(0);
-    var tColor=task.progress>=100?'var(--green)':task.progress>0?'var(--orange)':'var(--dim)';
-    var delayColor=task.delay>0?'var(--red)':'var(--dim)';
-    if(task.isPhase){
-      sHtml+='<tr class="phase-row"><td colspan="7"><span class="phase-name">'+task.name+'</span></td></tr>';
-    }else{
-      sHtml+='<tr>'+
-        '<td>'+task.name+'</td>'+
-        '<td style="text-align:center"><span class="mini-bar"><span class="mini-fill" style="width:'+tPct+'%;background:'+tColor+'"></span></span> <span style="color:'+tColor+';font-size:11px;font-weight:600">'+tPct+'%</span></td>'+
-        '<td class="date">'+fmtDate(task.startDate)+'</td>'+
-        '<td class="dur">'+(task.duration||'—')+'</td>'+
-        '<td class="date">'+fmtDate(task.endDate)+'</td>'+
-        '<td style="text-align:center;font-weight:'+(task.delay>0?'700':'400')+';color:'+delayColor+'">'+(task.delay||'0')+'</td>'+
-        '<td class="vendor">'+(task.vendor||'—')+'</td></tr>';
-    }
-  }
-  if(scheduleCount===0) sHtml='<tr><td colspan="7" style="text-align:center;color:var(--dim);padding:20px">No schedule data</td></tr>';
-  if(document.getElementById('scheduleBody'))document.getElementById('scheduleBody').innerHTML=sHtml;
-  if(document.getElementById('scheduleMeta'))document.getElementById('scheduleMeta').textContent=scheduleCount+' tasks';
-  }catch(schedErr){console.warn('Schedule render error:',schedErr);if(document.getElementById('scheduleBody'))document.getElementById('scheduleBody').innerHTML='<tr><td colspan="7" style="color:var(--dim);padding:12px">Schedule data unavailable</td></tr>';}
-
   // ── Change Orders Section ──
   if(document.getElementById('coMeta'))document.getElementById('coMeta').textContent=
     changeOrders.length+' total · '+coApproved.length+' approved · '+coPending.length+' pending';
-
-  // CO summary cards
-  if(document.getElementById('coSummary'))document.getElementById('coSummary').innerHTML=
-    '<div class="co-stat"><div class="co-stat-lbl">Approved</div><div class="co-stat-val" style="color:var(--purple)">'+(coApprovedAmt>0?'+':'')+fmt(coApprovedAmt)+'</div></div>'+
-    '<div class="co-stat"><div class="co-stat-lbl">CO Paid</div><div class="co-stat-val" style="color:var(--green)">'+fmt(coPaidTotal)+'</div></div>'+
-    '<div class="co-stat"><div class="co-stat-lbl">CO Remaining</div><div class="co-stat-val" style="color:var(--yellow)">'+fmt(coApprovedAmt-coPaidTotal)+'</div></div>'+
-    '<div class="co-stat"><div class="co-stat-lbl">Pending</div><div class="co-stat-val" style="color:var(--orange)">'+fmt(coPendingAmt)+'</div></div>'+
-    '<div class="co-stat"><div class="co-stat-lbl">Revised Contract</div><div class="co-stat-val" style="color:var(--cyan)">'+fmt(revisedTotal)+'</div></div>';
 
   // CO table
   var coHtml='';

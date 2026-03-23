@@ -1,0 +1,70 @@
+OVE DOORS — Rodriguez Residence
+Reviewed against: Rodriquez Construction final.pdf (A104 Openings)
+Date: 3/22/2026
+
+═══════════════════════════════════════════════════════════════════════════
+DOOR TYPE MAPPING (OVE Folder → Construction Schedule)
+═══════════════════════════════════════════════════════════════════════════
+OVE Door 1  →  FL100 (Full Lite Glass)   — design C8ZT9dSob
+OVE Door 2  →  TS1000 (Shaker)          — design Au31tRnqMY
+OVE Door 3  →  TMF1000 Flush (Off-White) — design 1tRmHbBwT
+OVE Door 4  →  TMF1000 Flush Exterior    — design EICnMYsYv
+
+═══════════════════════════════════════════════════════════════════════════
+DOOR SCHEDULE — SWINGS, JAMBS, WIDTHS
+(Construction final A104; swing inferred from plans where visible)
+═══════════════════════════════════════════════════════════════════════════
+
+MAIN LEVEL
+----------
+Mark  Model           Qty  Rough Width  Rough Ht   Jamb*   Swing              Level
+100   Exterior Flat    9   3'-2"        8'-1"      6-9/16" LH/RH per plan     Main
+101   TS 1000          3   3'-2"        8'-1"      4-9/16" Inward             Main
+101-E TS 1000          1   3'-2"        8'-1"      6-9/16" Exterior/in        Main
+102   TS 1000          1   2'-8"        8'-1"      4-9/16" Inward             Main
+103   Pocket TS 100    5   6'-3"        8'-3"      4-9/16" Pocket (no swing) Main
+104   Double Acting    1   3'-2"        8'-1"      4-9/16" DA both ways       Main
+105   DBL Closet       1   6'-3"        8'-1"      4-9/16" Bifold/pair        Main
+106   Urban Iron 8x6    1   6'-3"        8'-1¾"    6-9/16" Outward            Main
+107   Garage 9x20      4   varies       9'-0"      6-9/16" Overhead           Main
+108   TS 1000          1   3'-2"        8'-1"      4-9/16" Inward             Main
+109   Five-Panel Bypass 1   per schedule  8'-1"      6-9/16" Bypass (5 panels) Main
+110   Exterior Flat    1   3'-2"        8'-1"      6-9/16" Outward           Main
+111   Double Acting    1   3'-2"        8'-1"      4-9/16" DA both ways       Main
+
+UPPER / LEVEL 12
+---------------
+200   Exterior Flat    1   3'-2"        8'-1"      6-9/16" Outward           12
+202   TS 1000          3   2'-8"        8'-1"      4-9/16" Inward            12
+203   Pocket 3x8       1   3'-0"        8'-0"      4-9/16" Pocket            12
+204   Opening 3x8      2   2'-6"        8'-0"      4-9/16" Cased opening      12
+303   TS 1000          1   3'-2"        8'-1"      4-9/16" Inward            12
+304   Exterior Flat    1   3'-2"        8'-1"      6-9/16" Outward           12
+
+BASEMENT (LOWER)
+----------------
+302   TS 1000          3   2'-8"        8'-1"      4-9/16" Inward            Basement
+307   Vault 3x8        1   3'-0"        8'-0"      6-9/16" N/A               Basement
+
+* Jamb: 4-9/16" for 2x4 partition walls; 6-9/16" for 2x6 exterior/rammed-earth walls.
+  Verify wall type at each opening per A105 Wall Schedule.
+
+═══════════════════════════════════════════════════════════════════════════
+DRAWING MATCH CHECK
+═══════════════════════════════════════════════════════════════════════════
+✓ OVE Door 1–4 cut sheets match TruStile models in Construction final A104.
+✓ Location diagrams (Main Floor, Basement, etc.) align with A104 schedule marks.
+✓ Sizes: Display 32" x 84" on cut sheets = nominal; rough openings per A104.
+  Note: Pocket 203 shows 1 3/8" in schedule — likely thickness; verify width/height.
+✓ Exterior doors (100, 101-E, 109, 110, 200, 304) use TMF1000 Exterior (OVE Door 4).
+✓ Interior shaker = TS1000 (OVE Door 2); interior flush = TMF1000 (OVE Door 3).
+✓ Full-lite glass = FL100 (OVE Door 1).
+
+═══════════════════════════════════════════════════════════════════════════
+SUMMARY BY OVE DOOR TYPE
+═══════════════════════════════════════════════════════════════════════════
+Door 1 (FL100):      Full-lite glass — see schedule marks with FL100
+Door 2 (TS1000):     Shaker — 101, 101-E, 102, 108, 202, 302, 303 (11 doors)
+Door 3 (TMF1000):    Flush Off-White — interior flush
+Door 4 (TMF1000):    Flush Bright Gray Exterior — 100, 110, 200, 304 (excludes 109)
+  — 109: Five-door bypass, 5 panels (per schedule)
