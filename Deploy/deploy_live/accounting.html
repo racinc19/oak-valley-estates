@@ -192,7 +192,7 @@ html{overflow-y:scroll}body{overflow-x:hidden}
   <div class="topnav-links">
     <a href="index.html">Dashboard</a>
     <a href="log.html">Daily Log</a>
-    <a href="selections.html">Selections</a>
+    <a href="selections.html?v=20260322">Selections</a>
     <a href="accounting.html" id="navAccounting" class="active">Accounting</a>
     <a href="accounting.html#co" id="navCO">Change Orders</a>
     <a href="gantt.html">Gantt</a>
@@ -224,7 +224,6 @@ html{overflow-y:scroll}body{overflow-x:hidden}
   <div class="tabs">
     <div class="tab active" data-tab="inv" onclick="switchTab('inv')">Invoice</div>
     <div class="tab" data-tab="hist" onclick="switchTab('hist')">History</div>
-    <div class="tab" data-tab="co" onclick="switchTab('co')">Change Orders</div>
   </div>
 
   <!-- LIVE INVOICE -->
@@ -243,6 +242,23 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 
   <!-- CHANGE ORDERS -->
   <div id="tab-co" class="tab-panel">
+    <div class="co-list-hdr" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+      <h2 style="font-size:18px;font-weight:700;color:var(--purple);display:flex;align-items:center;gap:6px">📝 Change Orders</h2>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span id="coListMeta" style="font-size:12px;color:var(--dim)"></span>
+        <button class="btn-sec" onclick="openCOModal()" style="border-color:var(--purple);color:var(--purple)">+ Add Change Order</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:24px">
+      <table class="co-list-table" style="width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--bdr)">
+        <thead><tr style="background:rgba(139,92,246,.08);border-bottom:1px solid var(--purple)">
+          <th style="padding:10px 14px;text-align:left;font-size:10px;color:var(--dim);text-transform:uppercase;width:140px">CO#</th>
+          <th style="padding:10px 14px;text-align:left;font-size:10px;color:var(--dim);text-transform:uppercase">Description</th>
+          <th style="padding:10px 14px;text-align:center;font-size:10px;color:var(--dim);text-transform:uppercase;width:80px">Doc</th>
+        </tr></thead>
+        <tbody id="coListBody"></tbody>
+      </table>
+    </div>
     <div class="search-bar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <input id="coSearch" placeholder="Search change orders..." oninput="renderCOs()" style="flex:1;min-width:180px">
       <button class="btn-sec" onclick="populateCOsFromSeed()" style="font-size:12px">📋 Populate COs</button>
@@ -275,7 +291,7 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="shared.js?v20260224b"></script>
+<script src="shared.js?v20260323"></script>
 <script>
 var INV_KEY='rac_invoices_v2';
 var BUDGET_CO_KEY='rodriguez_change_orders_v3';
@@ -287,6 +303,7 @@ var CO_SEED=[
   {num:'CO-005',desc:'AV Panel & Smart Fixture Upgrade — Nest to Axion, smart mirrors, uplift cabinet',vendor:'RAC Inc.',amount:0,paid:0,date:'2026-02-25',status:'approved',pct:0,notes:''},
   {num:'CO-006',desc:'Hose Bibs & Outlets',vendor:'RAC Inc.',amount:0,paid:0,date:'',status:'approved',pct:0,notes:''},
   {num:'CO-007',desc:'Secret Door Security Upgrade — Dual operational modes, forced entry protection, ballistic resistance',vendor:'Creative Home Engineering',amount:56525,paid:0,date:'2026-02-25',status:'pending',pct:0,notes:''},
+  {num:'CO-7.5',desc:'St George Windows & Doors',vendor:'St George Windows, Doors & More LLC',amount:0,paid:0,date:'',status:'pending',pct:0,notes:''},
   {num:'CO-008',desc:'Well Water System',vendor:'',amount:0,paid:0,date:'',status:'pending',pct:0,notes:''},
   {num:'CO-010',desc:'Plumbing Fixture Changes',vendor:'',amount:0,paid:0,date:'',status:'pending',pct:0,notes:''},
   {num:'CO-011',desc:'Solar Fence Orientation — Upright to laid down (landscape)',vendor:'TBD',amount:0,paid:0,date:'2026-03-21',status:'pending',pct:0,notes:''},
@@ -302,21 +319,40 @@ function loadCOs(){
   try{COS=JSON.parse(localStorage.getItem(BUDGET_CO_KEY))||[];}catch(e){COS=[];}
   if(COS.length===0){COS=CO_SEED.slice();localStorage.setItem(BUDGET_CO_KEY,JSON.stringify(COS));}
   else{populateCOsFromSeed(true);}
+  COS.forEach(function(c){var v=(c.vendor||'').toLowerCase();var d=(c.desc||'').toLowerCase();if((v.indexOf('st george')>=0&&(v.indexOf('window')>=0||v.indexOf('door')>=0))||(d.indexOf('st george')>=0&&(d.indexOf('window')>=0||d.indexOf('door')>=0))){c.num='CO-7.5';}});
   dedupeCOs();
 }
+function mergeCOInto(target,source){
+  if((source.desc||'').length>(target.desc||'').length)target.desc=source.desc;
+  if((source.vendor||'').length>(target.vendor||'').length)target.vendor=source.vendor;
+  if(parseFloat(source.amount||0)>parseFloat(target.amount||0))target.amount=source.amount;
+  if(parseFloat(source.paid||0)>parseFloat(target.paid||0))target.paid=source.paid;
+  if((source.date||'')&&!(target.date||''))target.date=source.date;
+  if(!(target.docUrl||target.docLink||target.docStored)&&(source.docUrl||source.docLink||source.docStored)){target.docUrl=source.docUrl;target.docLink=source.docLink;target.docStored=source.docStored;}
+}
 function dedupeCOs(){
+  var keyFn=typeof coDedupeKey==='function'?coDedupeKey:coDocKey;
   var seen={};
   var out=[];
   for(var i=0;i<COS.length;i++){
     var c=COS[i];
-    var key=typeof coDocKey==='function'?coDocKey(c):(c.num||c.name||'').trim();
-    var k=key||('_'+i);
-    if(seen[k])continue;
-    seen[k]=true;
-    if(key&&!c.docUrl&&typeof coDocUrl==='function'){var u=coDocUrl(c);if(u)c.docUrl=u;}
+    var key=(typeof keyFn==='function'?keyFn(c):null)||(c.num||c.name||'').trim()||('_'+i);
+    var k=key.toString();
+    if(seen[k]!==undefined){
+      var keptIdx=seen[k];
+      var kept=out[keptIdx];
+      var keptHasDoc=!!(kept.docUrl||kept.docLink||kept.docStored);
+      var curHasDoc=!!(c.docUrl||c.docLink||c.docStored);
+      if(curHasDoc&&!keptHasDoc){mergeCOInto(c,kept);out[keptIdx]=c;}
+      else{mergeCOInto(kept,c);if(!kept.docUrl&&typeof coDocUrl==='function'){var u=coDocUrl(kept);if(u)kept.docUrl=u;}}
+      continue;
+    }
+    seen[k]=out.length;
+    if(!c.docUrl&&typeof coDocUrl==='function'){var u=coDocUrl(c);if(u)c.docUrl=u;}
     out.push(c);
   }
-  if(out.length!==COS.length){COS=out;saveCOs();}
+  COS=out;
+  saveCOs();
 }
 function saveCOs(){localStorage.setItem(BUDGET_CO_KEY,JSON.stringify(COS));}
 
@@ -329,10 +365,16 @@ function invNumber(){var d=new Date();return 'INV-'+d.getFullYear()+pad(d.getMon
 function fmtDate(s){if(!s)return '—';var d=new Date(s+'T12:00:00');return(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();}
 function dueDate(s){var d=new Date(s+'T12:00:00');d.setDate(d.getDate()+30);return(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();}
 
+function setCOViewMode(isCO){
+  var tbar=document.querySelector('.toolbar');var tabs=document.querySelector('.tabs');
+  if(tbar)tbar.style.display=isCO?'none':'';
+  if(tabs)tabs.style.display=isCO?'none':'';
+}
 function switchTab(id){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===id);});
   document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
   document.getElementById('tab-'+id).classList.add('active');
+  setCOViewMode(id==='co');
   if(id==='hist') renderInvHistory();
   if(id==='co') renderCOs();
   if(id==='inv') renderInvoice();
@@ -838,20 +880,20 @@ function approveViaSigned(idx,input){
 }
 function populateCOsFromSeed(silent){
   if(!silent)loadCOs();
+  var keyFn=typeof coDedupeKey==='function'?coDedupeKey:coDocKey;
   var existingKeys={};
-  COS.forEach(function(c){var k=typeof coDocKey==='function'?coDocKey(c):(c.num||c.name||'').trim();if(k)existingKeys[k]=true;else existingKeys['_'+c.num]=true;});
+  COS.forEach(function(c){var k=(typeof keyFn==='function'?keyFn(c):null)||(c.num||c.name||'').trim()||('_'+c.num);if(k)existingKeys[k]=true;});
   var added=0;
   CO_SEED.forEach(function(seed){
     var n=(seed.num||'').trim();
     if(!n)return;
-    var sk=typeof coDocKey==='function'?coDocKey(seed):n;
+    var sk=(typeof keyFn==='function'?keyFn(seed):null)||n;
     if(sk&&existingKeys[sk])return;
-    if(existingKeys['_'+n])return;
     var docUrl=typeof coDocUrl==='function'?coDocUrl(seed):null;
     var c={num:n,desc:seed.desc||'',vendor:seed.vendor||'',amount:parseFloat(seed.amount)||0,paid:parseFloat(seed.paid)||0,date:seed.date||'',status:seed.status||'pending',pct:seed.pct||0,notes:seed.notes||''};
     if(docUrl)c.docUrl=docUrl;
     COS.push(c);
-    if(sk)existingKeys[sk]=true;else existingKeys['_'+n]=true;
+    if(sk)existingKeys[sk]=true;
     added++;
   });
   if(added){saveCOs();if(!silent)showToast('✓ Added '+added+' change orders');}
@@ -862,26 +904,28 @@ function syncCOsFromSheet(){
   if(!LIVE||!LIVE.main||!LIVE.main.sheetCOs){showToast('Load sheet first — click Refresh','var(--yellow)');return;}
   loadCOs();
   var sheetCOs=LIVE.main.sheetCOs;
+  var keyFn=typeof coDedupeKey==='function'?coDedupeKey:coDocKey;
   var existingKeys={};
-  COS.forEach(function(c){var k=typeof coDocKey==='function'?coDocKey(c):(c.num||c.name||'').trim();if(k)existingKeys[k]=true;});
+  COS.forEach(function(c){var k=(typeof keyFn==='function'?keyFn(c):null)||(c.num||c.name||'').trim();if(k)existingKeys[k]=true;});
   var added=0;
   sheetCOs.forEach(function(co){
     var n=(co.num||'').trim();
     if(!n)return;
-    var sk=typeof coDocKey==='function'?coDocKey(co):n;
+    var sk=(typeof keyFn==='function'?keyFn(co):null)||n;
     if(sk&&existingKeys[sk])return;
     var docUrl=typeof coDocUrl==='function'?coDocUrl(co):null;
     var c={num:n,desc:co.desc||'',vendor:'',amount:parseFloat(co.amount)||0,paid:parseFloat(co.paid)||0,date:'',status:co.status||'approved',pct:co.pct||0,notes:''};
     if(docUrl)c.docUrl=docUrl;
     COS.push(c);
-    if(sk)existingKeys[sk]=true;added++;
+    if(sk)existingKeys[sk]=true;
+    added++;
   });
   if(added){dedupeCOs();saveCOs();showToast('✓ Added '+added+' COs from sheet');}
   else{showToast('All sheet COs already in list');}
   renderCOs();
 }
 function coDisplay(c){return{name:c.name||c.num||'CO',desc:(c.description||c.desc||''),vendor:c.vendor,amount:c.amount,date:c.date,status:c.status};}
-function coSortKey(c){var n=(c.num||c.name||'').trim();var m=n.match(/^CO-?(\d+)/i);return m?parseInt(m[1],10):9999;}
+function coSortKey(c){var n=(c.num||c.name||'').trim();var m=n.match(/^CO-?(\d+(?:\.\d+)?)/i);if(!m)return 9999;var v=m[1];return v.includes('.')?parseFloat(v):parseInt(v,10);}
 function renderCOs(){
   loadCOs();
   var coApproved=COS.filter(function(c){return c.status==='approved'});
@@ -891,7 +935,15 @@ function renderCOs(){
   var coPendingAmt=coPending.reduce(function(s,c){return s+parseFloat(c.amount||0);},0);
   var coSummaryEl=document.getElementById('coSummary');
   var coSummaryMeta=document.getElementById('coSummaryMeta');
+  var coListMeta=document.getElementById('coListMeta');
+  var coListBody=document.getElementById('coListBody');
   if(coSummaryMeta)coSummaryMeta.textContent=COS.length+' total · '+coApproved.length+' approved · '+coPending.length+' pending';
+  if(coListMeta)coListMeta.textContent=COS.length+' total · '+coApproved.length+' approved · '+coPending.length+' pending';
+  var sortedAll=COS.slice().sort(function(a,b){return coSortKey(a)-coSortKey(b);});
+  if(coListBody){
+    if(!COS.length){coListBody.innerHTML='<tr><td colspan="3" style="padding:20px;text-align:center;color:var(--dim)">No change orders yet — click + Add Change Order to create one</td></tr>';}
+    else{coListBody.innerHTML=sortedAll.map(function(c){var d=coDisplay(c);var rowColor=c.status==='approved'?'var(--green)':'var(--red)';var hasDoc=!!(c.docUrl||c.docLink||c.docStored||(typeof coDocUrl==='function'&&coDocUrl(c)));var docBadge=hasDoc?'<span style="color:var(--cyan)">📄 Has doc</span>':'<span style="color:var(--dim)">No doc</span>';return '<tr style="border-bottom:1px solid rgba(42,58,85,.3)"><td style="padding:10px 14px;font-weight:700;color:'+rowColor+'">'+safeEsc(d.name||'CO')+'</td><td style="padding:10px 14px;color:'+rowColor+'">'+safeEsc(d.desc||'—')+'</td><td style="padding:10px 14px;text-align:center;font-size:11px">'+docBadge+'</td></tr>';}).join('');}
+  }
   if(coSummaryEl)coSummaryEl.innerHTML='<div class="co-stat"><div class="co-stat-lbl">Approved</div><div class="co-stat-val" style="color:var(--purple)">'+(coApprovedAmt>0?'+':'')+money(coApprovedAmt)+'</div></div>'+
     '<div class="co-stat"><div class="co-stat-lbl">CO Paid</div><div class="co-stat-val" style="color:var(--green)">'+money(coPaidTotal)+'</div></div>'+
     '<div class="co-stat"><div class="co-stat-lbl">CO Remaining</div><div class="co-stat-val" style="color:var(--yellow)">'+money(coApprovedAmt-coPaidTotal)+'</div></div>'+
@@ -919,8 +971,11 @@ function renderCOs(){
       :'<span style="font-size:11px;color:#10b981">✓ Approved'+(c.approvedDate?' '+c.approvedDate:'')+(c.approvedBy?' by '+safeEsc(c.approvedBy):'')+(c.signedDoc?' 📄':'')+'</span>';
     var coKey=c.num||c.name||'CO-'+i;
     var docUrl=c.docUrl||c.docLink||(typeof coDocUrl==='function'?coDocUrl(c):null);
-    var viewDocBtn=docUrl?'<a href="'+safeEsc(docUrl)+'" target="_blank" rel="noopener" style="padding:4px 10px;border-radius:6px;background:none;border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;font-size:11px;font-weight:600;text-decoration:none">📄 View document</a>':c.docStored?'<button onclick="viewCODoc('+JSON.stringify(coKey)+')" style="padding:4px 10px;border-radius:6px;background:none;border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;font-size:11px;font-weight:600">📄 View document</button>':'';
-    return '<div class="doc-card"><span class="doc-type">Change Order</span> <span class="badge '+bc+'">'+safeEsc(c.status||'pending').toUpperCase()+'</span>'
+    var viewDocHref=docUrl;
+    if(docUrl){try{var abs=new URL(docUrl,window.location.href).href;viewDocHref=/\.(docx?|doc)$/i.test(docUrl)?'https://docs.google.com/viewer?url='+encodeURIComponent(abs)+'&embedded=true':abs;}catch(e){viewDocHref=docUrl;}}
+    var viewDocBtn=docUrl?'<a href="'+safeEsc(viewDocHref)+'" target="_blank" rel="noopener" style="padding:4px 10px;border-radius:6px;background:none;border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;font-size:11px;font-weight:600;text-decoration:none">📄 View document</a>':c.docStored?'<button onclick="viewCODoc('+JSON.stringify(coKey)+')" style="padding:4px 10px;border-radius:6px;background:none;border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;font-size:11px;font-weight:600">📄 View document</button>':'';
+    var docInd=docUrl||c.docStored?'<span style="font-size:10px;color:var(--cyan);margin-left:6px">📄 Has doc</span>':'<span style="font-size:10px;color:var(--dim);margin-left:6px">No doc</span>';
+    return '<div class="doc-card"><span class="doc-type">Change Order</span> <span class="badge '+bc+'">'+safeEsc(c.status||'pending').toUpperCase()+'</span>'+docInd
       +'<div class="doc-name" style="margin-top:8px">'+safeEsc(d.name||'Untitled')+'</div>'
       +(d.vendor?'<div style="font-size:12px;color:var(--cyan);margin-bottom:4px">'+safeEsc(d.vendor)+'</div>':'')
       +(d.amount?'<div class="doc-amt">'+money(parseFloat(d.amount))+'</div>':'')
@@ -988,7 +1043,9 @@ function openCOModal(pre,editIdx){
   var descVal=(pre.desc||pre.description||'');
   var urlVal=(pre.docUrl||pre.docLink||'');
   var coKey=pre.num||pre.name||'';
-  var viewDocHtml=(urlVal||pre.docStored)?'<a href="'+(urlVal||'#')+'" '+(urlVal?'target="_blank" rel="noopener"':'onclick="event.preventDefault();viewCODoc('+JSON.stringify(coKey)+');return false"')+' style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;background:rgba(6,182,212,.15);border:1px solid var(--cyan);color:var(--cyan);font-size:13px;font-weight:700;text-decoration:none;margin-bottom:16px">📄 View document</a>':'';
+  var viewDocHref=urlVal||'#';
+  if(urlVal){try{var absUrl=new URL(urlVal,window.location.href).href;viewDocHref=/\.(docx?|doc)$/i.test(urlVal)?'https://docs.google.com/viewer?url='+encodeURIComponent(absUrl)+'&embedded=true':absUrl;}catch(e){}}
+  var viewDocHtml=(urlVal||pre.docStored)?'<a href="'+(urlVal?safeEsc(viewDocHref):'#')+'" '+(urlVal?'target="_blank" rel="noopener"':'onclick="event.preventDefault();viewCODoc('+JSON.stringify(coKey)+');return false"')+' style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;background:rgba(6,182,212,.15);border:1px solid var(--cyan);color:var(--cyan);font-size:13px;font-weight:700;text-decoration:none;margin-bottom:16px">📄 View document</a>':'';
   document.getElementById('modalWrap').innerHTML='<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">'+
     '<h3>'+(editIdx>=0?'Edit Change Order':pre.name?'🤖 Review Parsed CO':'Add Change Order')+'</h3>'+
     viewDocHtml+
@@ -1074,9 +1131,10 @@ function closeModal(){pendingParseFile=null;pendingAttachFile=null;document.getE
 })();
 
 // ── INIT ──
-loadSheet();
+loadCOs();
+  loadSheet();
 if(location.hash==='#co'){
-  document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab==='co');});
+  setCOViewMode(true);
   document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
   var coPanel=document.getElementById('tab-co');if(coPanel)coPanel.classList.add('active');
   renderCOs();
@@ -1085,6 +1143,19 @@ if(location.hash==='#co'){
 }else{
   var na=document.getElementById('navAccounting');if(na)na.classList.add('active');
 }
+window.addEventListener('hashchange',function(){
+  if(location.hash==='#co'){
+    setCOViewMode(true);
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+    var coPanel=document.getElementById('tab-co');if(coPanel)coPanel.classList.add('active');
+    renderCOs();
+    var na=document.getElementById('navAccounting');var nc=document.getElementById('navCO');
+    if(na)na.classList.remove('active');if(nc)nc.classList.add('active');
+  }else{
+    setCOViewMode(false);
+    var na=document.getElementById('navAccounting');if(na)na.classList.add('active');
+  }
+});
 </script>
 </body>
 </html>

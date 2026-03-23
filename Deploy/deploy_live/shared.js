@@ -29,7 +29,9 @@ const CO_DOC_URLS={
   'CO-011':'co_docs/CO-011.pdf','CO-012':'co_docs/CO-012.pdf'
 };
 function coDocKey(co){const n=(co.num||co.name||'').trim();const m=n.match(/^Change\s+(\d+)$/i);return m?'CO-'+String(parseInt(m[1],10)).padStart(3,'0'):(n.match(/^CO-\d+/i)?n:null);}
-function coDocUrl(co){return co.docUrl||co.docLink||(coDocKey(co)&&CO_DOC_URLS[coDocKey(co)]||null);}
+// Normalized key for dedupe — CO-XXX or CO-X.Y (e.g. CO-7.5 stays distinct from CO-7)
+function coDedupeKey(co){const n=(co.num||co.name||'').trim();const m1=n.match(/^Change\s+(\d+(?:\.\d+)?)$/i);if(m1){const v=m1[1];return v.includes('.')?'CO-'+v:'CO-'+String(parseInt(v,10)).padStart(3,'0');}const m2=n.match(/CO-?(\d+(?:\.\d+)?)/i);if(m2){const v=m2[1];return v.includes('.')?'CO-'+v:'CO-'+String(parseInt(v,10)).padStart(3,'0');}return null;}
+function coDocUrl(co){return co.docUrl||co.docLink||((typeof coDedupeKey==='function'?coDedupeKey(co):coDocKey(co))&&CO_DOC_URLS[(typeof coDedupeKey==='function'?coDedupeKey(co):coDocKey(co))]||null);}
 
 let P_START=new Date(2026,1,7);
 let P_END=new Date(2027,0,14);
