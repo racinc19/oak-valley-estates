@@ -1,0 +1,36 @@
+Rodriguez Residence — Cabinetry RFP Package
+==========================================
+
+Location on disk:
+  Construction/RFP/Cabinets/RFP_Package/
+
+Contents
+--------
+1. Rodriguez_Cabinet_RFP.txt
+   Master RFP text (copy into Word, set styles, export to PDF for distribution).
+
+2. This file (PACKAGE_INDEX.txt)
+   Checklist of what to attach when issuing the package.
+
+Recommended attachments (not duplicated here)
+---------------------------------------------
+  • Architectural cabinet drawings (current issue):
+      - A900 — Kitchen Fixtures
+      - A901 — Cabinets Main
+      - A902 — Cabinets Upper
+      - A903 — Cabinets ADU/Lower (sheet title may read "Cabniets"; verify revision)
+    Source folder in repo: Design/Single Page/
+
+  • Finish sample / submittal:
+      - Dover White — matte laminate (or approved equivalent), flat slab
+      - Photo or manufacturer sheet if physical sample not yet available
+
+  • Plans link (verify access for bidders):
+      Google Drive folder as listed in the RFP body
+
+  • Proof of license / insurance: collected with bid (per RFP)
+
+After issue
+-----------
+  • Replace bracketed dates in Rodriguez_Cabinet_RFP.txt if you use placeholders.
+  • File final PDF + any addenda alongside this package folder or in Construction/RFP/Cabinets/.
