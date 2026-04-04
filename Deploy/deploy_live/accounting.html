@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- invoice: client labels — no internal sheet jargon on PDF v20260402 deploy_live -->
+<!DOCTYPE html><!-- invoice: tie-out line = Balance per approved schedule (client) v20260402 deploy_live -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -931,7 +931,7 @@ function renderInvoice(){
   });
   if((tgt!=null||useAnchor)&&Math.abs(invAdj)>0.01){
     rows+='<tr class="it-row" style="background:rgba(234,179,8,.12)">'+
-      '<td colspan="3" style="text-align:right;font-weight:800;color:#92400e">Invoice adjustment</td>'+
+      '<td colspan="3" style="text-align:right;font-weight:800;color:#92400e">Balance per approved schedule</td>'+
       '<td class="r" style="color:#9ca3af">—</td>'+
       '<td class="r" style="font-weight:800;color:#92400e">'+money(invAdj)+'</td>'+
       '</tr>';
@@ -1059,7 +1059,7 @@ function saveAndPrint(){
   var adj=0;
   if(tgt!=null&&Math.abs(tgt-sheetSum)>0.01)adj=tgt-sheetSum;
   else if(useAnchor&&Math.abs(anchorDue-sheetSum)>0.01)adj=anchorDue-sheetSum;
-  if(Math.abs(adj)>0.01){lineItems.push({key:'_inv_target_adj',name:'Invoice adjustment',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:adj});}
+  if(Math.abs(adj)>0.01){lineItems.push({key:'_inv_target_adj',name:'Balance per approved schedule',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:adj});}
   var total=lineItems.reduce(function(s,i){return s+i.amount;},0);
   if(!lineItems.length||total<0.01){showToast('Nothing to invoice — refresh sheet or set This invoice — draft ($)','var(--yellow)');return;}
   var baseNum=invNumber();
@@ -1088,7 +1088,7 @@ function markInvoiceSent(){
   var invRow=0;
   if(tgt!=null)invRow=tgt-sheetSum;
   else if(useAnchor)invRow=anchorDue-sheetSum;
-  if(Math.abs(invRow)>0.01){lineItems.push({key:'_inv_target_adj',name:'Invoice adjustment',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:invRow});}
+  if(Math.abs(invRow)>0.01){lineItems.push({key:'_inv_target_adj',name:'Balance per approved schedule',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:invRow});}
   var total=lineItems.reduce(function(s,i){return s+Number(i.amount||0);},0);
   if(!lineItems.length||total<0.01){showToast('Nothing to mark sent','var(--yellow)');return;}
   var newSh=JSON.parse(JSON.stringify(getInvShadow()));
@@ -1143,7 +1143,7 @@ function exportQB(){
   var adj=0;
   if(tgt!=null&&Math.abs(tgt-sheetSum)>0.01)adj=tgt-sheetSum;
   else if(useAnchor&&Math.abs(anchorDue-sheetSum)>0.01)adj=anchorDue-sheetSum;
-  if(Math.abs(adj)>0.01){lineItems.push({key:'_adj',name:'Invoice adjustment',vendor:'',markup:0,pct:100,thisAmt:adj,billable:true});}
+  if(Math.abs(adj)>0.01){lineItems.push({key:'_adj',name:'Balance per approved schedule',vendor:'',markup:0,pct:100,thisAmt:adj,billable:true});}
   if(!lineItems.length){showToast('Nothing to export — refresh sheet or set This invoice — draft ($)','var(--yellow)');return;}
 
   var num=invNumber();
