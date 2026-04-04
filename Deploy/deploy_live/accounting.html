@@ -1,8 +1,10 @@
-<!DOCTYPE html><!-- build:20260218183733 -->
+<!DOCTYPE html><!-- invoice: print + mark-sent toolbar restored v20260402 deploy_live -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
 <title>Rodriguez Residence — Invoice</title>
 <style>
 :root{--bg:#0c1220;--card:#141e30;--card2:#1a2640;--hover:#1e2d4a;--bdr:#2a3a55;--txt:#e8edf5;--txt2:#8899b0;--dim:#5a6d85;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;--purple:#8b5cf6}
@@ -65,11 +67,21 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .due-red{color:#dc2626!important}
 
 /* summary bar */
-.inv-summary{display:grid;grid-template-columns:repeat(4,1fr);background:#f8fafc;border-bottom:1px solid #e2e8f0}
+.inv-summary{display:grid;grid-template-columns:repeat(3,1fr);background:#f8fafc;border-bottom:1px solid #e2e8f0}
 .sum-cell{padding:16px 24px;border-right:1px solid #e2e8f0;text-align:center}
 .sum-cell:last-child{border-right:none}
 .sum-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:4px}
 .sum-val{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+
+.hist-track-summary{background:var(--card2);border:1px solid var(--bdr);border-radius:12px;padding:16px 18px;margin-bottom:18px}
+.hist-track-summary .hts-h{font-size:11px;font-weight:800;color:var(--cyan);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.hist-track-summary .hts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}
+.hist-track-summary .hts-l{font-size:10px;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
+.hist-track-summary .hts-v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.hist-track-summary .hts-s{font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35}
+.hist-track-summary .hts-foot{font-size:11px;color:var(--txt2);margin-top:12px;padding-top:10px;border-top:1px solid var(--bdr);text-align:center;line-height:1.5}
+.live-summary-bar{display:block!important;visibility:visible!important}
+@media(max-width:700px){.hist-track-summary .hts-grid{grid-template-columns:1fr}}
 
 /* line items */
 .inv-table{width:100%;border-collapse:collapse}
@@ -127,6 +139,16 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .hc-amt{font-size:20px;font-weight:800}
 .hc-btns button{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;margin-left:6px}
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.billing-month-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;font-size:13px}
+.billing-month-table th,.billing-month-table td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.billing-month-table th{background:rgba(6,182,212,.1);font-size:10px;font-weight:800;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.billing-month-table tr:last-child td{border-bottom:none}
+.billing-month-table .bm-num{font-weight:800;font-variant-numeric:tabular-nums}
+.billing-month-table .bm-paid{color:var(--green);font-weight:700}
+.billing-month-table .bm-due{color:var(--yellow);font-weight:700}
+.billing-month-table .bm-ip{color:var(--purple);font-weight:700}
+.billing-month-table td.bm-r{text-align:right}
+.billing-month-table th.bm-r{text-align:right}
 .b-paid{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
 .b-sent{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
 .b-del{background:none;border:1px solid var(--red)!important;color:var(--red)}
@@ -209,17 +231,37 @@ html{overflow-y:scroll}body{overflow-x:hidden}
   <div class="toolbar">
     <div class="toolbar-left">
       <h1>📄 Invoice</h1>
+      <span class="refresh-note" id="pageBuildStamp" title="Printed in deployed HTML — if this stays old after a deploy, hard-refresh (Ctrl+Shift+R)">deploy HTML · 20260402</span>
       <span class="refresh-note" id="refreshNote">Loading...</span>
+      <span class="refresh-note" id="acctLogicTag" style="font-size:10px;color:var(--dim);max-width:360px">Summary: Earned · Paid (F) · This invoice (Build Gross col G when present)</span>
     </div>
     <div class="toolbar-right">
       <button class="btn-sec" onclick="loadSheet()">🔄 Refresh</button>
-      <button class="btn-sec" onclick="seedHistoryFromSheet(); switchTab('hist');" style="font-size:12px">🌱 Seed from sheet</button>
-      <button class="btn-sec" onclick="switchTab('hist')">🗂 History</button>
-      <button class="btn-sec" onclick="switchTab('co'); setTimeout(function(){document.getElementById('coSummarySection')&&document.getElementById('coSummarySection').scrollIntoView({behavior:'smooth'});},100)">📊 Summary</button>
+      <button class="btn-sec" onclick="switchTab('co'); setTimeout(function(){document.getElementById('coSummarySection')&&document.getElementById('coSummarySection').scrollIntoView({behavior:'smooth'});},100)">📝 Change orders</button>
       <button class="btn-sec" onclick="exportQB()" style="border-color:var(--green);color:var(--green)">📦 Export to QuickBooks</button>
-      <button class="btn-pri" onclick="saveAndPrint()">⬇️ Save &amp; Download</button>
+      <button class="btn-pri" onclick="saveAndPrint()">🖨️ Save &amp; print</button>
+      <button class="btn-sec" onclick="markInvoiceSent()" style="border-color:#fbbf24;color:#fbbf24" title="After you actually email or send the invoice">✉️ Mark invoice as sent</button>
     </div>
+    <div style="width:100%;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:12px 14px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px">
+      <span style="font-size:12px;font-weight:800;color:var(--txt2)">This invoice — draft ($)</span>
+      <input type="text" inputmode="decimal" id="invoiceTotalTarget" placeholder="348205" title="Optional: force Amount Due if it must differ from sum of col G (e.g. rounding)." onblur="applyInvoiceTarget()" style="width:140px;padding:8px 10px;border-radius:8px;border:1px solid var(--bdr);background:var(--bg);color:var(--txt);font-size:13px"/>
+      <button type="button" class="btn-sec" onclick="applyInvoiceTarget()">Apply</button>
+      <button type="button" class="btn-sec" onclick="clearInvoiceTarget()">Clear</button>
+      <button type="button" class="btn-sec" onclick="clearInvShadow()" title="After col G (and E) on the sheet match what you marked sent">Clear sent-memory</button>
+      <span id="invoiceTargetHint" style="font-size:11px;color:var(--dim);flex:1;min-width:200px"></span>
+    </div>
+    <details style="width:100%;margin-top:10px;padding:10px 12px;background:rgba(6,182,212,.06);border:1px solid var(--bdr);border-radius:10px;font-size:12px;color:var(--txt2);line-height:1.5">
+      <summary style="cursor:pointer;font-weight:700;color:var(--cyan)">QuickBooks Online — import the CSV</summary>
+      <ol style="margin:10px 0 0 18px;padding:0">
+        <li>Click <strong>Export to QuickBooks</strong>. Your browser downloads <code style="font-size:11px">INV…</code>.csv (multi-line invoice format).</li>
+        <li>In <strong>QuickBooks Online</strong>: <strong>Settings (gear)</strong> → <strong>Import data</strong> → <strong>Invoices</strong> (menu names can vary slightly by plan/region).</li>
+        <li>Upload the file, match columns if prompted, then review and import.</li>
+        <li><strong>Save &amp; print</strong> opens the print dialog (PDF) for the client; the CSV is for posting the invoice in QBO — same line items as on screen.</li>
+      </ol>
+    </details>
   </div>
+
+  <div id="liveSummaryBar" class="live-summary-bar" style="margin-bottom:14px" aria-live="polite"><div class="hist-track-summary"><div class="hts-foot" style="border:none;margin:0;padding:8px 0">⏳ Loading live sheet…</div></div></div>
 
   <div class="tabs">
     <div class="tab active" data-tab="inv" onclick="switchTab('inv')">Invoice</div>
@@ -233,9 +275,9 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 
   <!-- HISTORY -->
   <div id="tab-hist" class="tab-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-      <h2 style="font-size:16px;font-weight:800;margin:0">Invoice History</h2>
-      <button class="btn-sec" onclick="seedHistoryFromSheet()" style="font-size:12px">🌱 Seed from sheet</button>
+    <div style="margin-bottom:12px">
+      <h2 style="font-size:16px;font-weight:800;margin:0">Monthly billing</h2>
+      <p style="font-size:12px;color:var(--dim);margin:6px 0 0 0;max-width:720px">First row = job totals from sheet. <strong>Next month</strong> on <strong>Paid</strong> → next month <strong>Due</strong>. <strong>Next month</strong> on <strong>Due</strong> → following month <strong>In progress</strong> ($0). Default list is March $400k paid only (no February).</p>
     </div>
     <div id="invHist"></div>
   </div>
@@ -291,7 +333,7 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="shared.js?v20260323"></script>
+<script src="shared.js?v20260407"></script>
 <script>
 var INV_KEY='rac_invoices_v2';
 var BUDGET_CO_KEY='rodriguez_change_orders_v3';
@@ -312,9 +354,114 @@ var CO_SEED=[
 var INVOICES=[];
 var COS=[];
 var LIVE=null;
+var INV_TARGET_KEY='rac_invoice_total_target';
+function parseMoneyInput(v){
+  var s=String(v||'').replace(/[$,]/g,'').replace(/\s/g,'').trim();
+  if(s==='')return null;
+  var n=parseFloat(s);
+  if(isNaN(n))return null;
+  return n;
+}
+function getInvoiceTarget(){
+  var s=localStorage.getItem(INV_TARGET_KEY);
+  if(!s)return null;
+  var n=parseMoneyInput(s);
+  if(n===null||n<0)return null;
+  return n;
+}
+function getEffectiveTarget(){
+  var el=document.getElementById('invoiceTotalTarget');
+  if(el){
+    var raw=String(el.value||'').trim();
+    if(raw!==''){
+      var p=parseMoneyInput(raw);
+      if(p!==null&&p>=0)return p;
+    }
+  }
+  var ls=getInvoiceTarget();
+  if(ls!=null)return ls;
+  return getLatestDraftInvoiceTotal();
+}
+function applyInvoiceTarget(){
+  var el=document.getElementById('invoiceTotalTarget');
+  if(!el)return;
+  var v=String(el.value||'').trim();
+  if(!v){localStorage.removeItem(INV_TARGET_KEY);updateInvoiceTargetHint();renderInvoice();showToast('Saved draft amount cleared — Amount Due may still use last saved draft');return;}
+  var n=parseMoneyInput(v);
+  if(n===null||n<0){showToast('Enter a valid dollar amount','var(--red)');return;}
+  localStorage.setItem(INV_TARGET_KEY,String(n));
+  el.value=String(n);
+  updateInvoiceTargetHint();
+  renderInvoice();
+  showToast('Amount Due → '+money(n));
+}
+function clearInvoiceTarget(){
+  localStorage.removeItem(INV_TARGET_KEY);
+  var el=document.getElementById('invoiceTotalTarget');
+  if(el)el.value='';
+  updateInvoiceTargetHint();
+  renderInvoice();
+  showToast('Override cleared');
+}
+function updateInvoiceTargetHint(){
+  var h=document.getElementById('invoiceTargetHint');
+  if(!h)return;
+  var t=getEffectiveTarget();
+  if(t==null){h.textContent='';return;}
+  var el=document.getElementById('invoiceTotalTarget');
+  var raw=el?String(el.value||'').trim():'';
+  var typed=raw!==''&&parseMoneyInput(raw)!==null;
+  var fromSavedDraft=!typed&&getInvoiceTarget()==null&&getLatestDraftInvoiceTotal()!=null&&Math.abs((getLatestDraftInvoiceTotal()||0)-t)<0.02;
+  h.textContent=fromSavedDraft
+    ? 'Amount Due = '+money(t)+' (from last saved draft — or sum col G).'
+    : 'Amount Due = '+money(t)+' · Optional override vs sum of col G.';
+}
+function initInvoiceTargetField(){
+  var el=document.getElementById('invoiceTotalTarget');
+  if(!el)return;
+  var s=localStorage.getItem(INV_TARGET_KEY);
+  if(s)el.value=s;
+  updateInvoiceTargetHint();
+}
+
+var INV_SHADOW_KEY='rac_inv_shadow_v1';
+function getInvShadow(){
+  try{var o=JSON.parse(localStorage.getItem(INV_SHADOW_KEY));return o&&typeof o==='object'?o:{};}catch(e){return{};}
+}
+function saveInvShadow(m){localStorage.setItem(INV_SHADOW_KEY,JSON.stringify(m));}
+function clearInvShadow(){
+  localStorage.removeItem(INV_SHADOW_KEY);
+  renderInvoice();
+  showToast('Sent-memory cleared — refresh sheet; col G / E are source of truth');
+}
 
 function loadInvoices(){try{INVOICES=JSON.parse(localStorage.getItem(INV_KEY))||[];}catch(e){INVOICES=[];}}
 function saveInvoices(){localStorage.setItem(INV_KEY,JSON.stringify(INVOICES));}
+function invoiceLineTotal(inv){
+  if(!inv)return 0;
+  var lines=inv.lineItems;
+  if(!lines||!lines.length)return Number(inv.total)||0;
+  var t=0;
+  for(var i=0;i<lines.length;i++){
+    var li=lines[i];
+    var a=li.amount;
+    if(a==null||a==='')a=li.thisAmt;
+    t+=Number(a)||0;
+  }
+  if(Math.abs(t)<0.005&&inv.total!=null)return Number(inv.total)||0;
+  return t;
+}
+function getLatestDraftInvoiceTotal(){
+  loadInvoices();
+  var drafts=INVOICES.filter(function(i){return i.status==='draft'&&invoiceLineTotal(i)>0.01;});
+  if(!drafts.length)return null;
+  drafts.sort(function(a,b){
+    var cmp=(b.date||'').localeCompare(a.date||'');
+    if(cmp!==0)return cmp;
+    return invoiceLineTotal(b)-invoiceLineTotal(a);
+  });
+  return invoiceLineTotal(drafts[0]);
+}
 function loadCOs(){
   try{COS=JSON.parse(localStorage.getItem(BUDGET_CO_KEY))||[];}catch(e){COS=[];}
   if(COS.length===0){COS=CO_SEED.slice();localStorage.setItem(BUDGET_CO_KEY,JSON.stringify(COS));}
@@ -359,6 +506,12 @@ function saveCOs(){localStorage.setItem(BUDGET_CO_KEY,JSON.stringify(COS));}
 function showToast(msg,col){var t=document.getElementById('toast');t.textContent=msg;t.style.background=col||'var(--green)';t.className='toast show';setTimeout(function(){t.classList.remove('show');},2200);}
 function money(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function safeEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function csvCell(v){
+  var s=String(v==null?'':v);
+  if(/[",\r\n]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function csvLine(cols){return cols.map(csvCell).join(',');}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function pad(n){return n<10?'0'+n:String(n);}
 function invNumber(){var d=new Date();return 'INV-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());}
@@ -375,9 +528,25 @@ function switchTab(id){
   document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
   document.getElementById('tab-'+id).classList.add('active');
   setCOViewMode(id==='co');
-  if(id==='hist') renderInvHistory();
+  if(id==='hist'){refreshHistoryTab();return;}
   if(id==='co') renderCOs();
   if(id==='inv') renderInvoice();
+}
+
+async function refreshHistoryTab(){
+  var el=document.getElementById('invHist');
+  try{
+    if(!LIVE||!LIVE.main){
+      if(el)el.innerHTML='<div class="loading" style="padding:28px;text-align:center;color:var(--txt2)">⏳ Loading live sheet…</div>';
+      LIVE=await loadProjectData();
+    }
+    paintLiveSummaryBar(computeInvoiceSummary());
+    renderInvHistory();
+  }catch(e){
+    console.error('refreshHistoryTab',e);
+    paintLiveSummaryBar(null);
+    if(el)el.innerHTML='<div class="empty" style="color:#f87171;padding:20px">Could not load sheet: '+safeEsc(e.message)+'</div>';
+  }
 }
 
 // ── LOAD SHEET ──
@@ -387,15 +556,24 @@ async function loadSheet(){
   try{
     var data=await loadProjectData();
     LIVE=data;
-    document.getElementById('refreshNote').textContent='Live · '+new Date().toLocaleTimeString();
-    renderInvoice();
+    document.getElementById('refreshNote').textContent='Live · '+new Date().toLocaleTimeString()+' · v20260407';
+    paintLiveSummaryBar(computeInvoiceSummary());
+    try{
+      renderInvoice();
+    }catch(renderErr){
+      console.error('renderInvoice',renderErr);
+      document.getElementById('invoiceWrap').innerHTML='<div class="loading" style="color:#ef4444">⚠️ Invoice UI error: '+safeEsc(renderErr.message)+'</div>';
+    }
   }catch(err){
     document.getElementById('invoiceWrap').innerHTML='<div class="loading" style="color:#ef4444">⚠️ '+safeEsc(err.message)+'</div>';
     document.getElementById('refreshNote').textContent='Error';
+    paintLiveSummaryBar(null);
   }
 }
 
 // ── BUILD LINE ITEM DATA ──
+// Col G = outstanding due. Google Sheets often shows due amounts as parentheses → parseAmt = negative.
+// Use Math.abs so “due” is always positive for summing (your sheet: E−F due shows as negative in G).
 function buildItems(){
   if(!LIVE) return [];
   var sections=[];
@@ -408,68 +586,366 @@ function buildItems(){
       var pct=item.progress||0;
       if(pct<=0) return;
       var earned=item.markup*(pct/100);
-      var prev=item.paid||0;
-      var thisAmt=Math.max(0,earned-prev);
+      var sh=getInvShadow();
+      var prevSheet=item.invoiced||0;
+      var sentMem=sh[key]||0;
+      var invoiced=prevSheet+sentMem;
+      var paidAmt=item.paid||0;
+      var gSigned=item.outstanding||0;
+      var outstandingDue=Math.abs(gSigned);
+      var thisAmt=Math.max(0,outstandingDue-sentMem);
 
-      items.push({key:key,name:item.name,vendor:item.vendor||'',markup:item.markup,pct:pct,earned:earned,prev:prev,thisAmt:thisAmt,billable:thisAmt>0.01});
+      items.push({key:key,name:item.name,vendor:item.vendor||'',markup:item.markup,pct:pct,earned:earned,prevSheet:prevSheet,prev:invoiced,outstandingRaw:outstandingDue,gSigned:gSigned,paidAmt:paidAmt,thisAmt:thisAmt,billable:thisAmt>0.01});
     });
     if(items.length) sections.push({display:phase.display||phase.name,items:items});
   });
-  // Add Change Orders section
   var sheetCOs=(LIVE&&LIVE.main&&LIVE.main.sheetCOs)||[];
   var coItems=[];
   sheetCOs.forEach(function(co){
     var pct=co.pct||0;
     if(pct<=0) return;
     var earned=co.amount*(pct/100);
-    var prev=co.paid||0;
-    var thisAmt=Math.max(0,earned-prev);
-    coItems.push({key:co.num,name:co.num+' — '+co.desc,vendor:'',markup:co.amount,pct:pct,earned:earned,prev:prev,thisAmt:thisAmt,billable:thisAmt>0.01});
+    var ck='co|'+co.num;
+    var sh2=getInvShadow();
+    var prevSheet=co.invoiced||0;
+    var sentMem=sh2[ck]||0;
+    var invoiced=prevSheet+sentMem;
+    var paidAmt=co.paid||0;
+    var gSigned=co.outstanding||0;
+    var outstandingDue=Math.abs(gSigned);
+    var thisAmt=Math.max(0,outstandingDue-sentMem);
+    coItems.push({key:ck,name:co.num+' — '+co.desc,vendor:'',markup:co.amount,pct:pct,earned:earned,prevSheet:prevSheet,prev:invoiced,outstandingRaw:outstandingDue,gSigned:gSigned,paidAmt:paidAmt,thisAmt:thisAmt,billable:thisAmt>0.01});
   });
   if(coItems.length) sections.unshift({display:'Change Orders',items:coItems});
   return sections;
+}
+
+function getBuildGrossAnchorDue(){
+  if(!LIVE||!LIVE.main||!LIVE.main.buildGrossTotals)return 0;
+  var o=Math.abs(LIVE.main.buildGrossTotals.outstanding||0);
+  return o>1?o:0;
+}
+
+function computeInvoiceSummary(){
+  if(!LIVE||!LIVE.main)return null;
+  var sections=buildItems();
+  var totalContract=0,totalEarned=0,totalPrev=0,totalPrevSheet=0,totalThis=0,totalOut=0,totalPaidF=0;
+  if(LIVE.main.totals){totalContract=LIVE.main.totals.totalBudget||0;}
+  var sheetCOs2=(LIVE.main.sheetCOs)||[];
+  sheetCOs2.forEach(function(co){if(co.status==='approved')totalContract+=co.amount;});
+  sections.forEach(function(s){s.items.forEach(function(i){
+    totalEarned+=i.earned;
+    totalPrev+=i.prev;
+    totalPrevSheet+=(i.prevSheet!=null?i.prevSheet:(i.prev||0));
+    totalThis+=i.thisAmt;
+    totalOut+=(i.outstandingRaw||0);
+    totalPaidF+=(i.paidAmt||0);
+  });});
+  var memInvoiced=Math.max(0,totalPrev-totalPrevSheet);
+  var sheetThis=totalThis;
+  var sh0=getInvShadow();
+  var adjSent=sh0['__ADJ__']||0;
+  var tgt=getEffectiveTarget();
+  var anchorDue=getBuildGrossAnchorDue();
+  var paidSummary=0;
+  if(LIVE.main.totals&&LIVE.main.totals.totalPaid>0.01)paidSummary=LIVE.main.totals.totalPaid;
+  else paidSummary=totalPaidF;
+  var invAdj=0;
+  var useAnchor=tgt==null&&anchorDue>1;
+  if(tgt!=null)invAdj=tgt-sheetThis-adjSent;
+  else if(useAnchor)invAdj=anchorDue-sheetThis-adjSent;
+  var finalThis=tgt!=null?tgt:(useAnchor?anchorDue:sheetThis);
+  return{
+    sections:sections,totalContract:totalContract,totalEarned:totalEarned,totalPrevSheet:totalPrevSheet,totalOut:totalOut,
+    paidSummary:paidSummary,memInvoiced:memInvoiced,sheetThis:sheetThis,invAdj:invAdj,finalThis:finalThis,
+    useAnchor:useAnchor,tgt:tgt,anchorDue:anchorDue,adjSent:adjSent
+  };
+}
+
+function paintLiveSummaryBar(sum){
+  var bar=document.getElementById('liveSummaryBar');
+  if(!bar)return;
+  try{
+    if(!sum){
+      bar.innerHTML='<div class="hist-track-summary"><div class="hts-foot" style="border:none;margin:0;padding:8px 0">⏳ Connect to sheet… click Refresh or wait.</div></div>';
+    }else{
+      bar.innerHTML=htmlHistLiveSummary(sum);
+    }
+    bar.style.setProperty('display','block','important');
+    bar.style.setProperty('visibility','visible','important');
+  }catch(e){
+    console.error('paintLiveSummaryBar',e);
+    bar.innerHTML='<div class="hist-track-summary"><div class="hts-foot" style="border:none;margin:0;padding:8px 0;color:#f87171">Could not render live summary — try Refresh. '+safeEsc(e.message)+'</div></div>';
+    bar.style.setProperty('display','block','important');
+  }
+}
+
+function liveTotalsSubtext(sum){
+  if(!sum)return '';
+  return sum.useAnchor?'Matches Build Gross col G':'Sum of lines'+(sum.memInvoiced>0.01?' · sent-mem '+money(sum.memInvoiced):'');
+}
+
+/** Same Earned / Paid / This invoice as the Invoice tab — one source: computeInvoiceSummary() */
+function htmlLiveSheetTotalsBlock(sum, heading, extraFooterHtml, wrapClass){
+  extraFooterHtml=extraFooterHtml||'';
+  wrapClass=wrapClass||'';
+  if(!sum){
+    return '<div class="hist-track-summary '+wrapClass+'"><div class="hts-foot" style="border:none;margin:0;padding:10px 0">Load the sheet — open the Invoice tab and click Refresh.</div></div>';
+  }
+  var sub=liveTotalsSubtext(sum);
+  return '<div class="hist-track-summary '+wrapClass+'">'+
+    '<div class="hts-h">'+(heading||'Live sheet')+'</div>'+
+    '<div class="hts-grid">'+
+      '<div><div class="hts-l">Total earned</div><div class="hts-v" style="color:var(--cyan)">'+money(sum.totalEarned)+'</div><div class="hts-s">Progress × budget</div></div>'+
+      '<div><div class="hts-l">Paid</div><div class="hts-v" style="color:var(--green)">'+money(sum.paidSummary)+'</div><div class="hts-s">Col F · Build Gross</div></div>'+
+      '<div><div class="hts-l">This invoice</div><div class="hts-v" style="color:var(--cyan);font-size:22px">'+money(sum.finalThis)+'</div><div class="hts-s">'+sub+'</div></div>'+
+    '</div>'+
+    '<div class="hts-foot">Posted (E) '+money(sum.totalPrevSheet)+' · Outstanding lines (G) '+money(sum.totalOut)+' · Contract remaining '+money(sum.totalContract-sum.totalEarned)+'</div>'+
+    extraFooterHtml+
+    '</div>';
+}
+
+function htmlHistLiveSummary(sum){
+  var foot=sum?'<div class="hts-foot" style="border-top:none;padding-top:0;margin-top:8px;color:var(--dim)">History: Paid / Outstanding columns + Mark paid vs Next month.</div>':'';
+  return htmlLiveSheetTotalsBlock(sum, 'Sheet live · v20260407', foot, '');
+}
+
+var MONTHLY_ROWS_KEY='rac_monthly_invoice_rows_v1';
+function loadMonthlyRows(){
+  try{
+    var a=JSON.parse(localStorage.getItem(MONTHLY_ROWS_KEY));
+    if(!Array.isArray(a))return[];
+    a.forEach(function(r){
+      if(r.status==='in_progress'){r.paid=0;r.amount=0;}
+      else if(r.paid==null||r.paid===''){
+        if(r.status==='paid'&&r.amount!=null&&r.amount!=='')r.paid=Number(r.amount);
+        else r.paid=0;
+      }
+    });
+    return a;
+  }catch(e){return[];}
+}
+function saveMonthlyRows(rows){localStorage.setItem(MONTHLY_ROWS_KEY,JSON.stringify(rows));}
+function pad2(n){return n<10?'0'+n:''+n;}
+function addMonthsYm(ym,delta){
+  var p=ym.split('-');var y=parseInt(p[0],10),mo=parseInt(p[1],10)-1;
+  var d=new Date(y,mo+delta,1);
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1);
+}
+function monthInvoiceLabel(ym){
+  var p=ym.split('-');var mo=parseInt(p[1],10)-1;
+  var names=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return names[mo]+' '+p[0]+' invoice';
+}
+/** Immediate next calendar month after fromYm, or null if that month already exists in rows */
+function nextSingleYm(rows,fromYm){
+  var ym=addMonthsYm(fromYm,1);
+  if(rows.some(function(x){return x.ym===ym;}))return null;
+  return ym;
+}
+function ensureMonthlyRowsDefault(){
+  var rows=loadMonthlyRows();
+  if(rows.length)return;
+  rows=[
+    {id:'m_seed_1',ym:'2026-03',label:'March 2026 invoice',amount:400154.48,paid:400154.48,status:'paid'}
+  ];
+  saveMonthlyRows(rows);
+}
+/** Remove any February 2026 row (old seed); fresh installs only get March paid */
+function migrateMonthlyRowsCleanup(){
+  var rows=loadMonthlyRows();
+  var next=rows.filter(function(r){return r.ym!=='2026-02';});
+  if(next.length!==rows.length){saveMonthlyRows(next);return next;}
+  return rows;
+}
+function monthlyRowAmount(r,sum){
+  if(r.status==='in_progress')return 0;
+  var amt=r.amount!=null&&r.amount!==''?Number(r.amount):null;
+  if((amt==null||isNaN(amt))&&sum&&r.status==='due')amt=sum.finalThis;
+  return amt!=null&&!isNaN(amt)?amt:null;
+}
+function monthlyRowPaidNum(r,amt){
+  if(r.status==='in_progress')return 0;
+  var p=r.paid!=null&&r.paid!==''?Number(r.paid):null;
+  if(p==null||isNaN(p)){
+    if(r.status==='paid'&&amt!=null)return amt;
+    return 0;
+  }
+  return p;
+}
+function monthlyRowOutstanding(amt,paid){
+  if(amt==null||isNaN(amt))return null;
+  return Math.max(0,amt-paid);
+}
+function markMonthlyRowPaid(id){
+  var sum=computeInvoiceSummary();
+  if(!sum){showToast('Refresh sheet first','var(--red)');return;}
+  var rows=loadMonthlyRows();
+  var ix=-1;
+  for(var i=0;i<rows.length;i++){if(rows[i].id===id)ix=i;}
+  if(ix===-1)return;
+  var r=rows[ix];
+  if(r.status!=='due')return;
+  var amt=monthlyRowAmount(r,sum);
+  if(amt==null||isNaN(amt)){showToast('Need an invoice amount — fill sheet or set amount','var(--yellow)');return;}
+  r.paid=amt;
+  r.status='paid';
+  saveMonthlyRows(rows);
+  renderInvHistory();
+  showToast('Marked paid for this row.');
+}
+function startNextMonthlyBill(id){
+  var sum=computeInvoiceSummary();
+  if(!sum){showToast('Refresh sheet first','var(--red)');return;}
+  var rows=loadMonthlyRows();
+  var ix=-1;
+  for(var i=0;i<rows.length;i++){if(rows[i].id===id)ix=i;}
+  if(ix===-1)return;
+  var r=rows[ix];
+  var nextYm=nextSingleYm(rows,r.ym);
+  if(!nextYm){
+    showToast('That month is already on the table — use the next row','var(--yellow)');
+    return;
+  }
+  if(r.status==='paid'){
+    rows.push({id:'m_'+Date.now()+Math.random().toString(36).slice(2,10),ym:nextYm,label:monthInvoiceLabel(nextYm),amount:null,paid:0,status:'due'});
+    saveMonthlyRows(rows);
+    renderInvHistory();
+    showToast('Added '+nextYm+' as Due (invoice amount from sheet when you Refresh).');
+    return;
+  }
+  if(r.status==='due'){
+    rows.push({id:'m_'+Date.now()+Math.random().toString(36).slice(2,10),ym:nextYm,label:monthInvoiceLabel(nextYm),amount:0,paid:0,status:'in_progress'});
+    saveMonthlyRows(rows);
+    renderInvHistory();
+    showToast('Added '+nextYm+' as In progress ($0 until billed).');
+    return;
+  }
+  showToast('In progress rows don’t get Next month — bill the open Due row first','var(--yellow)');
+}
+function markMonthlyRowPaidFromBtn(btn){
+  var id=btn&&btn.getAttribute('data-mid');
+  if(id)markMonthlyRowPaid(id);
+}
+function startNextMonthlyBillFromBtn(btn){
+  var id=btn&&btn.getAttribute('data-mid');
+  if(id)startNextMonthlyBill(id);
+}
+function renderMonthlyBillingHtml(sum){
+  ensureMonthlyRowsDefault();
+  migrateMonthlyRowsCleanup();
+  var rows=loadMonthlyRows().slice().sort(function(a,b){return b.ym.localeCompare(a.ym);});
+  var html='<table class="billing-month-table"><thead><tr><th>Description</th><th class="bm-r">Amount</th><th class="bm-r">Paid</th><th class="bm-r">Outstanding</th><th>Status</th><th></th></tr></thead><tbody>';
+  html+='<tr><td><strong>Total earned</strong> <span style="color:var(--dim);font-weight:600;font-size:11px">(live sheet)</span></td>'+
+    '<td class="bm-num bm-r">'+(sum?money(sum.totalEarned):'—')+'</td>'+
+    '<td class="bm-num bm-r" style="color:var(--green)">'+(sum?money(sum.paidSummary):'—')+'</td>'+
+    '<td class="bm-num bm-r" style="color:var(--cyan)">'+(sum?money(sum.totalOut):'—')+'</td>'+
+    '<td style="color:var(--dim);font-size:11px">Build Gross · col F / lines G</td><td></td></tr>';
+  rows.forEach(function(r){
+    var amt=monthlyRowAmount(r,sum);
+    var paidN=monthlyRowPaidNum(r,amt);
+    var outN=monthlyRowOutstanding(amt,paidN);
+    if(r.status==='in_progress'){outN=0;}
+    var amtStr=r.status==='in_progress'?money(0):(amt!=null?money(amt):'—');
+    var paidStr=money(paidN);
+    var outStr=r.status==='in_progress'?money(0):(outN!=null?money(outN):'—');
+    var st=r.status==='paid'?'Paid':(r.status==='in_progress'?'In progress':'Due');
+    var stClass=r.status==='paid'?'bm-paid':(r.status==='in_progress'?'bm-ip':'bm-due');
+    var btns='';
+    if(r.status==='due'){
+      btns='<button type="button" class="btn-sec" data-mid="'+String(r.id)+'" onclick="markMonthlyRowPaidFromBtn(this)" style="font-size:11px;margin-right:6px">Mark paid</button>'+
+        '<button type="button" class="btn-sec" data-mid="'+String(r.id)+'" onclick="startNextMonthlyBillFromBtn(this)" style="font-size:11px">Next month</button>';
+    }else if(r.status==='paid'){
+      btns='<button type="button" class="btn-sec" data-mid="'+String(r.id)+'" onclick="startNextMonthlyBillFromBtn(this)" style="font-size:11px">Next month</button>';
+    }
+    html+='<tr><td>'+safeEsc(r.label)+'</td><td class="bm-num bm-r">'+amtStr+'</td><td class="bm-num bm-r" style="color:var(--green)">'+paidStr+'</td><td class="bm-num bm-r" style="color:var(--cyan)">'+outStr+'</td><td class="'+stClass+'">'+st+'</td><td>'+btns+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  html+='<p style="font-size:11px;color:var(--dim);margin-top:12px;line-height:1.45"><strong>Next month</strong> on a <strong>Paid</strong> row adds the <em>next</em> calendar month as <strong>Due</strong>. <strong>Next month</strong> on a <strong>Due</strong> row adds the following month as <strong>In progress</strong> ($0). First row = full job from sheet.</p>';
+  return html;
 }
 
 // ── RENDER LIVE INVOICE ──
 function renderInvoice(){
   if(!LIVE){document.getElementById('invoiceWrap').innerHTML='<div class="loading">⏳ Loading...</div>';return;}
   loadInvoices();
-  var sections=buildItems();
+  var sum=computeInvoiceSummary();
+  if(!sum){
+    document.getElementById('invoiceWrap').innerHTML='<div class="loading" style="color:#ef4444">⚠️ No budget data</div>';
+    paintLiveSummaryBar(null);
+    return;
+  }
+  var sections=sum.sections;
   var dateStr=todayStr();
   var num=invNumber();
 
-  var totalContract=0,totalEarned=0,totalPrev=0,totalThis=0;
-  // Full contract = sum from totals
-  if(LIVE&&LIVE.main&&LIVE.main.totals){totalContract=LIVE.main.totals.totalBudget||0;}
-  var sheetCOs2=(LIVE&&LIVE.main&&LIVE.main.sheetCOs)||[];
-  sheetCOs2.forEach(function(co){if(co.status==='approved')totalContract+=co.amount;});
-  sections.forEach(function(s){s.items.forEach(function(i){totalEarned+=i.earned;totalPrev+=i.prev;totalThis+=i.thisAmt;});});
+  var totalContract=sum.totalContract,totalEarned=sum.totalEarned,totalPrevSheet=sum.totalPrevSheet,totalOut=sum.totalOut;
+  var memInvoiced=sum.memInvoiced;
+  var sheetThis=sum.sheetThis;
+  var adjSent=sum.adjSent;
+  var anchorDue=sum.anchorDue;
+  var paidSummary=sum.paidSummary;
+  var invAdj=sum.invAdj;
+  var finalThis=sum.finalThis;
+  var useAnchor=sum.useAnchor;
+  var tgt=sum.tgt;
+
+  var blockAlert='';
+  if(tgt==null&&sheetThis<0.01&&finalThis<0.01&&totalEarned>1){
+    if(memInvoiced>1||Math.abs(adjSent)>0.01){
+      blockAlert='<div style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#fecaca;padding:14px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.5">'+
+        '<strong style="color:#fff">$0 invoice: app sent-memory is counting toward “already invoiced.”</strong> '+
+        'Yellow line shows what was added in this browser after <strong>Mark invoice as sent</strong>. '+
+        'If your Google Sheet col E is not updated yet, click below. Otherwise update the sheet, Refresh, then clear memory.'+
+        '<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">'+
+        '<button type="button" onclick="clearInvShadow()" style="padding:8px 14px;border-radius:8px;border:1px solid #f87171;background:#7f1d1d;color:#fff;font-weight:700;cursor:pointer">Clear sent-memory</button>'+
+        '<span style="color:#94a3b8">Or set <strong>This invoice — draft ($)</strong> to your current invoice total (e.g. $348k) until it is posted to col E.</span></div>'+
+        '</div>';
+    }else if(totalOut<0.01&&totalEarned>1&&anchorDue<1){
+      blockAlert='<div style="background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.35);color:#fef3c7;padding:14px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.5">'+
+        '<strong style="color:#fbbf24">$0 invoice: no outstanding on lines and no Build Gross col G total.</strong> '+
+        'Fill column G (or add a Build Gross row), Refresh, or use <strong>This invoice — draft ($)</strong>.'+
+        '</div>';
+    }
+  }
 
   var rows='';
   sections.forEach(function(sec){
     rows+='<tr class="ph-row"><td colspan="6">'+safeEsc(sec.display)+'</td></tr>';
     sec.items.forEach(function(item){
-      var paidMark=!item.billable&&item.prev>0.01?'<span class="paid-pill">PAID</span>':'';
-      var thisDisp=item.billable?money(item.thisAmt):(item.prev>0.01?'<span style="color:#16a34a;font-weight:700">Paid</span>':'—');
-      var rowClass=(!item.billable&&item.prev>0.01)?'paid-row':'it-row';
+      var tol=0.02;
+      var osR=item.outstandingRaw!=null?item.outstandingRaw:0;
+      var paidUp=(item.paidAmt||0)>=item.earned-tol&&item.earned>0.01;
+      var invoicedUp=!item.billable&&osR<tol&&(item.prevSheet||0)>0.01&&item.earned>0.01;
+      var paidMark=paidUp?'<span class="paid-pill">PAID</span>':'';
+      var thisDisp=item.billable?money(item.thisAmt):(paidUp?'<span style="color:#16a34a;font-weight:700">Paid</span>':(invoicedUp?'<span style="color:#64748b;font-weight:600">Invoiced</span>':'—'));
+      var rowClass=paidUp?'paid-row':'it-row';
       rows+='<tr class="'+rowClass+'">'+
         '<td>'+safeEsc(item.name)+' '+paidMark+'</td>'+
         '<td class="c"><div class="pbar-wrap"><div class="pbar"><div class="fill" style="width:'+item.pct+'%"></div></div>'+item.pct.toFixed(0)+'%</div></td>'+
         '<td class="r">'+money(item.markup)+'</td>'+
-        '<td class="r" style="color:#9ca3af">'+(item.prev>0.01?money(item.prev):'—')+'</td>'+
+        '<td class="r" style="color:#9ca3af">'+(osR>0.01?money(osR):'—')+'</td>'+
         '<td class="r" style="font-weight:'+(item.billable?700:400)+'">'+thisDisp+'</td>'+
       '</tr>';
     });
   });
+  if((tgt!=null||useAnchor)&&Math.abs(invAdj)>0.01){
+    rows+='<tr class="it-row" style="background:rgba(234,179,8,.12)">'+
+      '<td colspan="3" style="text-align:right;font-weight:800;color:#92400e">'+(useAnchor?'Reconcile to Build Gross (col G)':'Invoice total adjustment')+'</td>'+
+      '<td class="r" style="color:#9ca3af">—</td>'+
+      '<td class="r" style="font-weight:800;color:#92400e">'+money(invAdj)+'</td>'+
+      '</tr>';
+  }
 
   var html=
+  blockAlert+
   '<div class="invoice-wrap">'+
     '<div class="inv-header">'+
       '<div class="inv-brand">'+
         '<div class="inv-mark">RAC</div>'+
         '<div class="inv-company">'+
           '<div class="co-name">RAC Inc.</div>'+
-          '<div class="co-sub">General Contracting</div>'+
+          '<div class="co-sub">General Contracting · <span style="color:#fbbf24;font-weight:800">DRAFT</span> until you click &quot;Mark invoice as sent&quot;</div>'+
           '<div class="co-info">Craig Engel<br>1267 N 1390 W · St. George, UT 84770<br>435-229-7360 · racinc19@gmail.com</div>'+
         '</div>'+
       '</div>'+
@@ -502,26 +978,33 @@ function renderInvoice(){
     '</div>'+
 
     '<div class="inv-summary">'+
-      '<div class="sum-cell"><div class="sum-lbl">Total Earned</div><div class="sum-val" style="color:#0891b2">'+money(totalEarned)+'</div></div>'+
-      '<div class="sum-cell"><div class="sum-lbl">Previously Invoiced</div><div class="sum-val" style="color:#64748b">'+money(totalPrev)+'</div></div>'+
-      '<div class="sum-cell"><div class="sum-lbl">This Invoice</div><div class="sum-val" style="color:#0891b2;font-size:22px">'+money(totalThis)+'</div></div>'+
-      '<div class="sum-cell"><div class="sum-lbl">Remaining Balance</div><div class="sum-val" style="color:#d97706">'+money(totalContract-totalEarned)+'</div></div>'+
+      '<div class="sum-cell"><div class="sum-lbl">Total Earned</div><div class="sum-val" style="color:#0891b2">'+money(totalEarned)+'</div>'+
+      '<div style="font-size:10px;color:#94a3b8;margin-top:6px">Progress × budget (lines)</div></div>'+
+      '<div class="sum-cell"><div class="sum-lbl">Paid</div><div class="sum-val" style="color:#16a34a">'+money(paidSummary)+'</div>'+
+      '<div style="font-size:10px;color:#94a3b8;margin-top:6px">Sheet col F · Build Gross row</div></div>'+
+      '<div class="sum-cell"><div class="sum-lbl">This Invoice</div><div class="sum-val" style="color:#0891b2;font-size:22px">'+money(finalThis)+'</div>'+
+      '<div style="font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.35">'+(useAnchor?'Matches Build Gross col G':'Sum of lines'+(memInvoiced>0.01?' · sent-mem '+money(memInvoiced):''))+'</div></div>'+
+    '</div>'+
+    '<div style="background:#f1f5f9;border-bottom:1px solid #e2e8f0;padding:10px 24px;font-size:11px;color:#64748b;display:flex;flex-wrap:wrap;gap:16px;justify-content:center">'+
+      '<span>Posted (E) '+money(totalPrevSheet)+'</span>'+
+      '<span>Outstanding lines (G) '+money(totalOut)+'</span>'+
+      '<span>Contract remaining '+money(totalContract-totalEarned)+'</span>'+
     '</div>'+
 
     '<table class="inv-table">'+
     '<thead><tr>'+
       '<th>Description</th>'+
       '<th class="c">% Complete</th><th class="r">Contract Value</th>'+
-      '<th class="r">Prev. Invoiced</th><th class="r">This Invoice</th>'+
+      '<th class="r">Outstanding <span style="font-weight:600;color:#94a3b8">(sheet G)</span></th><th class="r">This Invoice</th>'+
     '</tr></thead>'+
     '<tbody>'+rows+'</tbody>'+
     '</table>'+
 
     '<div class="inv-totals">'+
       '<div class="tot-box">'+
-        '<div class="t-row"><span class="tk">Subtotal</span><span>'+money(totalThis)+'</span></div>'+
+        '<div class="t-row"><span class="tk">Subtotal</span><span>'+money(finalThis)+'</span></div>'+
         '<div class="t-row"><span class="tk">Tax</span><span>—</span></div>'+
-        '<div class="t-row grand"><span>Amount Due</span><span>'+money(totalThis)+'</span></div>'+
+        '<div class="t-row grand"><span>Amount Due</span><span>'+money(finalThis)+'</span></div>'+
       '</div>'+
     '</div>'+
 
@@ -551,12 +1034,15 @@ function renderInvoice(){
   '</div>'+
 
   '<div class="hist-section" style="margin-top:28px">'+
-    '<h2 style="font-size:15px;font-weight:800;margin-bottom:12px;color:var(--txt2)">Invoice History</h2>'+
+    '<h2 style="font-size:15px;font-weight:800;margin-bottom:12px;color:var(--txt2)">Live billing</h2>'+
     '<div id="invHistInline"></div>'+
   '</div>';
 
   document.getElementById('invoiceWrap').innerHTML=html;
+  paintLiveSummaryBar(sum);
   renderInvHistoryInline();
+  renderInvHistory();
+  initInvoiceTargetField();
 }
 
 // ── SAVE & PRINT ──
@@ -566,85 +1052,80 @@ function saveAndPrint(){
   var sections=buildItems();
   var lineItems=[];
   sections.forEach(function(s){s.items.forEach(function(i){if(i.billable)lineItems.push({key:i.key,name:i.name,vendor:i.vendor,markup:i.markup,pct:i.pct,earned:i.earned,prev:i.prev,amount:i.thisAmt});});});
-  if(!lineItems.length){showToast('Nothing new to invoice — all items paid','var(--yellow)');return;}
+  var sheetSum=lineItems.reduce(function(s,i){return s+i.amount;},0);
+  var tgt=getEffectiveTarget();
+  var anchorDue=getBuildGrossAnchorDue();
+  var useAnchor=tgt==null&&anchorDue>1;
+  var adj=0;
+  if(tgt!=null&&Math.abs(tgt-sheetSum)>0.01)adj=tgt-sheetSum;
+  else if(useAnchor&&Math.abs(anchorDue-sheetSum)>0.01)adj=anchorDue-sheetSum;
+  if(Math.abs(adj)>0.01){lineItems.push({key:'_inv_target_adj',name:useAnchor?'Reconcile to Build Gross (col G)':'Invoice total adjustment',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:adj});}
   var total=lineItems.reduce(function(s,i){return s+i.amount;},0);
+  if(!lineItems.length||total<0.01){showToast('Nothing to invoice — refresh sheet or set This invoice — draft ($)','var(--yellow)');return;}
+  var baseNum=invNumber();
+  var sameDay=INVOICES.filter(function(i){return i.id.startsWith(baseNum);});
+  var num=sameDay.length?baseNum+String.fromCharCode(65+sameDay.length):baseNum;
+  var inv={id:num,date:todayStr(),lineItems:lineItems,total:total,status:'draft'};
+  INVOICES.push(inv);
+  saveInvoices();
+  renderInvoice();
+  window.print();
+  showToast('✓ Draft '+num+' saved — click Mark invoice as sent when you actually send it');
+}
+
+function markInvoiceSent(){
+  if(!LIVE){showToast('Refresh first','var(--red)');return;}
+  if(!confirm('Mark this invoice as SENT? Amounts roll into sent-memory until your sheet col G (and E) match — then Refresh and Clear sent-memory.'))return;
+  loadInvoices();
+  var sections=buildItems();
+  var lineItems=[];
+  sections.forEach(function(s){s.items.forEach(function(i){if(i.billable)lineItems.push({key:i.key,name:i.name,vendor:i.vendor,markup:i.markup,pct:i.pct,earned:i.earned,prev:i.prev,amount:i.thisAmt});});});
+  var sheetSum=lineItems.reduce(function(s,i){return s+i.amount;},0);
+  var sh=getInvShadow();
+  var tgt=getEffectiveTarget();
+  var anchorDue=getBuildGrossAnchorDue();
+  var useAnchor=tgt==null&&anchorDue>1;
+  var invRow=0;
+  if(tgt!=null)invRow=tgt-sheetSum;
+  else if(useAnchor)invRow=anchorDue-sheetSum;
+  if(Math.abs(invRow)>0.01){lineItems.push({key:'_inv_target_adj',name:useAnchor?'Reconcile to Build Gross (col G)':'Invoice total adjustment',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:invRow});}
+  var total=lineItems.reduce(function(s,i){return s+Number(i.amount||0);},0);
+  if(!lineItems.length||total<0.01){showToast('Nothing to mark sent','var(--yellow)');return;}
+  var newSh=JSON.parse(JSON.stringify(getInvShadow()));
+  lineItems.forEach(function(li){
+    if(li.key==='_inv_target_adj')return;
+    if((li.amount||0)>0.01)newSh[li.key]=(newSh[li.key]||0)+li.amount;
+  });
+  if(Math.abs(invRow)>0.01){newSh['__ADJ__']=(newSh['__ADJ__']||0)+invRow;}
+  saveInvShadow(newSh);
   var baseNum=invNumber();
   var sameDay=INVOICES.filter(function(i){return i.id.startsWith(baseNum);});
   var num=sameDay.length?baseNum+String.fromCharCode(65+sameDay.length):baseNum;
   var inv={id:num,date:todayStr(),lineItems:lineItems,total:total,status:'sent'};
   INVOICES.push(inv);
   saveInvoices();
+  localStorage.removeItem(INV_TARGET_KEY);
   renderInvoice();
-  window.print();
-  showToast('✓ '+num+' saved');
+  showToast('✓ Sent — update the sheet, Refresh; next bill uses new col G.');
 }
 
-// ── HISTORY (inline on invoice tab) ──
+// ── HISTORY (inline on invoice tab) — live sheet only; no snapshot cards ──
 function renderInvHistoryInline(){
-  loadInvoices();
   var el=document.getElementById('invHistInline');
   if(!el) return;
-  if(!INVOICES.length){el.innerHTML='<div class="empty" style="color:#94a3b8;padding:20px;text-align:center;font-size:13px">No saved invoices yet — click Save &amp; Download to record this invoice.</div>';return;}
-  el.innerHTML=INVOICES.slice().reverse().map(function(inv,ri){
-    var idx=INVOICES.length-1-ri;
-    var bc=inv.status==='paid'?'b-paid':'b-sent';
-    return '<div class="hist-card">'+
-      '<div><div style="display:flex;align-items:center;gap:10px"><span class="hc-num">'+safeEsc(inv.id)+'</span><span class="badge '+bc+'">'+inv.status.toUpperCase()+'</span></div>'+
-      '<div class="hc-meta">📅 '+fmtDate(inv.date)+' · '+inv.lineItems.length+' line items</div></div>'+
-      '<div class="hc-amt">'+money(inv.total)+'</div>'+
-      '<div class="hc-btns">'+
-      (inv.status!=='paid'?'<button onclick="markPaid('+idx+')" style="background:var(--green);color:white">✓ Mark Paid</button>':'')+
-      '<button onclick="deleteInv('+idx+')" class="b-del" style="padding:5px 10px;border-radius:6px;background:none;border:1px solid var(--red);color:var(--red);cursor:pointer;font-size:11px;font-weight:600;margin-left:6px">🗑️</button>'+
-      '</div></div>';
-  }).join('');
+  el.innerHTML='<p style="font-size:12px;color:var(--dim);margin:0;line-height:1.55">Earned / Paid / This invoice: <strong>strip above the tabs</strong> (live sheet). <strong>History</strong> has the monthly table. Save draft / Mark sent are for print &amp; QuickBooks.</p>';
 }
 
-function seedHistoryFromSheet(){
-  if(!LIVE){showToast('Refresh sheet first','var(--red)');return;}
-  loadInvoices();
-  var totalPrev=0;
-  if(LIVE.main&&LIVE.main.totals&&LIVE.main.totals.totalPaid>0){
-    totalPrev=LIVE.main.totals.totalPaid;
-  }else if(LIVE.main&&LIVE.main.phases){
-    LIVE.main.phases.forEach(function(ph){
-      if(ph.name==='options'||ph.name==='contingency')return;
-      (ph.items||[]).forEach(function(it){totalPrev+=parseFloat(it.paid)||0;});
-    });
-    var sheetCOs=(LIVE.main&&LIVE.main.sheetCOs)||[];
-    sheetCOs.forEach(function(co){if(co.status==='approved')totalPrev+=parseFloat(co.paid)||0;});
-  }
-  if(totalPrev<1){showToast('Nothing to seed — sheet has no Previously Invoiced amount','var(--yellow)');return;}
-  var existing=INVOICES.some(function(i){return (i.id||'').toString().startsWith('INV-SEED');});
-  if(existing&&!confirm('A seed invoice already exists. Add another?'))return;
-  var inv={id:'INV-SEED-'+String(INVOICES.length+1),date:'2026-02-28',lineItems:[{key:'seed',name:'Previously invoiced (from sheet)',vendor:'',markup:totalPrev,pct:100,earned:totalPrev,prev:totalPrev,amount:totalPrev}],total:totalPrev,status:'paid'};
-  INVOICES.unshift(inv);
-  saveInvoices();
-  renderInvHistory();
-  showToast('✓ Seeded $'+totalPrev.toLocaleString('en-US',{minimumFractionDigits:2})+' from sheet');
-}
 function renderInvHistory(){
-  loadInvoices();
   var el=document.getElementById('invHist');
   if(!el) return;
-  if(!INVOICES.length){el.innerHTML='<div class="empty">No invoices yet — click Save &amp; Download to record, or <strong>Seed from sheet</strong> to backfill from budget data.</div>';return;}
-  el.innerHTML=INVOICES.slice().reverse().map(function(inv,ri){
-    var idx=INVOICES.length-1-ri;
-    var bc=inv.status==='paid'?'b-paid':'b-sent';
-    return '<div class="hist-card">'+
-      '<div><div style="display:flex;align-items:center;gap:10px"><span class="hc-num">'+safeEsc(inv.id)+'</span><span class="badge '+bc+'">'+inv.status.toUpperCase()+'</span></div>'+
-      '<div class="hc-meta">📅 '+fmtDate(inv.date)+' · '+inv.lineItems.length+' line items</div></div>'+
-      '<div class="hc-amt">'+money(inv.total)+'</div>'+
-      '<div class="hc-btns">'+
-      (inv.status!=='paid'?'<button onclick="markPaid('+idx+')" style="background:var(--green);color:white">✓ Mark Paid</button>':'')+
-      '<button onclick="deleteInv('+idx+')" style="padding:5px 10px;border-radius:6px;background:none;border:1px solid var(--red);color:var(--red);cursor:pointer;font-size:11px;font-weight:600;margin-left:6px">🗑️</button>'+
-      '</div></div>';
-  }).join('');
+  var sum=computeInvoiceSummary();
+  try{paintLiveSummaryBar(sum);}catch(e2){console.error('hist paint',e2);}
+  el.innerHTML=renderMonthlyBillingHtml(sum);
 }
 
-function markPaid(idx){loadInvoices();INVOICES[idx].status='paid';saveInvoices();renderInvoice();showToast('✓ Marked paid');}
-function deleteInv(idx){loadInvoices();if(!confirm('Delete '+INVOICES[idx].id+'?'))return;INVOICES.splice(idx,1);saveInvoices();renderInvoice();showToast('✓ Deleted');}
-
-// ── QUICKBOOKS IIF EXPORT ──
+// ── QUICKBOOKS ONLINE CSV (multi-line invoice import template) ──
+var QBO_CUSTOMER_NAME='ARJR Kanarraville Holdings LLC';
 function exportQB(){
   if(!LIVE){showToast('Refresh sheet first','var(--red)');return;}
   loadInvoices();
@@ -655,99 +1136,49 @@ function exportQB(){
       if(i.billable) lineItems.push(i);
     });
   });
-  if(!lineItems.length){showToast('Nothing to export — no new earned amount','var(--yellow)');return;}
+  var sheetSum=lineItems.reduce(function(s,i){return s+i.thisAmt;},0);
+  var tgt=getEffectiveTarget();
+  var anchorDue=getBuildGrossAnchorDue();
+  var useAnchor=tgt==null&&anchorDue>1;
+  var adj=0;
+  if(tgt!=null&&Math.abs(tgt-sheetSum)>0.01)adj=tgt-sheetSum;
+  else if(useAnchor&&Math.abs(anchorDue-sheetSum)>0.01)adj=anchorDue-sheetSum;
+  if(Math.abs(adj)>0.01){lineItems.push({key:'_adj',name:useAnchor?'Reconcile to Build Gross (col G)':'Invoice total adjustment',vendor:'',markup:0,pct:100,thisAmt:adj,billable:true});}
+  if(!lineItems.length){showToast('Nothing to export — refresh sheet or set This invoice — draft ($)','var(--yellow)');return;}
 
   var num=invNumber();
   var dateStr=todayStr();
-  // QB date format MM/DD/YYYY
   var d=new Date(dateStr+'T12:00:00');
-  var qbDate=pad(d.getMonth()+1)+'/'+pad(d.getDate())+'/'+d.getFullYear();
+  var invDate=pad(d.getMonth()+1)+'/'+pad(d.getDate())+'/'+d.getFullYear();
   var dueD=new Date(dateStr+'T12:00:00');
   dueD.setDate(dueD.getDate()+30);
-  var qbDue=pad(dueD.getMonth()+1)+'/'+pad(dueD.getDate())+'/'+dueD.getFullYear();
+  var dueDate=pad(dueD.getMonth()+1)+'/'+pad(dueD.getDate())+'/'+dueD.getFullYear();
 
-  // IIF format — headers then transaction lines
-  var lines=[];
-
-  // Account header (needed once)
-  lines.push('!ACCNT\tNAME\tACCNTTYPE');
-  lines.push('ACCNT\tAccounts Receivable\tAR');
-  lines.push('ACCNT\tConstruction Income\tINC');
-  lines.push('');
-
-  // Customer header
-  lines.push('!CUST\tNAME\tBSTREET\tBCITY\tBSTATE\tBZIP');
-  lines.push('CUST\tARJR Kanarraville Holdings LLC\t646 W Liberty Lane\tKanarraville\tUT\t84742');
-  lines.push('');
-
-  // Invoice header definition
-  lines.push('!TRNS\tTRNSTYPE\tDATE\tACCNT\tNAME\tAMOUNT\tDOCNUM\tMEMO\tTERMS\tDUEDATE');
-  lines.push('!SPL\tTRNSTYPE\tDATE\tACCNT\tNAME\tAMOUNT\tMEMO\tQNTY\tPRICE');
-  lines.push('!ENDTRNS');
-  lines.push('');
-
-  var total=lineItems.reduce(function(s,i){return s+i.thisAmt;},0);
-
-  // TRNS line — the invoice header
-  lines.push(
-    'TRNS\t'+'INVOICE\t'+
-    qbDate+'\t'+
-    'Accounts Receivable\t'+
-    'ARJR Kanarraville Holdings LLC\t'+
-    total.toFixed(2)+'\t'+
-    num+'\t'+
-    'Rodriguez Residence\t'+
-    'Net 30\t'+
-    qbDue
-  );
-
-  // SPL lines — one per line item
-  lineItems.forEach(function(item){
-    lines.push(
-      'SPL\t'+'INVOICE\t'+
-      qbDate+'\t'+
-      'Construction Income\t'+
-      safeEsc(item.name).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')+'\t'+
-      (-item.thisAmt).toFixed(2)+'\t'+
-      item.pct.toFixed(0)+'% Complete - '+item.name+(item.vendor?' ('+item.vendor+')':'')+'\t'+
-      '1\t'+
-      item.thisAmt.toFixed(2)
-    );
-  });
-
-  lines.push('ENDTRNS');
-  lines.push('');
-
-  // Build CSV using QuickBooks Online exact required column headers
-  var csvLines=[];
-  csvLines.push('*InvoiceNo,*Customer,*InvoiceDate,*DueDate,Terms,Location,Memo,Item(Product/Service),Item Descrip,Item Qty,Item Rate,*ItemAmount,Taxable');
+  var header='*InvoiceNo,*Customer,*InvoiceDate,*DueDate,Terms,Location,Memo,Item(Product/Service),Item Descrip,Item Qty,Item Rate,*ItemAmount,Taxable';
+  var rows=[header];
   lineItems.forEach(function(item,idx){
-    var desc=item.pct.toFixed(0)+'% Complete - '+item.name+(item.vendor?' ('+item.vendor+')':'');
-    csvLines.push([
-      num,
-      idx===0?'ARJR Kanarraville Holdings LLC':'',
-      idx===0?qbDate:'',
-      idx===0?qbDue:'',
-      idx===0?'Net 30':'',
-      '',
-      idx===0?'Rodriguez Residence':'',
-      '',
-      '"'+desc.replace(/"/g,'""')+'"',
-      '1',
-      item.thisAmt.toFixed(2),
-      item.thisAmt.toFixed(2),
-      'N'
-    ].join(','));
+    var plainName=String(item.name||'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"');
+    var desc=item.key==='_adj'?plainName+(item.vendor?' ('+item.vendor+')':''):item.pct.toFixed(0)+'% Complete - '+plainName+(item.vendor?' ('+item.vendor+')':'');
+    var amt=Number(item.thisAmt||0).toFixed(2);
+    if(idx===0){
+      rows.push(csvLine([num,QBO_CUSTOMER_NAME,invDate,dueDate,'Net 30','','Rodriguez Residence','',desc,'1',amt,amt,'N']));
+    }else{
+      rows.push(csvLine([num,'','','','','','','',desc,'1',amt,amt,'N']));
+    }
   });
-  var csv=csvLines.join('\r\n');
-  var blob=new Blob([csv],{type:'text/csv'});
+
+  var csv=rows.join('\r\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
   a.href=url;
   a.download=num+'.csv';
+  a.rel='noopener';
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
-  showToast('✓ '+num+'.csv downloaded — import via QB File → Utilities → Import → Excel Files');
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 500);
+  showToast('✓ '+num+'.csv — import in QuickBooks Online');
 }
 
 // ── CO DOCUMENT STORAGE (IndexedDB) ──
@@ -1132,7 +1563,9 @@ function closeModal(){pendingParseFile=null;pendingAttachFile=null;document.getE
 
 // ── INIT ──
 loadCOs();
-  loadSheet();
+initInvoiceTargetField();
+paintLiveSummaryBar(null);
+loadSheet();
 if(location.hash==='#co'){
   setCOViewMode(true);
   document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
