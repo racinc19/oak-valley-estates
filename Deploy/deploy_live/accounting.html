@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- invoice: print + mark-sent toolbar restored v20260402 deploy_live -->
+<!DOCTYPE html><!-- invoice: client labels — no internal sheet jargon on PDF v20260402 deploy_live -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -231,7 +231,7 @@ html{overflow-y:scroll}body{overflow-x:hidden}
   <div class="toolbar">
     <div class="toolbar-left">
       <h1>📄 Invoice</h1>
-      <span class="refresh-note" id="pageBuildStamp" title="Printed in deployed HTML — if this stays old after a deploy, hard-refresh (Ctrl+Shift+R)">deploy HTML · 20260402</span>
+      <span class="refresh-note" id="pageBuildStamp" title="Printed in deployed HTML — if this stays old after a deploy, hard-refresh (Ctrl+Shift+R)">deploy HTML · client invoice labels</span>
       <span class="refresh-note" id="refreshNote">Loading...</span>
       <span class="refresh-note" id="acctLogicTag" style="font-size:10px;color:var(--dim);max-width:360px">Summary: Earned · Paid (F) · This invoice (Build Gross col G when present)</span>
     </div>
@@ -840,7 +840,7 @@ function renderMonthlyBillingHtml(sum){
     '<td class="bm-num bm-r">'+(sum?money(sum.totalEarned):'—')+'</td>'+
     '<td class="bm-num bm-r" style="color:var(--green)">'+(sum?money(sum.paidSummary):'—')+'</td>'+
     '<td class="bm-num bm-r" style="color:var(--cyan)">'+(sum?money(sum.totalOut):'—')+'</td>'+
-    '<td style="color:var(--dim);font-size:11px">Build Gross · col F / lines G</td><td></td></tr>';
+    '<td style="color:var(--dim);font-size:11px">Budget summary</td><td></td></tr>';
   rows.forEach(function(r){
     var amt=monthlyRowAmount(r,sum);
     var paidN=monthlyRowPaidNum(r,amt);
@@ -931,7 +931,7 @@ function renderInvoice(){
   });
   if((tgt!=null||useAnchor)&&Math.abs(invAdj)>0.01){
     rows+='<tr class="it-row" style="background:rgba(234,179,8,.12)">'+
-      '<td colspan="3" style="text-align:right;font-weight:800;color:#92400e">'+(useAnchor?'Reconcile to Build Gross (col G)':'Invoice total adjustment')+'</td>'+
+      '<td colspan="3" style="text-align:right;font-weight:800;color:#92400e">Invoice adjustment</td>'+
       '<td class="r" style="color:#9ca3af">—</td>'+
       '<td class="r" style="font-weight:800;color:#92400e">'+money(invAdj)+'</td>'+
       '</tr>';
@@ -981,13 +981,13 @@ function renderInvoice(){
       '<div class="sum-cell"><div class="sum-lbl">Total Earned</div><div class="sum-val" style="color:#0891b2">'+money(totalEarned)+'</div>'+
       '<div style="font-size:10px;color:#94a3b8;margin-top:6px">Progress × budget (lines)</div></div>'+
       '<div class="sum-cell"><div class="sum-lbl">Paid</div><div class="sum-val" style="color:#16a34a">'+money(paidSummary)+'</div>'+
-      '<div style="font-size:10px;color:#94a3b8;margin-top:6px">Sheet col F · Build Gross row</div></div>'+
+      '<div style="font-size:10px;color:#94a3b8;margin-top:6px">Payments received</div></div>'+
       '<div class="sum-cell"><div class="sum-lbl">This Invoice</div><div class="sum-val" style="color:#0891b2;font-size:22px">'+money(finalThis)+'</div>'+
-      '<div style="font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.35">'+(useAnchor?'Matches Build Gross col G':'Sum of lines'+(memInvoiced>0.01?' · sent-mem '+money(memInvoiced):''))+'</div></div>'+
+      '<div style="font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.35">'+(useAnchor?'Per contract draw schedule':('Per line items'+(memInvoiced>0.01?' · includes prior billings '+money(memInvoiced):'')))+'</div></div>'+
     '</div>'+
     '<div style="background:#f1f5f9;border-bottom:1px solid #e2e8f0;padding:10px 24px;font-size:11px;color:#64748b;display:flex;flex-wrap:wrap;gap:16px;justify-content:center">'+
-      '<span>Posted (E) '+money(totalPrevSheet)+'</span>'+
-      '<span>Outstanding lines (G) '+money(totalOut)+'</span>'+
+      '<span>Previously invoiced '+money(totalPrevSheet)+'</span>'+
+      '<span>Outstanding '+money(totalOut)+'</span>'+
       '<span>Contract remaining '+money(totalContract-totalEarned)+'</span>'+
     '</div>'+
 
@@ -995,7 +995,7 @@ function renderInvoice(){
     '<thead><tr>'+
       '<th>Description</th>'+
       '<th class="c">% Complete</th><th class="r">Contract Value</th>'+
-      '<th class="r">Outstanding <span style="font-weight:600;color:#94a3b8">(sheet G)</span></th><th class="r">This Invoice</th>'+
+      '<th class="r">Outstanding</th><th class="r">This Invoice</th>'+
     '</tr></thead>'+
     '<tbody>'+rows+'</tbody>'+
     '</table>'+
@@ -1059,7 +1059,7 @@ function saveAndPrint(){
   var adj=0;
   if(tgt!=null&&Math.abs(tgt-sheetSum)>0.01)adj=tgt-sheetSum;
   else if(useAnchor&&Math.abs(anchorDue-sheetSum)>0.01)adj=anchorDue-sheetSum;
-  if(Math.abs(adj)>0.01){lineItems.push({key:'_inv_target_adj',name:useAnchor?'Reconcile to Build Gross (col G)':'Invoice total adjustment',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:adj});}
+  if(Math.abs(adj)>0.01){lineItems.push({key:'_inv_target_adj',name:'Invoice adjustment',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:adj});}
   var total=lineItems.reduce(function(s,i){return s+i.amount;},0);
   if(!lineItems.length||total<0.01){showToast('Nothing to invoice — refresh sheet or set This invoice — draft ($)','var(--yellow)');return;}
   var baseNum=invNumber();
@@ -1088,7 +1088,7 @@ function markInvoiceSent(){
   var invRow=0;
   if(tgt!=null)invRow=tgt-sheetSum;
   else if(useAnchor)invRow=anchorDue-sheetSum;
-  if(Math.abs(invRow)>0.01){lineItems.push({key:'_inv_target_adj',name:useAnchor?'Reconcile to Build Gross (col G)':'Invoice total adjustment',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:invRow});}
+  if(Math.abs(invRow)>0.01){lineItems.push({key:'_inv_target_adj',name:'Invoice adjustment',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:invRow});}
   var total=lineItems.reduce(function(s,i){return s+Number(i.amount||0);},0);
   if(!lineItems.length||total<0.01){showToast('Nothing to mark sent','var(--yellow)');return;}
   var newSh=JSON.parse(JSON.stringify(getInvShadow()));
@@ -1143,7 +1143,7 @@ function exportQB(){
   var adj=0;
   if(tgt!=null&&Math.abs(tgt-sheetSum)>0.01)adj=tgt-sheetSum;
   else if(useAnchor&&Math.abs(anchorDue-sheetSum)>0.01)adj=anchorDue-sheetSum;
-  if(Math.abs(adj)>0.01){lineItems.push({key:'_adj',name:useAnchor?'Reconcile to Build Gross (col G)':'Invoice total adjustment',vendor:'',markup:0,pct:100,thisAmt:adj,billable:true});}
+  if(Math.abs(adj)>0.01){lineItems.push({key:'_adj',name:'Invoice adjustment',vendor:'',markup:0,pct:100,thisAmt:adj,billable:true});}
   if(!lineItems.length){showToast('Nothing to export — refresh sheet or set This invoice — draft ($)','var(--yellow)');return;}
 
   var num=invNumber();
