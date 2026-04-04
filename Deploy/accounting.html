@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260218183733 -->
+<!DOCTYPE html><!-- invoice: prev-invoiced=colE paid=colF 20260401 -->
 <html lang="en">
 <head>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -210,6 +210,7 @@ html{overflow-y:scroll}body{overflow-x:hidden}
     <div class="toolbar-left">
       <h1>📄 Invoice</h1>
       <span class="refresh-note" id="refreshNote">Loading...</span>
+      <span class="refresh-note" id="acctLogicTag" style="font-size:10px;color:var(--dim);max-width:220px">Prev. Invoiced = sheet col E · Paid = col F</span>
     </div>
     <div class="toolbar-right">
       <button class="btn-sec" onclick="loadSheet()">🔄 Refresh</button>
@@ -257,7 +258,7 @@ html{overflow-y:scroll}body{overflow-x:hidden}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="shared.js?v1772133761"></script>
+<script src="shared.js?v20260401"></script>
 <script>
 var INV_KEY='rac_invoices_v2';
 var CO_KEY='rac_cos_v1';
@@ -273,6 +274,12 @@ function saveCOs(){localStorage.setItem(CO_KEY,JSON.stringify(COS));}
 function showToast(msg,col){var t=document.getElementById('toast');t.textContent=msg;t.style.background=col||'var(--green)';t.className='toast show';setTimeout(function(){t.classList.remove('show');},2200);}
 function money(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function safeEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function csvCell(v){
+  var s=String(v==null?'':v);
+  if(/[",\r\n]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function csvLine(cols){return cols.map(csvCell).join(',');}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function pad(n){return n<10?'0'+n:String(n);}
 function invNumber(){var d=new Date();return 'INV-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());}
@@ -295,7 +302,7 @@ async function loadSheet(){
   try{
     var data=await loadProjectData();
     LIVE=data;
-    document.getElementById('refreshNote').textContent='Live · '+new Date().toLocaleTimeString();
+    document.getElementById('refreshNote').textContent='Live · '+new Date().toLocaleTimeString()+' · v20260401';
     renderInvoice();
   }catch(err){
     document.getElementById('invoiceWrap').innerHTML='<div class="loading" style="color:#ef4444">⚠️ '+safeEsc(err.message)+'</div>';
@@ -316,10 +323,11 @@ function buildItems(){
       var pct=item.progress||0;
       if(pct<=0) return;
       var earned=item.markup*(pct/100);
-      var prev=item.paid||0;
-      var thisAmt=Math.max(0,earned-prev);
+      var invoiced=item.invoiced||0;
+      var paidAmt=item.paid||0;
+      var thisAmt=Math.max(0,earned-invoiced);
 
-      items.push({key:key,name:item.name,vendor:item.vendor||'',markup:item.markup,pct:pct,earned:earned,prev:prev,thisAmt:thisAmt,billable:thisAmt>0.01});
+      items.push({key:key,name:item.name,vendor:item.vendor||'',markup:item.markup,pct:pct,earned:earned,prev:invoiced,paidAmt:paidAmt,thisAmt:thisAmt,billable:thisAmt>0.01});
     });
     if(items.length) sections.push({display:phase.display||phase.name,items:items});
   });
@@ -330,9 +338,10 @@ function buildItems(){
     var pct=co.pct||0;
     if(pct<=0) return;
     var earned=co.amount*(pct/100);
-    var prev=co.paid||0;
-    var thisAmt=Math.max(0,earned-prev);
-    coItems.push({key:co.num,name:co.num+' — '+co.desc,vendor:'',markup:co.amount,pct:pct,earned:earned,prev:prev,thisAmt:thisAmt,billable:thisAmt>0.01});
+    var invoiced=co.invoiced||0;
+    var paidAmt=co.paid||0;
+    var thisAmt=Math.max(0,earned-invoiced);
+    coItems.push({key:co.num,name:co.num+' — '+co.desc,vendor:'',markup:co.amount,pct:pct,earned:earned,prev:invoiced,paidAmt:paidAmt,thisAmt:thisAmt,billable:thisAmt>0.01});
   });
   if(coItems.length) sections.unshift({display:'Change Orders',items:coItems});
   return sections;
@@ -357,9 +366,12 @@ function renderInvoice(){
   sections.forEach(function(sec){
     rows+='<tr class="ph-row"><td colspan="6">'+safeEsc(sec.display)+'</td></tr>';
     sec.items.forEach(function(item){
-      var paidMark=!item.billable&&item.prev>0.01?'<span class="paid-pill">PAID</span>':'';
-      var thisDisp=item.billable?money(item.thisAmt):(item.prev>0.01?'<span style="color:#16a34a;font-weight:700">Paid</span>':'—');
-      var rowClass=(!item.billable&&item.prev>0.01)?'paid-row':'it-row';
+      var tol=0.02;
+      var paidUp=(item.paidAmt||0)>=item.earned-tol&&item.earned>0.01;
+      var invoicedUp=item.prev>=item.earned-tol&&item.earned>0.01;
+      var paidMark=paidUp?'<span class="paid-pill">PAID</span>':'';
+      var thisDisp=item.billable?money(item.thisAmt):(paidUp?'<span style="color:#16a34a;font-weight:700">Paid</span>':(invoicedUp?'<span style="color:#64748b;font-weight:600">Invoiced</span>':'—'));
+      var rowClass=paidUp?'paid-row':'it-row';
       rows+='<tr class="'+rowClass+'">'+
         '<td>'+safeEsc(item.name)+' '+paidMark+'</td>'+
         '<td class="c"><div class="pbar-wrap"><div class="pbar"><div class="fill" style="width:'+item.pct+'%"></div></div>'+item.pct.toFixed(0)+'%</div></td>'+
@@ -474,7 +486,7 @@ function saveAndPrint(){
   var sections=buildItems();
   var lineItems=[];
   sections.forEach(function(s){s.items.forEach(function(i){if(i.billable)lineItems.push({key:i.key,name:i.name,vendor:i.vendor,markup:i.markup,pct:i.pct,earned:i.earned,prev:i.prev,amount:i.thisAmt});});});
-  if(!lineItems.length){showToast('Nothing new to invoice — all items paid','var(--yellow)');return;}
+  if(!lineItems.length){showToast('Nothing new to invoice — earned amounts already invoiced','var(--yellow)');return;}
   var total=lineItems.reduce(function(s,i){return s+i.amount;},0);
   var baseNum=invNumber();
   var sameDay=INVOICES.filter(function(i){return i.id.startsWith(baseNum);});
@@ -529,7 +541,8 @@ function renderInvHistory(){
 function markPaid(idx){loadInvoices();INVOICES[idx].status='paid';saveInvoices();renderInvoice();showToast('✓ Marked paid');}
 function deleteInv(idx){loadInvoices();if(!confirm('Delete '+INVOICES[idx].id+'?'))return;INVOICES.splice(idx,1);saveInvoices();renderInvoice();showToast('✓ Deleted');}
 
-// ── QUICKBOOKS IIF EXPORT ──
+// ── QUICKBOOKS ONLINE CSV (matches multi-line invoice import template) ──
+var QBO_CUSTOMER_NAME='ARJR Kanarraville Holdings LLC';
 function exportQB(){
   if(!LIVE){showToast('Refresh sheet first','var(--red)');return;}
   loadInvoices();
@@ -544,74 +557,37 @@ function exportQB(){
 
   var num=invNumber();
   var dateStr=todayStr();
-  // QB date format MM/DD/YYYY
   var d=new Date(dateStr+'T12:00:00');
-  var qbDate=pad(d.getMonth()+1)+'/'+pad(d.getDate())+'/'+d.getFullYear();
+  var invDate=pad(d.getMonth()+1)+'/'+pad(d.getDate())+'/'+d.getFullYear();
   var dueD=new Date(dateStr+'T12:00:00');
   dueD.setDate(dueD.getDate()+30);
-  var qbDue=pad(dueD.getMonth()+1)+'/'+pad(dueD.getDate())+'/'+dueD.getFullYear();
+  var dueDate=pad(dueD.getMonth()+1)+'/'+pad(dueD.getDate())+'/'+dueD.getFullYear();
 
-  // IIF format — headers then transaction lines
-  var lines=[];
-
-  // Account header (needed once)
-  lines.push('!ACCNT\tNAME\tACCNTTYPE');
-  lines.push('ACCNT\tAccounts Receivable\tAR');
-  lines.push('ACCNT\tConstruction Income\tINC');
-  lines.push('');
-
-  // Customer header
-  lines.push('!CUST\tNAME\tBSTREET\tBCITY\tBSTATE\tBZIP');
-  lines.push('CUST\tJessica & Adrian Rodriguez\t646 W Liberty Lane\tKanarraville\tUT\t84742');
-  lines.push('');
-
-  // Invoice header definition
-  lines.push('!TRNS\tTRNSTYPE\tDATE\tACCNT\tNAME\tAMOUNT\tDOCNUM\tMEMO\tTERMS\tDUEDATE');
-  lines.push('!SPL\tTRNSTYPE\tDATE\tACCNT\tNAME\tAMOUNT\tMEMO\tQNTY\tPRICE');
-  lines.push('!ENDTRNS');
-  lines.push('');
-
-  var total=lineItems.reduce(function(s,i){return s+i.thisAmt;},0);
-
-  // TRNS line — the invoice header
-  lines.push(
-    'TRNS\t'+'INVOICE\t'+
-    qbDate+'\t'+
-    'Accounts Receivable\t'+
-    'Jessica & Adrian Rodriguez\t'+
-    total.toFixed(2)+'\t'+
-    num+'\t'+
-    'Rodriguez Residence\t'+
-    'Net 30\t'+
-    qbDue
-  );
-
-  // SPL lines — one per line item
-  lineItems.forEach(function(item){
-    lines.push(
-      'SPL\t'+'INVOICE\t'+
-      qbDate+'\t'+
-      'Construction Income\t'+
-      safeEsc(item.name).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')+'\t'+
-      (-item.thisAmt).toFixed(2)+'\t'+
-      item.pct.toFixed(0)+'% Complete - '+item.name+(item.vendor?' ('+item.vendor+')':'')+'\t'+
-      '1\t'+
-      item.thisAmt.toFixed(2)
-    );
+  var header='*InvoiceNo,*Customer,*InvoiceDate,*DueDate,Terms,Location,Memo,Item(Product/Service),Item Descrip,Item Qty,Item Rate,*ItemAmount,Taxable';
+  var rows=[header];
+  lineItems.forEach(function(item,idx){
+    var plainName=String(item.name||'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"');
+    var desc=item.pct.toFixed(0)+'% Complete - '+plainName+(item.vendor?' ('+item.vendor+')':'');
+    var amt=Number(item.thisAmt||0).toFixed(2);
+    if(idx===0){
+      rows.push(csvLine([num,QBO_CUSTOMER_NAME,invDate,dueDate,'Net 30','','Rodriguez Residence','',desc,'1',amt,amt,'N']));
+    }else{
+      rows.push(csvLine([num,'','','','','','','',desc,'1',amt,amt,'N']));
+    }
   });
 
-  lines.push('ENDTRNS');
-  lines.push('');
-
-  var iif=lines.join('\r\n');
-  var blob=new Blob([iif],{type:'text/plain'});
+  var csv=rows.join('\r\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
   a.href=url;
-  a.download=num+'.iif';
+  a.download=num+'.csv';
+  a.rel='noopener';
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
-  showToast('✓ '+num+'.iif downloaded — import via QB File → Import → IIF');
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 500);
+  showToast('✓ '+num+'.csv downloaded — import in QuickBooks Online');
 }
 
 // ── CHANGE ORDERS ──

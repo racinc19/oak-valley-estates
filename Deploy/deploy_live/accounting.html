@@ -94,12 +94,9 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .inv-table tr.ph-row td{background:#f0f9ff;font-weight:800;color:#0891b2;font-size:12px;text-transform:uppercase;letter-spacing:.5px;padding:8px 20px;border-bottom:1px solid #e0f2fe}
 .inv-table tr.it-row:nth-child(even) td{background:#fafafa}
 .inv-table tr.it-row:hover td{background:#f0f9ff}
-.inv-table tr.paid-row td{background:#f0fdf4;color:#166534}
-.inv-table tr.paid-row td.r{color:#16a34a}
 .pbar-wrap{display:flex;align-items:center;gap:6px;justify-content:center}
 .pbar{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;width:48px}
 .pbar .fill{height:100%;background:#0891b2;border-radius:3px}
-.paid-pill{display:inline-block;padding:1px 8px;background:#dcfce7;color:#166534;border-radius:10px;font-size:10px;font-weight:700;border:1px solid #86efac}
 .co-summary{display:flex;gap:12px;flex-wrap:wrap}
 .co-stat{background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:10px 16px;min-width:120px}
 .co-stat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:2px}
@@ -382,6 +379,21 @@ function getEffectiveTarget(){
   if(ls!=null)return ls;
   return getLatestDraftInvoiceTotal();
 }
+/** Amount Due target for computeInvoiceSummary only. When col E has caught up to earned, ignore saved draft / localStorage so This invoice can be $0 — use the field if you need a non-zero override. */
+function getInvoiceTargetForSummary(accruedCaughtUp){
+  var el=document.getElementById('invoiceTotalTarget');
+  if(el){
+    var raw=String(el.value||'').trim();
+    if(raw!==''){
+      var p=parseMoneyInput(raw);
+      if(p!==null&&p>=0)return p;
+    }
+  }
+  if(accruedCaughtUp)return null;
+  var ls=getInvoiceTarget();
+  if(ls!=null)return ls;
+  return getLatestDraftInvoiceTotal();
+}
 function applyInvoiceTarget(){
   var el=document.getElementById('invoiceTotalTarget');
   if(!el)return;
@@ -626,6 +638,15 @@ function getBuildGrossAnchorDue(){
   return o>1?o:0;
 }
 
+/** True when History has a month row “In progress” — new billing period; invoice starts at $0 until draft or sheet catches up. */
+function monthlyInvoiceInProgress(){
+  try{
+    ensureMonthlyRowsDefault();
+    migrateMonthlyRowsCleanup();
+    return loadMonthlyRows().some(function(r){return r.status==='in_progress';});
+  }catch(e){return false;}
+}
+
 function computeInvoiceSummary(){
   if(!LIVE||!LIVE.main)return null;
   var sections=buildItems();
@@ -645,20 +666,32 @@ function computeInvoiceSummary(){
   var sheetThis=totalThis;
   var sh0=getInvShadow();
   var adjSent=sh0['__ADJ__']||0;
-  var tgt=getEffectiveTarget();
   var anchorDue=getBuildGrossAnchorDue();
+  var grossOS=LIVE.main.buildGrossTotals?Math.abs(LIVE.main.buildGrossTotals.outstanding||0):null;
+  var tolEarned=totalEarned>1000?1:0.02;
+  var accruedCaughtUp=totalEarned>0.01&&totalPrevSheet>=totalEarned-tolEarned;
+  var tgt=getInvoiceTargetForSummary(accruedCaughtUp);
+  var forceZeroGross=tgt==null&&grossOS!==null&&grossOS<=1;
+  var forceAccruedZero=tgt==null&&accruedCaughtUp;
+  var forceNewMonthZero=tgt==null&&monthlyInvoiceInProgress();
   var paidSummary=0;
   if(LIVE.main.totals&&LIVE.main.totals.totalPaid>0.01)paidSummary=LIVE.main.totals.totalPaid;
   else paidSummary=totalPaidF;
   var invAdj=0;
-  var useAnchor=tgt==null&&anchorDue>1;
+  var useAnchor=tgt==null&&anchorDue>1&&!accruedCaughtUp&&!forceZeroGross&&!forceNewMonthZero;
   if(tgt!=null)invAdj=tgt-sheetThis-adjSent;
+  else if(forceAccruedZero||forceZeroGross||forceNewMonthZero)invAdj=-sheetThis-adjSent;
   else if(useAnchor)invAdj=anchorDue-sheetThis-adjSent;
-  var finalThis=tgt!=null?tgt:(useAnchor?anchorDue:sheetThis);
+  var finalThis;
+  if(tgt!=null)finalThis=tgt;
+  else if(forceAccruedZero||forceZeroGross||forceNewMonthZero)finalThis=0;
+  else if(useAnchor)finalThis=anchorDue;
+  else finalThis=sheetThis;
   return{
     sections:sections,totalContract:totalContract,totalEarned:totalEarned,totalPrevSheet:totalPrevSheet,totalOut:totalOut,
     paidSummary:paidSummary,memInvoiced:memInvoiced,sheetThis:sheetThis,invAdj:invAdj,finalThis:finalThis,
-    useAnchor:useAnchor,tgt:tgt,anchorDue:anchorDue,adjSent:adjSent
+    useAnchor:useAnchor,tgt:tgt,anchorDue:anchorDue,adjSent:adjSent,
+    accruedCaughtUp:accruedCaughtUp,forceAccruedZero:forceAccruedZero,forceZeroGross:forceZeroGross,forceNewMonthZero:forceNewMonthZero
   };
 }
 
@@ -666,6 +699,12 @@ function computeInvoiceSummary(){
 function getScaledThisByKey(sum){
   var m={};
   var sheetThis=sum.sheetThis, invAdj=sum.invAdj, finalThis=sum.finalThis, tgt=sum.tgt, useAnchor=sum.useAnchor;
+  if(Math.abs(finalThis)<0.01&&sheetThis>0.01){
+    sum.sections.forEach(function(sec){
+      sec.items.forEach(function(it){m[it.key]=it.billable?0:(it.thisAmt||0);});
+    });
+    return m;
+  }
   var need=(tgt!=null||useAnchor)&&Math.abs(invAdj)>0.01&&sheetThis>0.01;
   var bill=[];
   sum.sections.forEach(function(sec){
@@ -709,7 +748,10 @@ function paintLiveSummaryBar(sum){
 
 function liveTotalsSubtext(sum){
   if(!sum)return '';
-  return sum.useAnchor?'Matches Build Gross col G':'Sum of lines'+(sum.memInvoiced>0.01?' · sent-mem '+money(sum.memInvoiced):'');
+  if(sum.forceNewMonthZero)return 'New month (In progress) — starts at $0';
+  if(sum.forceAccruedZero)return 'Col E ≥ earned — no new bill';
+  if(sum.forceZeroGross)return 'Build Gross col G = $0';
+  return sum.useAnchor?'Matches Build Gross col G':'Sum of lines'+(sum.memInvoiced>0.01?' · sent, not on E '+money(sum.memInvoiced):'');
 }
 
 /** Same Earned / Paid / This invoice as the Invoice tab — one source: computeInvoiceSummary() */
@@ -930,11 +972,32 @@ function renderInvoice(){
   var finalThis=sum.finalThis;
   var useAnchor=sum.useAnchor;
   var tgt=sum.tgt;
+  var forceAccruedZero=!!sum.forceAccruedZero;
+  var forceZeroGross=!!sum.forceZeroGross;
+  var forceNewMonthZero=!!sum.forceNewMonthZero;
 
   var scaledThis=getScaledThisByKey(sum);
 
+  var thisInvSub=(function(){
+    if(forceNewMonthZero)return 'New month on History — Amount Due starts at $0 (use draft $ or post to sheet as you bill)';
+    if(forceAccruedZero)return 'Posted (col E) matches total earned — $0 due this run';
+    if(forceZeroGross)return 'Build Gross shows $0 due';
+    if(useAnchor)return 'Per contract draw schedule';
+    return 'Per line items'+(memInvoiced>0.01?' · marked sent, not on col E '+money(memInvoiced):'');
+  })();
+
   var blockAlert='';
-  if(tgt==null&&sheetThis<0.01&&finalThis<0.01&&totalEarned>1){
+  if(tgt==null&&forceNewMonthZero&&finalThis<0.01&&sheetThis>0.01&&totalEarned>1){
+    blockAlert='<div style="background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.35);color:#e0f2fe;padding:14px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.5">'+
+      '<strong style="color:#7dd3fc">$0 for this new month:</strong> History has a row <strong>In progress</strong> (after Mark sent). Amount Due stays $0 until you type <strong>This invoice — draft ($)</strong> or update the sheet. Line col G still reflects the live budget.</div>';
+  }else if(tgt==null&&forceAccruedZero&&finalThis<0.01&&totalOut>0.01&&totalEarned>1){
+    blockAlert='<div style="background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.35);color:#fef3c7;padding:14px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.5">'+
+      '<strong style="color:#fbbf24">$0 Amount Due:</strong> Column E (posted) has reached total earned, so there is no new bill on accrual. '+
+      'Outstanding (col G) can still show '+money(totalOut)+' until paid or adjusted on the sheet.</div>';
+  }else if(tgt==null&&forceZeroGross&&finalThis<0.01&&sheetThis>0.01&&totalEarned>1){
+    blockAlert='<div style="background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.35);color:#fef3c7;padding:14px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.5">'+
+      '<strong style="color:#fbbf24">$0 Amount Due:</strong> Build Gross col G is $0, but line items still sum to '+money(sheetThis)+'. Reconcile col G on the sheet and Refresh.</div>';
+  }else if(tgt==null&&sheetThis<0.01&&finalThis<0.01&&totalEarned>1){
     if(memInvoiced>1||Math.abs(adjSent)>0.01){
       blockAlert='<div style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#fecaca;padding:14px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.5">'+
         '<strong style="color:#fff">$0 invoice: app sent-memory is counting toward “already invoiced.”</strong> '+
@@ -958,14 +1021,12 @@ function renderInvoice(){
     sec.items.forEach(function(item){
       var tol=0.02;
       var osR=item.outstandingRaw!=null?item.outstandingRaw:0;
-      var paidUp=(item.paidAmt||0)>=item.earned-tol&&item.earned>0.01;
+      // No F-vs-earned vs contract “PAID” rule — invoice follows sheet cols E / G + billable math (G − sent-memory).
       var invoicedUp=!item.billable&&osR<tol&&(item.prevSheet||0)>0.01&&item.earned>0.01;
-      var paidMark=paidUp?'<span class="paid-pill">PAID</span>':'';
       var showAmt=item.billable?(scaledThis[item.key]!=null?scaledThis[item.key]:item.thisAmt):0;
-      var thisDisp=item.billable?money(showAmt):(paidUp?'<span style="color:#16a34a;font-weight:700">Paid</span>':(invoicedUp?'<span style="color:#64748b;font-weight:600">Invoiced</span>':'—'));
-      var rowClass=paidUp?'paid-row':'it-row';
-      rows+='<tr class="'+rowClass+'">'+
-        '<td>'+safeEsc(item.name)+' '+paidMark+'</td>'+
+      var thisDisp=item.billable?money(showAmt):(invoicedUp?'<span style="color:#64748b;font-weight:600">Invoiced</span>':'—');
+      rows+='<tr class="it-row">'+
+        '<td>'+safeEsc(item.name)+'</td>'+
         '<td class="c"><div class="pbar-wrap"><div class="pbar"><div class="fill" style="width:'+item.pct+'%"></div></div>'+item.pct.toFixed(0)+'%</div></td>'+
         '<td class="r">'+money(item.markup)+'</td>'+
         '<td class="r" style="color:#9ca3af">'+(osR>0.01?money(osR):'—')+'</td>'+
@@ -1020,7 +1081,7 @@ function renderInvoice(){
       '<div class="sum-cell"><div class="sum-lbl">Paid</div><div class="sum-val" style="color:#16a34a">'+money(paidSummary)+'</div>'+
       '<div style="font-size:10px;color:#94a3b8;margin-top:6px">Payments received</div></div>'+
       '<div class="sum-cell"><div class="sum-lbl">This Invoice</div><div class="sum-val" style="color:#0891b2;font-size:22px">'+money(finalThis)+'</div>'+
-      '<div style="font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.35">'+(useAnchor?'Per contract draw schedule':('Per line items'+(memInvoiced>0.01?' · includes prior billings '+money(memInvoiced):'')))+'</div></div>'+
+      '<div style="font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.35">'+thisInvSub+'</div></div>'+
     '</div>'+
     '<div style="background:#f1f5f9;border-bottom:1px solid #e2e8f0;padding:10px 24px;font-size:11px;color:#64748b;display:flex;flex-wrap:wrap;gap:16px;justify-content:center">'+
       '<span>Previously invoiced '+money(totalPrevSheet)+'</span>'+

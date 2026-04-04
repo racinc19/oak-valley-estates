@@ -86,6 +86,7 @@ function parseBudgetTab(rows){
     totalProfit=parseAmt(rows[3][13])||0
   }
   let totalPaidOverride=0;
+  let buildGrossTotals=null;
   let paidCol=5;
   for(let r=0;r<Math.min(5,rows.length);r++){
     const row=rows[r];if(!row)continue;
@@ -94,18 +95,25 @@ function parseBudgetTab(rows){
       if(cell==='paid'){paidCol=c;break}
     }
   }
-  for(let r=1;r<Math.min(8,rows.length);r++){
-    const row=rows[r];if(!row||!row[paidCol])continue;
+  for(let r=1;r<Math.min(14,rows.length);r++){
+    const row=rows[r];if(!row||!row[0])continue;
     const a0=(row[0]||'').trim().toLowerCase();
     const a1=(row[1]||'').trim().toLowerCase();
     if(/build gross|^total$/.test(a0)||/build gross|^total$/.test(a1)){
-      const v=parseAmt(row[paidCol]);
-      if(v>1000){totalPaidOverride=v;break}
+      buildGrossTotals={
+        invoiced:parseAmt(row[4]||0),
+        paid:parseAmt(row[5]||0),
+        outstanding:parseAmt(row[6]||0),
+        draftCol:parseAmt(row[7]||0)
+      };
+      const pv=parseAmt(row[paidCol]||0);
+      if(Math.abs(pv)>1000)totalPaidOverride=Math.abs(pv);
+      break
     }
   }
   if(totalPaidOverride===0&&rows[3]&&rows[3][5]){
     const v=parseAmt(rows[3][5]);
-    if(v>0)totalPaidOverride=v;
+    if(v>0)totalPaidOverride=Math.abs(v);
   }
 
   // Parse Change Orders — scan rows until we hit Deposit or a phase (no fixed row cap)
@@ -124,6 +132,7 @@ function parseBudgetTab(rows){
       invoiced:parseAmt(r[4]),
       paid:parseAmt(r[5]),
       outstanding:parseAmt(r[6]),
+      draftCol:parseAmt(r[7]||0),
       status:'approved'
     });
   }
@@ -164,6 +173,7 @@ function parseBudgetTab(rows){
     const invoiced=parseAmt(r[4]);     // Invoiced (col E)
     const paid=parseAmt(r[5]);         // Paid (col F)
     const outstanding=parseAmt(r[6]);  // Outstanding (col G)
+    const draftCol=parseAmt(r[7]||0);  // Optional col H (e.g. DO / draft order)
     const markup=itemized;
 
     curPhase.items.push({
@@ -179,6 +189,7 @@ function parseBudgetTab(rows){
       paid:paid,
       invoiced:invoiced,
       outstanding:outstanding,
+      draftCol:draftCol,
       profit:0,
       drawAmounts:[],
       totalDrawnBase:0
@@ -192,7 +203,7 @@ function parseBudgetTab(rows){
   }
 
   const headerInfo={sqft,budget:totalBudget,duration:0,completion:''};
-  return{phases,headerInfo,changeOrders:changeOrdersFromSheet,totalPaidOverride}
+  return{phases,headerInfo,changeOrders:changeOrdersFromSheet,totalPaidOverride,buildGrossTotals}
 }
 
 // ═══ PARSE SCHEDULE TAB ═══
@@ -389,7 +400,7 @@ async function loadProjectData(){
   ]);
 
   const budgetRows=parseCSV(budgetCSV);
-  const{phases,headerInfo,changeOrders:sheetCOs,totalPaidOverride}=parseBudgetTab(budgetRows);
+  const{phases,headerInfo,changeOrders:sheetCOs,totalPaidOverride,buildGrossTotals}=parseBudgetTab(budgetRows);
 
   let scheduleTasks=[];
   if(scheduleCSV){
@@ -409,7 +420,7 @@ async function loadProjectData(){
   if(totalPaidOverride>0)totalPaid=totalPaidOverride;
   const totals={totalBudget,totalPaid,progress:totalBudget>0?(totalPaid/totalBudget*100):0};
 
-  const main={phases,headerInfo,totals,scheduleTasks,sheetCOs};
+  const main={phases,headerInfo,totals,scheduleTasks,sheetCOs,buildGrossTotals};
   const draws=buildDrawSchedule(phases);
 
   return{main,draws,totals}

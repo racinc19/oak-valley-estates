@@ -1,0 +1,37 @@
+OVE DOORS — HANDING ORDER LIST (VENDOR FORMAT)
+Reviewed against: A104 Openings
+Jamb standard: 6-9/16" (all 2x6 walls per owner direction)
+
+Handing key:
+  LH  = Left-hand inswing
+  RH  = Right-hand inswing
+  LHR = Left-hand reverse (outswing)
+  RHR = Right-hand reverse (outswing)
+  N/A = no handing (pocket/overhead/opening/special)
+
+IMPORTANT:
+  SWING is now explicit for every mark.
+  HANDING (LH/RH/LHR/RHR) still requires final side direction from plan arcs at each opening.
+
+Mark   Qty  Level      Swing   Handing  Jamb
+100    9    Main       OUT     TBD      6-9/16"
+101    3    Main       IN      TBD      6-9/16"
+101-E  1    Main       OUT     TBD      6-9/16"
+102    1    Main       IN      TBD      6-9/16"
+103    5    Main       POCKET  N/A      6-9/16"
+104    1    Main       DA      N/A      6-9/16"
+105    1    Main       BIFOLD  N/A      6-9/16"
+106    1    Main       OUT     TBD      6-9/16"
+107    4    Main       OHD     N/A      6-9/16"
+108    1    Main       IN      TBD      6-9/16"
+109    1    Main       BYPASS  N/A      6-9/16"
+110    1    Main       OUT     TBD      6-9/16"
+111    1    Main       DA      N/A      6-9/16"
+200    1    Level 12   OUT     TBD      6-9/16"
+202    3    Level 12   IN      TBD      6-9/16"
+203    1    Level 12   POCKET  N/A      6-9/16"
+204    2    Level 12   CASED   N/A      6-9/16"
+302    3    Basement   IN      TBD      6-9/16"
+303    1    Level 12   IN      TBD      6-9/16"
+304    1    Level 12   OUT     TBD      6-9/16"
+307    1    Basement   VAULT   N/A      6-9/16"
