@@ -22,6 +22,12 @@ dist/
 *.swo
 *~
 
+# Local clone for gaii Pages deploy (not part of this repo)
+guardian-gaii-pages/
+
+# Temp extract from guardian deploy zip
+_guardian_deploy_23_extract/
+
 # Logs
 *.log
 npm-debug.log*
