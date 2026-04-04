@@ -1163,25 +1163,42 @@ function openClientSendModal(){
     '<div style="margin-top:10px"><span style="color:var(--dim);font-size:11px;text-transform:uppercase">Due (Net 30)</span><br><strong>'+safeEsc(dueStr)+'</strong></div>'+
     '</div>'+
     '<label>Client email</label>'+
-    '<input type="email" id="clientEmailInput" placeholder="billing@company.com" value="'+safeEsc(email)+'" autocomplete="email">'+
-    '<p style="font-size:11px;color:var(--dim);margin:10px 0 14px;line-height:1.45">We cannot attach files from the browser. Use <strong>Save &amp; print</strong> → <strong>Save as PDF</strong>, then attach it in the email draft.</p>'+
-    '<div class="modal-btns" style="flex-wrap:wrap;justify-content:flex-start;gap:8px">'+
-    '<button type="button" class="btn-save" onclick="launchClientEmail(\'gmail\')">Open Gmail draft</button>'+
-    '<button type="button" class="btn-sec" onclick="launchClientEmail(\'mailto\')">Open default mail app</button>'+
+    '<input type="email" id="clientEmailInput" placeholder="billing@company.com" value="'+safeEsc(email)+'" autocomplete="email" oninput="updateClientEmailLinks()" onblur="updateClientEmailLinks()">'+
+    '<p style="font-size:11px;color:var(--dim);margin:10px 0 14px;line-height:1.45">Use the links below (normal click — not a popup). Attach PDF after <strong>Save &amp; print</strong> → Save as PDF.</p>'+
+    '<div class="modal-btns" style="flex-wrap:wrap;justify-content:flex-start;gap:8px;align-items:center">'+
+    '<a id="gmailComposeLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-save" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:6px;font-weight:700;cursor:pointer;color:#fff" onclick="return clientEmailLinkClick(event,\'gmail\')">Open Gmail compose</a>'+
+    '<a id="mailtoComposeLink" href="#" class="btn-sec" style="display:inline-block;text-decoration:none;padding:9px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="return clientEmailLinkClick(event,\'mailto\')">Open in mail app</a>'+
     '<button type="button" class="btn-sec" onclick="closeModal();var el=document.getElementById(\'invoiceWrap\');if(el)el.scrollIntoView({behavior:\'smooth\'})">View full invoice</button>'+
     '<button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>'+
     '</div></div></div>';
   var inp=document.getElementById('clientEmailInput');
   if(inp)inp.focus();
+  updateClientEmailLinks();
 }
-function launchClientEmail(mode){
-  var el=document.getElementById('clientEmailInput');
-  if(!el)return;
-  var em=el.value.trim();
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){showToast('Enter a valid client email','var(--red)');return;}
-  setClientInvoiceEmail(em);
+function updateClientEmailLinks(){
+  var inp=document.getElementById('clientEmailInput');
+  var g=document.getElementById('gmailComposeLink');
+  var m=document.getElementById('mailtoComposeLink');
+  if(!inp||!g||!m)return;
+  var em=inp.value.trim();
+  var ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+  if(!ok||!LIVE){
+    g.href='#';
+    m.href='#';
+    g.style.opacity='0.55';
+    m.style.opacity='0.55';
+    g.title='Enter a valid email';
+    m.title='Enter a valid email';
+    return;
+  }
   var sum=computeInvoiceSummary();
-  if(!sum)return;
+  if(!sum||sum.finalThis<0.01){
+    g.href='#';
+    m.href='#';
+    g.style.opacity='0.55';
+    m.style.opacity='0.55';
+    return;
+  }
   var num=invNumber();
   var amtStr=money(sum.finalThis);
   var dueStr=dueDate(todayStr());
@@ -1189,24 +1206,27 @@ function launchClientEmail(mode){
   var body='Hello,\n\nPlease find invoice '+num+' attached (PDF).\n\nAmount due: '+amtStr+'\nDue: '+dueStr+'\nTerms: Net 30\n\nThank you,\nRAC Inc.\n435-229-7360 · racinc19@gmail.com';
   var gmailUrl='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(em)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
   var mailtoHref='mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-  if(mode==='gmail'){
-    var w=window.open(gmailUrl,'_blank');
-    closeModal();
-    if(w){
-      showToast('Gmail tab opened - attach PDF, then send');
-    }else{
-      showToast('Popup blocked: allow popups for this site, or use Open default mail app','var(--yellow)');
-    }
-    return;
-  }
-  var a=document.createElement('a');
-  a.href=mailtoHref;
-  a.style.display='none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  closeModal();
-  showToast('Opening your mail app - attach the PDF if prompted');
+  g.href=gmailUrl;
+  m.href=mailtoHref;
+  g.style.opacity='1';
+  m.style.opacity='1';
+  g.title='Opens Gmail in a new tab';
+  m.title='Opens Outlook / Apple Mail / etc.';
+}
+function clientEmailLinkClick(ev,mode){
+  var inp=document.getElementById('clientEmailInput');
+  if(!inp){ev.preventDefault();return false;}
+  var em=inp.value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){showToast('Enter a valid client email','var(--red)');ev.preventDefault();return false;}
+  setClientInvoiceEmail(em);
+  updateClientEmailLinks();
+  var a=document.getElementById(mode==='gmail'?'gmailComposeLink':'mailtoComposeLink');
+  if(!a)return false;
+  var h=String(a.getAttribute('href')||'');
+  if(mode==='gmail'&&h.indexOf('mail.google.com')===-1){showToast('Refresh sheet first','var(--red)');ev.preventDefault();return false;}
+  if(mode==='mailto'&&h.indexOf('mailto:')!==0){showToast('Refresh sheet first','var(--red)');ev.preventDefault();return false;}
+  if(mode==='mailto')setTimeout(function(){closeModal();},200);
+  return true;
 }
 
 function exportQB(){
