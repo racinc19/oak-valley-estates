@@ -277,7 +277,7 @@ html{overflow-y:scroll}body{overflow-x:hidden}
   <div id="tab-hist" class="tab-panel">
     <div style="margin-bottom:12px">
       <h2 style="font-size:16px;font-weight:800;margin:0">Monthly billing</h2>
-      <p style="font-size:12px;color:var(--dim);margin:6px 0 0 0;max-width:720px">First row = job totals from sheet. <strong>Next month</strong> on <strong>Paid</strong> → next month <strong>Due</strong>. <strong>Next month</strong> on <strong>Due</strong> → following month <strong>In progress</strong> ($0). Default list is March $400k paid only (no February).</p>
+      <p style="font-size:12px;color:var(--dim);margin:6px 0 0 0;max-width:720px">First row = job totals from sheet. <strong>Mark invoice as sent</strong> (on the Invoice tab) advances the calendar month on this table. Use <strong>Mark paid</strong> when that month is paid. Default list is March $400k paid only (no February).</p>
     </div>
     <div id="invHist"></div>
   </div>
@@ -733,7 +733,7 @@ function htmlLiveSheetTotalsBlock(sum, heading, extraFooterHtml, wrapClass){
 }
 
 function htmlHistLiveSummary(sum){
-  var foot=sum?'<div class="hts-foot" style="border-top:none;padding-top:0;margin-top:8px;color:var(--dim)">History: Paid / Outstanding columns + Mark paid vs Next month.</div>':'';
+  var foot=sum?'<div class="hts-foot" style="border-top:none;padding-top:0;margin-top:8px;color:var(--dim)">History: monthly rows — Mark invoice as sent advances the month.</div>':'';
   return htmlLiveSheetTotalsBlock(sum, 'Sheet live · v20260407', foot, '');
 }
 
@@ -821,9 +821,11 @@ function markMonthlyRowPaid(id){
   renderInvHistory();
   showToast('Marked paid for this row.');
 }
-function startNextMonthlyBill(id){
+/** silent: no toast (e.g. when called from Mark invoice as sent) */
+function startNextMonthlyBill(id,silent){
+  silent=!!silent;
   var sum=computeInvoiceSummary();
-  if(!sum){showToast('Refresh sheet first','var(--red)');return;}
+  if(!sum){if(!silent)showToast('Refresh sheet first','var(--red)');return;}
   var rows=loadMonthlyRows();
   var ix=-1;
   for(var i=0;i<rows.length;i++){if(rows[i].id===id)ix=i;}
@@ -831,32 +833,47 @@ function startNextMonthlyBill(id){
   var r=rows[ix];
   var nextYm=nextSingleYm(rows,r.ym);
   if(!nextYm){
-    showToast('That month is already on the table — use the next row','var(--yellow)');
+    if(!silent)showToast('That month is already on the table — use the next row','var(--yellow)');
     return;
   }
   if(r.status==='paid'){
     rows.push({id:'m_'+Date.now()+Math.random().toString(36).slice(2,10),ym:nextYm,label:monthInvoiceLabel(nextYm),amount:null,paid:0,status:'due'});
     saveMonthlyRows(rows);
     renderInvHistory();
-    showToast('Added '+nextYm+' as Due (invoice amount from sheet when you Refresh).');
+    if(!silent)showToast('Added '+nextYm+' as Due (invoice amount from sheet when you Refresh).');
     return;
   }
   if(r.status==='due'){
     rows.push({id:'m_'+Date.now()+Math.random().toString(36).slice(2,10),ym:nextYm,label:monthInvoiceLabel(nextYm),amount:0,paid:0,status:'in_progress'});
     saveMonthlyRows(rows);
     renderInvHistory();
-    showToast('Added '+nextYm+' as In progress ($0 until billed).');
+    if(!silent)showToast('Added '+nextYm+' as In progress ($0 until billed).');
     return;
   }
-  showToast('In progress rows don’t get Next month — bill the open Due row first','var(--yellow)');
+  if(!silent)showToast('In progress rows can’t advance — bill the open Due row first','var(--yellow)');
+}
+/** After invoice is marked sent: same as old “Next month” on latest Due, else on latest Paid */
+function advanceMonthlyBillingAfterInvoiceSent(){
+  var sum=computeInvoiceSummary();
+  if(!sum)return;
+  ensureMonthlyRowsDefault();
+  migrateMonthlyRowsCleanup();
+  var rows=loadMonthlyRows().slice();
+  var due=rows.filter(function(r){return r.status==='due';});
+  if(due.length){
+    due.sort(function(a,b){return b.ym.localeCompare(a.ym);});
+    startNextMonthlyBill(due[0].id,true);
+    return;
+  }
+  var paid=rows.filter(function(r){return r.status==='paid';});
+  if(paid.length){
+    paid.sort(function(a,b){return b.ym.localeCompare(a.ym);});
+    startNextMonthlyBill(paid[0].id,true);
+  }
 }
 function markMonthlyRowPaidFromBtn(btn){
   var id=btn&&btn.getAttribute('data-mid');
   if(id)markMonthlyRowPaid(id);
-}
-function startNextMonthlyBillFromBtn(btn){
-  var id=btn&&btn.getAttribute('data-mid');
-  if(id)startNextMonthlyBill(id);
 }
 function renderMonthlyBillingHtml(sum){
   ensureMonthlyRowsDefault();
@@ -880,15 +897,12 @@ function renderMonthlyBillingHtml(sum){
     var stClass=r.status==='paid'?'bm-paid':(r.status==='in_progress'?'bm-ip':'bm-due');
     var btns='';
     if(r.status==='due'){
-      btns='<button type="button" class="btn-sec" data-mid="'+String(r.id)+'" onclick="markMonthlyRowPaidFromBtn(this)" style="font-size:11px;margin-right:6px">Mark paid</button>'+
-        '<button type="button" class="btn-sec" data-mid="'+String(r.id)+'" onclick="startNextMonthlyBillFromBtn(this)" style="font-size:11px">Next month</button>';
-    }else if(r.status==='paid'){
-      btns='<button type="button" class="btn-sec" data-mid="'+String(r.id)+'" onclick="startNextMonthlyBillFromBtn(this)" style="font-size:11px">Next month</button>';
+      btns='<button type="button" class="btn-sec" data-mid="'+String(r.id)+'" onclick="markMonthlyRowPaidFromBtn(this)" style="font-size:11px">Mark paid</button>';
     }
     html+='<tr><td>'+safeEsc(r.label)+'</td><td class="bm-num bm-r">'+amtStr+'</td><td class="bm-num bm-r" style="color:var(--green)">'+paidStr+'</td><td class="bm-num bm-r" style="color:var(--cyan)">'+outStr+'</td><td class="'+stClass+'">'+st+'</td><td>'+btns+'</td></tr>';
   });
   html+='</tbody></table>';
-  html+='<p style="font-size:11px;color:var(--dim);margin-top:12px;line-height:1.45"><strong>Next month</strong> on a <strong>Paid</strong> row adds the <em>next</em> calendar month as <strong>Due</strong>. <strong>Next month</strong> on a <strong>Due</strong> row adds the following month as <strong>In progress</strong> ($0). First row = full job from sheet.</p>';
+  html+='<p style="font-size:11px;color:var(--dim);margin-top:12px;line-height:1.45"><strong>Mark invoice as sent</strong> adds the next calendar month (same as the old Next month button: from <strong>Due</strong> → next month <strong>In progress</strong>; from <strong>Paid</strong> only → next <strong>Due</strong>). <strong>Mark paid</strong> when the client pays that month.</p>';
   return html;
 }
 
@@ -1095,7 +1109,7 @@ function saveAndPrint(){
 
 function markInvoiceSent(){
   if(!LIVE){showToast('Refresh first','var(--red)');return;}
-  if(!confirm('Mark this invoice as SENT? Amounts roll into sent-memory until your sheet col G (and E) match — then Refresh and Clear sent-memory.'))return;
+  if(!confirm('Mark this invoice as SENT? Amounts roll into sent-memory until your sheet col G (and E) match — then Refresh and Clear sent-memory.\n\nThis also advances the monthly billing row (next calendar month) on the History tab.'))return;
   loadInvoices();
   var sum=computeInvoiceSummary();
   if(!sum){showToast('Refresh sheet first','var(--red)');return;}
@@ -1119,8 +1133,9 @@ function markInvoiceSent(){
   INVOICES.push(inv);
   saveInvoices();
   localStorage.removeItem(INV_TARGET_KEY);
+  advanceMonthlyBillingAfterInvoiceSent();
   renderInvoice();
-  showToast('✓ Sent — update the sheet, Refresh; next bill uses new col G.');
+  showToast('✓ Sent — sheet col G/E; next month row added below when applicable.');
 }
 
 // ── HISTORY (inline on invoice tab) — live sheet only; no snapshot cards ──
