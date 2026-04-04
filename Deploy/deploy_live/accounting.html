@@ -1185,17 +1185,28 @@ function launchClientEmail(mode){
   var num=invNumber();
   var amtStr=money(sum.finalThis);
   var dueStr=dueDate(todayStr());
-  var subj='Invoice '+num+' — Rodriguez Residence — Amount due '+amtStr;
+  var subj='Invoice '+num+' - Rodriguez Residence - Amount due '+amtStr;
   var body='Hello,\n\nPlease find invoice '+num+' attached (PDF).\n\nAmount due: '+amtStr+'\nDue: '+dueStr+'\nTerms: Net 30\n\nThank you,\nRAC Inc.\n435-229-7360 · racinc19@gmail.com';
-  closeModal();
+  var gmailUrl='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(em)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  var mailtoHref='mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
   if(mode==='gmail'){
-    var u='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(em)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-    window.open(u,'_blank','noopener,noreferrer');
-    showToast('Gmail opened — attach PDF, then send');
-  }else{
-    window.location.href='mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-    showToast('Mail app — attach PDF');
+    var w=window.open(gmailUrl,'_blank');
+    closeModal();
+    if(w){
+      showToast('Gmail tab opened - attach PDF, then send');
+    }else{
+      showToast('Popup blocked: allow popups for this site, or use Open default mail app','var(--yellow)');
+    }
+    return;
   }
+  var a=document.createElement('a');
+  a.href=mailtoHref;
+  a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  closeModal();
+  showToast('Opening your mail app - attach the PDF if prompted');
 }
 
 function exportQB(){
