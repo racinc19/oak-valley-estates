@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- invoice: schedule vs lines spread across rows — no correction line v20260402 deploy_live -->
+<!DOCTYPE html><!-- invoice: preview & email client modal v20260402 deploy_live -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -240,7 +240,8 @@ html{overflow-y:scroll}body{overflow-x:hidden}
       <button class="btn-sec" onclick="switchTab('co'); setTimeout(function(){document.getElementById('coSummarySection')&&document.getElementById('coSummarySection').scrollIntoView({behavior:'smooth'});},100)">📝 Change orders</button>
       <button class="btn-sec" onclick="exportQB()" style="border-color:var(--green);color:var(--green)">📦 Export to QuickBooks</button>
       <button class="btn-pri" onclick="saveAndPrint()">🖨️ Save &amp; print</button>
-      <button class="btn-sec" onclick="markInvoiceSent()" style="border-color:#fbbf24;color:#fbbf24" title="After you actually email or send the invoice">✉️ Mark invoice as sent</button>
+      <button class="btn-pri" onclick="openClientSendModal()" style="background:linear-gradient(135deg,#22c55e,#059669);box-shadow:0 2px 8px rgba(34,197,94,.25)" title="Preview totals, then open email — attach PDF from Save &amp; print">✉️ Preview &amp; email client</button>
+      <button class="btn-sec" onclick="markInvoiceSent()" style="border-color:#fbbf24;color:#fbbf24" title="After you actually email or send the invoice">Mark sent</button>
     </div>
     <div style="width:100%;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:12px 14px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px">
       <span style="font-size:12px;font-weight:800;color:var(--txt2)">This invoice — draft ($)</span>
@@ -1140,6 +1141,63 @@ function renderInvHistory(){
 
 // ── QUICKBOOKS ONLINE CSV (multi-line invoice import template) ──
 var QBO_CUSTOMER_NAME='ARJR Kanarraville Holdings LLC';
+var CLIENT_INVOICE_EMAIL_KEY='rac_client_invoice_email';
+function getClientInvoiceEmail(){try{return(String(localStorage.getItem(CLIENT_INVOICE_EMAIL_KEY)||'').trim());}catch(e){return '';}}
+function setClientInvoiceEmail(v){try{localStorage.setItem(CLIENT_INVOICE_EMAIL_KEY,String(v||'').trim());}catch(e){}}
+
+function openClientSendModal(){
+  if(!LIVE){showToast('Refresh sheet first','var(--red)');return;}
+  var sum=computeInvoiceSummary();
+  if(!sum||sum.finalThis<0.01){showToast('Nothing to send — refresh sheet or set This invoice — draft ($)','var(--yellow)');return;}
+  var num=invNumber();
+  var amtStr=money(sum.finalThis);
+  var dueStr=dueDate(todayStr());
+  var email=getClientInvoiceEmail();
+  document.getElementById('modalWrap').innerHTML=
+    '<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal" style="max-width:520px">'+
+    '<h3>Preview &amp; email client</h3>'+
+    '<p style="font-size:12px;color:var(--dim);margin-bottom:12px;line-height:1.5">Bill-to is the same customer as QuickBooks: <strong>'+safeEsc(QBO_CUSTOMER_NAME)+'</strong>. Enter the billing contact email — it is saved in this browser only.</p>'+
+    '<div style="background:var(--bg);border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:14px;font-size:14px;line-height:1.65">'+
+    '<div><span style="color:var(--dim);font-size:11px;text-transform:uppercase">Invoice #</span><br><strong>'+safeEsc(num)+'</strong></div>'+
+    '<div style="margin-top:10px"><span style="color:var(--dim);font-size:11px;text-transform:uppercase">Amount due</span><br><strong style="color:var(--cyan);font-size:22px">'+amtStr+'</strong></div>'+
+    '<div style="margin-top:10px"><span style="color:var(--dim);font-size:11px;text-transform:uppercase">Due (Net 30)</span><br><strong>'+safeEsc(dueStr)+'</strong></div>'+
+    '</div>'+
+    '<label>Client email</label>'+
+    '<input type="email" id="clientEmailInput" placeholder="billing@company.com" value="'+safeEsc(email)+'" autocomplete="email">'+
+    '<p style="font-size:11px;color:var(--dim);margin:10px 0 14px;line-height:1.45">We cannot attach files from the browser. Use <strong>Save &amp; print</strong> → <strong>Save as PDF</strong>, then attach it in the email draft.</p>'+
+    '<div class="modal-btns" style="flex-wrap:wrap;justify-content:flex-start;gap:8px">'+
+    '<button type="button" class="btn-save" onclick="launchClientEmail(\'gmail\')">Open Gmail draft</button>'+
+    '<button type="button" class="btn-sec" onclick="launchClientEmail(\'mailto\')">Open default mail app</button>'+
+    '<button type="button" class="btn-sec" onclick="closeModal();var el=document.getElementById(\'invoiceWrap\');if(el)el.scrollIntoView({behavior:\'smooth\'})">View full invoice</button>'+
+    '<button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>'+
+    '</div></div></div>';
+  var inp=document.getElementById('clientEmailInput');
+  if(inp)inp.focus();
+}
+function launchClientEmail(mode){
+  var el=document.getElementById('clientEmailInput');
+  if(!el)return;
+  var em=el.value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){showToast('Enter a valid client email','var(--red)');return;}
+  setClientInvoiceEmail(em);
+  var sum=computeInvoiceSummary();
+  if(!sum)return;
+  var num=invNumber();
+  var amtStr=money(sum.finalThis);
+  var dueStr=dueDate(todayStr());
+  var subj='Invoice '+num+' — Rodriguez Residence — Amount due '+amtStr;
+  var body='Hello,\n\nPlease find invoice '+num+' attached (PDF).\n\nAmount due: '+amtStr+'\nDue: '+dueStr+'\nTerms: Net 30\n\nThank you,\nRAC Inc.\n435-229-7360 · racinc19@gmail.com';
+  closeModal();
+  if(mode==='gmail'){
+    var u='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(em)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    window.open(u,'_blank','noopener,noreferrer');
+    showToast('Gmail opened — attach PDF, then send');
+  }else{
+    window.location.href='mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    showToast('Mail app — attach PDF');
+  }
+}
+
 function exportQB(){
   if(!LIVE){showToast('Refresh sheet first','var(--red)');return;}
   loadInvoices();
