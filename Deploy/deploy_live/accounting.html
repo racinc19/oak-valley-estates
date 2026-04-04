@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- invoice: tie-out line = Balance per approved schedule (client) v20260402 deploy_live -->
+<!DOCTYPE html><!-- invoice: schedule vs lines spread across rows — no correction line v20260402 deploy_live -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -662,6 +662,33 @@ function computeInvoiceSummary(){
   };
 }
 
+/** Spread schedule vs line-sum difference across billable lines — no separate correction row on the invoice. */
+function getScaledThisByKey(sum){
+  var m={};
+  var sheetThis=sum.sheetThis, invAdj=sum.invAdj, finalThis=sum.finalThis, tgt=sum.tgt, useAnchor=sum.useAnchor;
+  var need=(tgt!=null||useAnchor)&&Math.abs(invAdj)>0.01&&sheetThis>0.01;
+  var bill=[];
+  sum.sections.forEach(function(sec){
+    sec.items.forEach(function(it){
+      m[it.key]=it.thisAmt;
+      if(it.billable&&it.thisAmt>0.0001)bill.push(it);
+    });
+  });
+  if(!need||sheetThis<0.01)return m;
+  var scale=finalThis/sheetThis;
+  var acc=0;
+  bill.forEach(function(it,idx){
+    if(idx<bill.length-1){
+      var v=Math.round(it.thisAmt*scale*100)/100;
+      m[it.key]=v;
+      acc+=v;
+    }else{
+      m[it.key]=Math.round((finalThis-acc)*100)/100;
+    }
+  });
+  return m;
+}
+
 function paintLiveSummaryBar(sum){
   var bar=document.getElementById('liveSummaryBar');
   if(!bar)return;
@@ -890,6 +917,8 @@ function renderInvoice(){
   var useAnchor=sum.useAnchor;
   var tgt=sum.tgt;
 
+  var scaledThis=getScaledThisByKey(sum);
+
   var blockAlert='';
   if(tgt==null&&sheetThis<0.01&&finalThis<0.01&&totalEarned>1){
     if(memInvoiced>1||Math.abs(adjSent)>0.01){
@@ -918,7 +947,8 @@ function renderInvoice(){
       var paidUp=(item.paidAmt||0)>=item.earned-tol&&item.earned>0.01;
       var invoicedUp=!item.billable&&osR<tol&&(item.prevSheet||0)>0.01&&item.earned>0.01;
       var paidMark=paidUp?'<span class="paid-pill">PAID</span>':'';
-      var thisDisp=item.billable?money(item.thisAmt):(paidUp?'<span style="color:#16a34a;font-weight:700">Paid</span>':(invoicedUp?'<span style="color:#64748b;font-weight:600">Invoiced</span>':'—'));
+      var showAmt=item.billable?(scaledThis[item.key]!=null?scaledThis[item.key]:item.thisAmt):0;
+      var thisDisp=item.billable?money(showAmt):(paidUp?'<span style="color:#16a34a;font-weight:700">Paid</span>':(invoicedUp?'<span style="color:#64748b;font-weight:600">Invoiced</span>':'—'));
       var rowClass=paidUp?'paid-row':'it-row';
       rows+='<tr class="'+rowClass+'">'+
         '<td>'+safeEsc(item.name)+' '+paidMark+'</td>'+
@@ -929,13 +959,6 @@ function renderInvoice(){
       '</tr>';
     });
   });
-  if((tgt!=null||useAnchor)&&Math.abs(invAdj)>0.01){
-    rows+='<tr class="it-row" style="background:rgba(234,179,8,.12)">'+
-      '<td colspan="3" style="text-align:right;font-weight:800;color:#92400e">Balance per approved schedule</td>'+
-      '<td class="r" style="color:#9ca3af">—</td>'+
-      '<td class="r" style="font-weight:800;color:#92400e">'+money(invAdj)+'</td>'+
-      '</tr>';
-  }
 
   var html=
   blockAlert+
@@ -1049,17 +1072,14 @@ function renderInvoice(){
 function saveAndPrint(){
   if(!LIVE){showToast('Refresh first','var(--red)');return;}
   loadInvoices();
-  var sections=buildItems();
+  var sum=computeInvoiceSummary();
+  if(!sum){showToast('Refresh sheet first','var(--red)');return;}
+  var scaled=getScaledThisByKey(sum);
   var lineItems=[];
-  sections.forEach(function(s){s.items.forEach(function(i){if(i.billable)lineItems.push({key:i.key,name:i.name,vendor:i.vendor,markup:i.markup,pct:i.pct,earned:i.earned,prev:i.prev,amount:i.thisAmt});});});
-  var sheetSum=lineItems.reduce(function(s,i){return s+i.amount;},0);
-  var tgt=getEffectiveTarget();
-  var anchorDue=getBuildGrossAnchorDue();
-  var useAnchor=tgt==null&&anchorDue>1;
-  var adj=0;
-  if(tgt!=null&&Math.abs(tgt-sheetSum)>0.01)adj=tgt-sheetSum;
-  else if(useAnchor&&Math.abs(anchorDue-sheetSum)>0.01)adj=anchorDue-sheetSum;
-  if(Math.abs(adj)>0.01){lineItems.push({key:'_inv_target_adj',name:'Balance per approved schedule',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:adj});}
+  sum.sections.forEach(function(s){s.items.forEach(function(i){
+    if(!i.billable)return;
+    lineItems.push({key:i.key,name:i.name,vendor:i.vendor,markup:i.markup,pct:i.pct,earned:i.earned,prev:i.prev,amount:scaled[i.key]});
+  });});
   var total=lineItems.reduce(function(s,i){return s+i.amount;},0);
   if(!lineItems.length||total<0.01){showToast('Nothing to invoice — refresh sheet or set This invoice — draft ($)','var(--yellow)');return;}
   var baseNum=invNumber();
@@ -1077,26 +1097,20 @@ function markInvoiceSent(){
   if(!LIVE){showToast('Refresh first','var(--red)');return;}
   if(!confirm('Mark this invoice as SENT? Amounts roll into sent-memory until your sheet col G (and E) match — then Refresh and Clear sent-memory.'))return;
   loadInvoices();
-  var sections=buildItems();
+  var sum=computeInvoiceSummary();
+  if(!sum){showToast('Refresh sheet first','var(--red)');return;}
+  var scaled=getScaledThisByKey(sum);
   var lineItems=[];
-  sections.forEach(function(s){s.items.forEach(function(i){if(i.billable)lineItems.push({key:i.key,name:i.name,vendor:i.vendor,markup:i.markup,pct:i.pct,earned:i.earned,prev:i.prev,amount:i.thisAmt});});});
-  var sheetSum=lineItems.reduce(function(s,i){return s+i.amount;},0);
-  var sh=getInvShadow();
-  var tgt=getEffectiveTarget();
-  var anchorDue=getBuildGrossAnchorDue();
-  var useAnchor=tgt==null&&anchorDue>1;
-  var invRow=0;
-  if(tgt!=null)invRow=tgt-sheetSum;
-  else if(useAnchor)invRow=anchorDue-sheetSum;
-  if(Math.abs(invRow)>0.01){lineItems.push({key:'_inv_target_adj',name:'Balance per approved schedule',vendor:'',markup:0,pct:0,earned:0,prev:0,amount:invRow});}
+  sum.sections.forEach(function(s){s.items.forEach(function(i){
+    if(!i.billable)return;
+    lineItems.push({key:i.key,name:i.name,vendor:i.vendor,markup:i.markup,pct:i.pct,earned:i.earned,prev:i.prev,amount:scaled[i.key]});
+  });});
   var total=lineItems.reduce(function(s,i){return s+Number(i.amount||0);},0);
   if(!lineItems.length||total<0.01){showToast('Nothing to mark sent','var(--yellow)');return;}
   var newSh=JSON.parse(JSON.stringify(getInvShadow()));
   lineItems.forEach(function(li){
-    if(li.key==='_inv_target_adj')return;
     if((li.amount||0)>0.01)newSh[li.key]=(newSh[li.key]||0)+li.amount;
   });
-  if(Math.abs(invRow)>0.01){newSh['__ADJ__']=(newSh['__ADJ__']||0)+invRow;}
   saveInvShadow(newSh);
   var baseNum=invNumber();
   var sameDay=INVOICES.filter(function(i){return i.id.startsWith(baseNum);});
@@ -1129,21 +1143,15 @@ var QBO_CUSTOMER_NAME='ARJR Kanarraville Holdings LLC';
 function exportQB(){
   if(!LIVE){showToast('Refresh sheet first','var(--red)');return;}
   loadInvoices();
-  var sections=buildItems();
+  var sum=computeInvoiceSummary();
+  if(!sum){showToast('Refresh sheet first','var(--red)');return;}
+  var scaled=getScaledThisByKey(sum);
   var lineItems=[];
-  sections.forEach(function(s){
+  sum.sections.forEach(function(s){
     s.items.forEach(function(i){
-      if(i.billable) lineItems.push(i);
+      if(i.billable) lineItems.push(Object.assign({},i,{thisAmt:scaled[i.key]}));
     });
   });
-  var sheetSum=lineItems.reduce(function(s,i){return s+i.thisAmt;},0);
-  var tgt=getEffectiveTarget();
-  var anchorDue=getBuildGrossAnchorDue();
-  var useAnchor=tgt==null&&anchorDue>1;
-  var adj=0;
-  if(tgt!=null&&Math.abs(tgt-sheetSum)>0.01)adj=tgt-sheetSum;
-  else if(useAnchor&&Math.abs(anchorDue-sheetSum)>0.01)adj=anchorDue-sheetSum;
-  if(Math.abs(adj)>0.01){lineItems.push({key:'_adj',name:'Balance per approved schedule',vendor:'',markup:0,pct:100,thisAmt:adj,billable:true});}
   if(!lineItems.length){showToast('Nothing to export — refresh sheet or set This invoice — draft ($)','var(--yellow)');return;}
 
   var num=invNumber();
@@ -1158,7 +1166,7 @@ function exportQB(){
   var rows=[header];
   lineItems.forEach(function(item,idx){
     var plainName=String(item.name||'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"');
-    var desc=item.key==='_adj'?plainName+(item.vendor?' ('+item.vendor+')':''):item.pct.toFixed(0)+'% Complete - '+plainName+(item.vendor?' ('+item.vendor+')':'');
+    var desc=item.pct.toFixed(0)+'% Complete - '+plainName+(item.vendor?' ('+item.vendor+')':'');
     var amt=Number(item.thisAmt||0).toFixed(2);
     if(idx===0){
       rows.push(csvLine([num,QBO_CUSTOMER_NAME,invDate,dueDate,'Net 30','','Rodriguez Residence','',desc,'1',amt,amt,'N']));
