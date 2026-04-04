@@ -22,10 +22,11 @@ dist/
 *.swo
 *~
 
-# Local clone for gaii Pages deploy (not part of this repo)
+# Guardian site repo lives on Desktop: ..\guardian-gaii-pages (not inside this project).
+# Ignore if a stray copy ever appears here again:
 guardian-gaii-pages/
 
-# Temp extract from guardian deploy zip
+# Temp extract from guardian deploy zip (remove when done)
 _guardian_deploy_23_extract/
 
 # Logs
