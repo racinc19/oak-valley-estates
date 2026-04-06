@@ -1,0 +1,35 @@
+Rodriguez repo — what belongs in Git
+====================================
+
+Purpose
+-------
+This repo holds project truth for Rodriguez construction: RFPs, deploy bundles,
+Revit milestones, PDFs, and trade docs. Use Git for things you want versioned,
+recoverable, and shareable across machines.
+
+In Git (typical)
+----------------
+- Source and content: HTML, JS, Python scripts, wrangler.toml, small configs.
+- RFP text/HTML/PDF when they are deliverables or formal revisions.
+- Revit: keep a clear naming scheme; commit milestone saves (e.g. final.0028.rvt)
+  and remove superseded backup numbers when you rotate, so history stays one
+  current file plus numbered backups you still need.
+
+Prefer local / OneDrive only (or Git LFS if you adopt it)
+---------------------------------------------------------
+- Huge exports, duplicate zips, raw photo dumps, personal ID scans.
+- Experimental copies of the same RVT with unclear names — rename or delete
+  before committing.
+
+Large binaries
+--------------
+Revit (.rvt) and large PDFs grow the repo. If clones get slow, consider
+Git LFS for .rvt/.pdf or an external archive (NAS/OneDrive) with Git tracking
+only a pointer or README that says where the latest milestone lives.
+
+Well Pump / RFP layout
+----------------------
+Canonical RFP packages: Construction\RFP\Well_Pump (and related).
+Trade visuals and generators: Trades\Well Pump.
+Avoid editing duplicate nested copies (e.g. Python\Python\) — pick one tree
+and remove duplicates when you clean house.
