@@ -185,6 +185,45 @@ function getSheetPaidToDate(data){
   }catch(e){}
   return 0;
 }
+function getMergedSheetCOs(main){
+  var sheet=(main&&main.sheetCOs)||[];
+  var local=[];
+  try{local=JSON.parse(localStorage.getItem(CO_KEY)||'[]')}catch(e){}
+  var localByNum={};
+  local.forEach(function(co){if(co&&co.num)localByNum[co.num]=co;});
+  return sheet.map(function(co){
+    var l=co&&co.num?localByNum[co.num]:null;
+    if(!l) return co;
+    var m=Object.assign({},co);
+    if(l.status) m.status=l.status;
+    return m;
+  });
+}
+function getRevisedTotal(main){
+  var base=(main&&main.totals&&main.totals.totalBudget)||0;
+  var cos=getMergedSheetCOs(main);
+  var coAmt=0;
+  for(var i=0;i<cos.length;i++) if(cos[i]&&cos[i].status==='approved') coAmt+=Number(cos[i].amount||0);
+  return base+coAmt;
+}
+function reconcileScheduleToRevised(md,main){
+  var revised=getRevisedTotal(main);
+  var keys=Object.keys(md);
+  var sum=0;
+  for(var i=0;i<keys.length;i++) sum+=Number(md[keys[i]].budget||0);
+  var delta=revised-sum;
+  if(delta>1){
+    // Put any unscheduled delta into the final month so cumulative always equals Revised Total.
+    var lastKey=keys.sort().slice(-1)[0];
+    if(!lastKey){
+      var now=new Date();
+      lastKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+      md[lastKey]={month:new Date(now.getFullYear(),now.getMonth(),1),budget:0,paid:0};
+    }
+    md[lastKey].budget+=delta;
+  }
+  return revised;
+}
 function renderChart(data){
   var main=data.main||data;
   var phases=main.phases||[];
@@ -216,6 +255,7 @@ function renderChart(data){
       }
     }}
   injectCOs(md,false);
+  reconcileScheduleToRevised(md,main);
   var sorted=Object.values(md).sort(function(a,b){return a.month-b.month});
   sorted.forEach(function(d){
     d.isPast=d.month<firstOfThisMonth;
@@ -245,7 +285,8 @@ function renderChart(data){
   var pad={t:40,r:85,b:65,l:85};
   var cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
   var maxBar=Math.max.apply(null,sorted.map(function(d){return d.display}))||1;
-  var maxCum=Math.max(sorted.reduce(function(s,d){return s+((d.isPast&&d.paidAmount>0)?d.paidAmount:d.budget)},0),1);
+  // Cumulative line represents schedule budget (reconciled to Revised Total)
+  var maxCum=Math.max(sorted.reduce(function(s,d){return s+(d.budget||0)},0),1);
   var barW=Math.min(48,cW/sorted.length*.65);
   var gap=(cW-barW*sorted.length)/(sorted.length+1);
 
@@ -272,7 +313,7 @@ function renderChart(data){
     if(bH>25){ctx.fillStyle='white';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(fmtK(d.display),x+barW/2,y2+14)}
     ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='10px sans-serif';ctx.textAlign='center';
     ctx.fillText(fmtMoShort(d.month),x+barW/2,H-pad.b+14);
-    cum+=((d.isPast&&d.paidAmount>0)?d.paidAmount:d.budget);
+    cum+=(d.budget||0);
     pts.push({x:x+barW/2,y:pad.t+cH-(cum/maxCum)*cH});
   });
 
@@ -309,6 +350,7 @@ function renderSchedule(data){
       if(end){var k=end.getFullYear()+'-'+String(end.getMonth()+1).padStart(2,'0');addItem(k,item,amt,pvd);}
     }}
   injectCOs(months,true);
+  reconcileScheduleToRevised(months,main);
   var sorted=Object.entries(months).sort(function(a,b){return a[0].localeCompare(b[0])});
   sorted.forEach(function(entry){
     var k=entry[0];
