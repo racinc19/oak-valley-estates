@@ -153,28 +153,19 @@ function loadMonthlyRows(){
     return a.filter(function(r){return r&&r.ym&&r.ym!=='2026-02';});
   }catch(e){return [];}
 }
-function ensureMonthlyRowsDefault(){
-  var KEY='rac_monthly_invoice_rows_v1';
-  var rows=loadMonthlyRows();
-  if(rows.length)return;
-  // Default seed to match requested draw history: Feb $0, Mar ~$400k, Apr ~$350k due
-  rows=[
-    {id:'m_seed_mar',ym:'2026-03',label:'March 2026 invoice',amount:400154.48,paid:400154.48,status:'paid'},
-    {id:'m_seed_apr',ym:'2026-04',label:'April 2026 invoice',amount:350000,paid:0,status:'due'}
-  ];
-  localStorage.setItem(KEY,JSON.stringify(rows));
-}
-function getMonthlyDrawAmountMap(){
-  ensureMonthlyRowsDefault();
+function getHistoryMonthAmountMap(){
+  // Accounting → History monthly rows are the source of truth for months that have occurred.
+  // Use row.amount for Due/Paid months; In progress months are 0.
   var rows=loadMonthlyRows();
   var map={};
-  rows.forEach(function(r){
-    if(!r||!r.ym)return;
-    if(r.status==='in_progress'){map[r.ym]=0;return;}
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    if(!r||!r.ym)continue;
+    if(r.status==='in_progress'){map[r.ym]=0;continue;}
     var amt=r.amount!=null&&r.amount!==''?Number(r.amount):0;
     if(!isFinite(amt))amt=0;
     map[r.ym]=amt;
-  });
+  }
   return map;
 }
 function monthLabelFromYm(ym){
@@ -199,7 +190,7 @@ function renderChart(data){
   var phases=main.phases||[];
   var totals=data.totals||{};
   var paidMap=getMonthlyPaidMap();
-  var drawAmtMap=getMonthlyDrawAmountMap();
+  var histAmtMap=getHistoryMonthAmountMap();
   var totalPaid=(function(){
     var s=0;for(var k in paidMap){if(Object.prototype.hasOwnProperty.call(paidMap,k))s+=Number(paidMap[k]||0);}
     return s>0?s:getSheetPaidToDate(data);
@@ -229,13 +220,11 @@ function renderChart(data){
   sorted.forEach(function(d){
     d.isPast=d.month<firstOfThisMonth;
     var ym=d.month.getFullYear()+'-'+String(d.month.getMonth()+1).padStart(2,'0');
-    // Paid overlay comes from paid rows when present
-    d.paidAmount=(paidMap[ym]!=null)?Number(paidMap[ym]||0):(d.paid||0);
-    // For months up to and including the current month, show the monthly draw amount (History) if present.
-    // For future months, show scheduled budget by completion month.
-    var isThisOrPast=d.month<firstOfNextMonth;
-    var drawAmt=(drawAmtMap[ym]!=null)?Number(drawAmtMap[ym]||0):null;
-    d.display=isThisOrPast&&drawAmt!=null?drawAmt:d.budget;
+    // For months that exist in History (monthly billing), use History amount. Otherwise drawn is 0.
+    if(d.month<firstOfNextMonth && histAmtMap[ym]!=null) d.paidAmount=Number(histAmtMap[ym]||0);
+    else d.paidAmount=0;
+    // Blue bar height always comes from schedule/budget.
+    d.display=d.budget;
   });
   el.innerHTML='<div class="sbox"><div class="shdr"><h2>💰 Monthly Draw Schedule</h2><div class="meta">Budget + approved COs by completion month</div></div><div style="padding:20px"><canvas id="drawCanvas" height="420"></canvas></div></div>';
 
@@ -294,15 +283,12 @@ function renderSchedule(data){
   var main=data.main||data;
   var phases=main.phases||[];
   var totals=data.totals||{};
-  var paidMap=getMonthlyPaidMap();
-  var totalPaid=(function(){
-    var s=0;for(var k in paidMap){if(Object.prototype.hasOwnProperty.call(paidMap,k))s+=Number(paidMap[k]||0);}
-    return s>0?s:getSheetPaidToDate(data);
-  })();
+  var histAmtMap=getHistoryMonthAmountMap();
   var el=document.getElementById('schedBox');
   var months={};
   var now=new Date();
   var firstOfThisMonth=new Date(now.getFullYear(),now.getMonth(),1);
+  var firstOfNextMonth=new Date(now.getFullYear(),now.getMonth()+1,1);
   function addItem(k,item,bud,pvd){
     if(!months[k])months[k]={month:new Date(parseInt(k.split('-')[0],10),parseInt(k.split('-')[1],10)-1,1),total:0,paid:0,items:[]};
     months[k].total+=bud;months[k].paid+=pvd;
@@ -321,9 +307,9 @@ function renderSchedule(data){
   sorted.forEach(function(entry){
     var k=entry[0];
     var m=entry[1];
-    if(paidMap[k]!=null){m.paid=Number(paidMap[k]||0);}
     m.isPast=m.month<firstOfThisMonth;
-    m.display=(m.isPast&&m.paid>0)?m.paid:m.total;
+    if(m.month<firstOfNextMonth && histAmtMap[k]!=null){m.paid=Number(histAmtMap[k]||0);}else{m.paid=0;}
+    m.display=(m.month<firstOfNextMonth && histAmtMap[k]!=null)?m.paid:m.total;
   });
   var cum=0,html='';
   for(var s=0;s<sorted.length;s++){
