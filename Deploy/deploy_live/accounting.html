@@ -681,6 +681,14 @@ function computeInvoiceSummary(){
     if(l.status) m.status=l.status;
     return m;
   });
+  (function(){
+    var sheetNums=sheetCOs2.map(function(c){return c&&c.num;}).filter(Boolean);
+    localCOs2.forEach(function(co){
+      if(!co||!co.num)return;
+      if(sheetNums.indexOf(co.num)>=0)return;
+      sheetCOs2.push(co);
+    });
+  })();
   sheetCOs2.forEach(function(co){if(co.status==='approved')totalContract+=co.amount;});
   sections.forEach(function(s){s.items.forEach(function(i){
     totalEarned+=i.earned;

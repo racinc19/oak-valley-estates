@@ -191,13 +191,21 @@ function getMergedSheetCOs(main){
   try{local=JSON.parse(localStorage.getItem(CO_KEY)||'[]')}catch(e){}
   var localByNum={};
   local.forEach(function(co){if(co&&co.num)localByNum[co.num]=co;});
-  return sheet.map(function(co){
+  var merged=sheet.map(function(co){
     var l=co&&co.num?localByNum[co.num]:null;
     if(!l) return co;
     var m=Object.assign({},co);
     if(l.status) m.status=l.status;
     return m;
   });
+  // Append local-only COs not present on the sheet
+  var sheetNums=merged.map(function(c){return c&&c.num;}).filter(Boolean);
+  local.forEach(function(co){
+    if(!co||!co.num)return;
+    if(sheetNums.indexOf(co.num)>=0)return;
+    merged.push(co);
+  });
+  return merged;
 }
 function getRevisedTotal(main){
   var base=(main&&main.totals&&main.totals.totalBudget)||0;
