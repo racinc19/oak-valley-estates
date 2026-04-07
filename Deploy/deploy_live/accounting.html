@@ -612,8 +612,25 @@ function buildItems(){
     if(items.length) sections.push({display:phase.display||phase.name,items:items});
   });
   var sheetCOs=(LIVE&&LIVE.main&&LIVE.main.sheetCOs)||[];
+  var localCOs=[];
+  try{localCOs=JSON.parse(localStorage.getItem(BUDGET_CO_KEY)||'[]')}catch(e){}
+  var localByNum={};
+  localCOs.forEach(function(co){if(co&&co.num)localByNum[co.num]=co;});
+  sheetCOs=sheetCOs.map(function(co){
+    var l=co&&co.num?localByNum[co.num]:null;
+    if(!l) return co;
+    var m=Object.assign({},co);
+    if(l.status) m.status=l.status;
+    if(l.date) m.date=l.date;
+    if(l.vendor) m.vendor=l.vendor;
+    if(l.notes) m.notes=l.notes;
+    if(l.docUrl) m.docUrl=l.docUrl;
+    if(l.docLink) m.docLink=l.docLink;
+    return m;
+  });
   var coItems=[];
   sheetCOs.forEach(function(co){
+    if(co.status&&co.status!=='approved') return;
     var pct=co.pct||0;
     if(pct<=0) return;
     var earned=co.amount*(pct/100);
@@ -653,6 +670,17 @@ function computeInvoiceSummary(){
   var totalContract=0,totalEarned=0,totalPrev=0,totalPrevSheet=0,totalThis=0,totalOut=0,totalPaidF=0;
   if(LIVE.main.totals){totalContract=LIVE.main.totals.totalBudget||0;}
   var sheetCOs2=(LIVE.main.sheetCOs)||[];
+  var localCOs2=[];
+  try{localCOs2=JSON.parse(localStorage.getItem(BUDGET_CO_KEY)||'[]')}catch(e){}
+  var localByNum2={};
+  localCOs2.forEach(function(co){if(co&&co.num)localByNum2[co.num]=co;});
+  sheetCOs2=sheetCOs2.map(function(co){
+    var l=co&&co.num?localByNum2[co.num]:null;
+    if(!l) return co;
+    var m=Object.assign({},co);
+    if(l.status) m.status=l.status;
+    return m;
+  });
   sheetCOs2.forEach(function(co){if(co.status==='approved')totalContract+=co.amount;});
   sections.forEach(function(s){s.items.forEach(function(i){
     totalEarned+=i.earned;
