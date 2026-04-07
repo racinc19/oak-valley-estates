@@ -830,7 +830,12 @@ function migrateMonthlyRowsCleanup(){
 function monthlyRowAmount(r,sum){
   if(r.status==='in_progress')return 0;
   var amt=r.amount!=null&&r.amount!==''?Number(r.amount):null;
-  if((amt==null||isNaN(amt))&&sum&&r.status==='due')amt=sum.finalThis;
+  if((amt==null||isNaN(amt))&&sum&&r.status==='due'){
+    // When a next-month row is In progress, sum.finalThis can be forced to $0.
+    // For the open Due row, prefer the Build Gross anchor due when available.
+    if(sum.forceNewMonthZero&&sum.anchorDue>1) amt=sum.anchorDue;
+    else amt=sum.finalThis;
+  }
   return amt!=null&&!isNaN(amt)?amt:null;
 }
 function monthlyRowPaidNum(r,amt){
@@ -886,6 +891,11 @@ function startNextMonthlyBill(id,silent){
     return;
   }
   if(r.status==='due'){
+    // Freeze this due month amount now (before adding an In progress row) so it doesn't later render as $0.
+    if(r.amount==null||r.amount===''){
+      var frozen=monthlyRowAmount(r,sum);
+      if(frozen!=null&&isFinite(frozen)) r.amount=frozen;
+    }
     rows.push({id:'m_'+Date.now()+Math.random().toString(36).slice(2,10),ym:nextYm,label:monthInvoiceLabel(nextYm),amount:0,paid:0,status:'in_progress'});
     saveMonthlyRows(rows);
     renderInvHistory();
