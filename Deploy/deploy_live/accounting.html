@@ -931,6 +931,7 @@ function renderMonthlyBillingHtml(sum){
   ensureMonthlyRowsDefault();
   migrateMonthlyRowsCleanup();
   var rows=loadMonthlyRows().slice().sort(function(a,b){return b.ym.localeCompare(a.ym);});
+  var dirty=false;
   var html='<table class="billing-month-table"><thead><tr><th>Description</th><th class="bm-r">Amount</th><th class="bm-r">Paid</th><th class="bm-r">Outstanding</th><th>Status</th><th></th></tr></thead><tbody>';
   html+='<tr><td><strong>Total earned</strong> <span style="color:var(--dim);font-weight:600;font-size:11px">(live sheet)</span></td>'+
     '<td class="bm-num bm-r">'+(sum?money(sum.totalEarned):'—')+'</td>'+
@@ -939,6 +940,12 @@ function renderMonthlyBillingHtml(sum){
     '<td style="color:var(--dim);font-size:11px">Budget summary</td><td></td></tr>';
   rows.forEach(function(r){
     var amt=monthlyRowAmount(r,sum);
+    // Freeze computed amount into the stored row if it was previously blank.
+    // This ensures Draws (and any other page) can read a stable monthly invoice amount.
+    if(r.status==='due'&&(r.amount==null||r.amount==='')&&amt!=null&&!isNaN(amt)){
+      r.amount=amt;
+      dirty=true;
+    }
     var paidN=monthlyRowPaidNum(r,amt);
     var outN=monthlyRowOutstanding(amt,paidN);
     if(r.status==='in_progress'){outN=0;}
@@ -953,6 +960,7 @@ function renderMonthlyBillingHtml(sum){
     }
     html+='<tr><td>'+safeEsc(r.label)+'</td><td class="bm-num bm-r">'+amtStr+'</td><td class="bm-num bm-r" style="color:var(--green)">'+paidStr+'</td><td class="bm-num bm-r" style="color:var(--cyan)">'+outStr+'</td><td class="'+stClass+'">'+st+'</td><td>'+btns+'</td></tr>';
   });
+  if(dirty) try{saveMonthlyRows(rows);}catch(e){}
   html+='</tbody></table>';
   html+='<p style="font-size:11px;color:var(--dim);margin-top:12px;line-height:1.45"><strong>Mark invoice as sent</strong> adds the next calendar month (same as the old Next month button: from <strong>Due</strong> → next month <strong>In progress</strong>; from <strong>Paid</strong> only → next <strong>Due</strong>). <strong>Mark paid</strong> when the client pays that month.</p>';
   return html;
