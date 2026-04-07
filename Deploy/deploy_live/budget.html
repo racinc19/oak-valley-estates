@@ -276,13 +276,30 @@ function deleteCO(idx){
 function render(phases,paidData){
   // Use COs from sheet, merge with any locally added ones
   var sheetCOs=paidData.sheetCOs||[];
-  // Merge: sheet COs take precedence, local-only COs appended
-  changeOrders=sheetCOs.slice();
+  // Merge: use sheet amounts/invoiced/paid/outstanding/pct as defaults, but keep local status/date/vendor/notes/docUrl
+  // so Approved/Pending totals are consistent across pages.
   var localCOs=[];
   try{localCOs=JSON.parse(localStorage.getItem(CO_KEY)||'[]')}catch(e){}
-  // Append any local COs not already in sheet (by num)
-  var sheetNums=sheetCOs.map(function(c){return c.num});
-  localCOs.forEach(function(co){if(!sheetNums.includes(co.num))changeOrders.push(co)});
+  var localByNum={};
+  localCOs.forEach(function(co){
+    if(co&&co.num) localByNum[co.num]=co;
+  });
+  var mergedSheetCOs=sheetCOs.map(function(co){
+    var l=co&&co.num?localByNum[co.num]:null;
+    if(!l) return co;
+    var m=Object.assign({},co);
+    if(l.status) m.status=l.status;
+    if(l.date) m.date=l.date;
+    if(l.vendor) m.vendor=l.vendor;
+    if(l.notes) m.notes=l.notes;
+    if(l.docUrl) m.docUrl=l.docUrl;
+    if(l.docLink) m.docLink=l.docLink;
+    return m;
+  });
+  // changeOrders = merged sheet COs + local-only COs
+  changeOrders=mergedSheetCOs.slice();
+  var sheetNums=mergedSheetCOs.map(function(c){return c.num});
+  localCOs.forEach(function(co){if(co&&co.num&&!sheetNums.includes(co.num))changeOrders.push(co)});
   var baseTotal=0,basePaid=paidData.totalPaid,itemCount=0,earliest=null,latest=null;
 
   for(var p=0;p<phases.length;p++){
@@ -335,7 +352,7 @@ function render(phases,paidData){
   // ── Main Budget Table (Contract | %Comp | Invoiced | Paid | Outstanding) ──
   var html='';
   // Render Change Orders inline first (matches sheet order)
-  var sheetCOs=paidData.sheetCOs||[];
+  var sheetCOs=mergedSheetCOs||[];
   if(sheetCOs.length>0){
     html+='<tr class="phase-row"><td colspan="11"><span class="phase-name" style="color:var(--purple)">Change Orders</span></td></tr>';
     for(var ci=0;ci<sheetCOs.length;ci++){
