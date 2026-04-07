@@ -153,6 +153,30 @@ function loadMonthlyRows(){
     return a.filter(function(r){return r&&r.ym&&r.ym!=='2026-02';});
   }catch(e){return [];}
 }
+function ensureMonthlyRowsDefault(){
+  var KEY='rac_monthly_invoice_rows_v1';
+  var rows=loadMonthlyRows();
+  if(rows.length)return;
+  // Default seed to match requested draw history: Feb $0, Mar ~$400k, Apr ~$350k due
+  rows=[
+    {id:'m_seed_mar',ym:'2026-03',label:'March 2026 invoice',amount:400154.48,paid:400154.48,status:'paid'},
+    {id:'m_seed_apr',ym:'2026-04',label:'April 2026 invoice',amount:350000,paid:0,status:'due'}
+  ];
+  localStorage.setItem(KEY,JSON.stringify(rows));
+}
+function getMonthlyDrawAmountMap(){
+  ensureMonthlyRowsDefault();
+  var rows=loadMonthlyRows();
+  var map={};
+  rows.forEach(function(r){
+    if(!r||!r.ym)return;
+    if(r.status==='in_progress'){map[r.ym]=0;return;}
+    var amt=r.amount!=null&&r.amount!==''?Number(r.amount):0;
+    if(!isFinite(amt))amt=0;
+    map[r.ym]=amt;
+  });
+  return map;
+}
 function monthLabelFromYm(ym){
   try{
     var p=String(ym||'').split('-');
@@ -175,6 +199,7 @@ function renderChart(data){
   var phases=main.phases||[];
   var totals=data.totals||{};
   var paidMap=getMonthlyPaidMap();
+  var drawAmtMap=getMonthlyDrawAmountMap();
   var totalPaid=(function(){
     var s=0;for(var k in paidMap){if(Object.prototype.hasOwnProperty.call(paidMap,k))s+=Number(paidMap[k]||0);}
     return s>0?s:getSheetPaidToDate(data);
@@ -183,6 +208,7 @@ function renderChart(data){
   var md={};
   var now=new Date();
   var firstOfThisMonth=new Date(now.getFullYear(),now.getMonth(),1);
+  var firstOfNextMonth=new Date(now.getFullYear(),now.getMonth()+1,1);
   function addToMonth(y,m,bud,pad){
     var k=y+'-'+String(m).padStart(2,'0');
     if(!md[k])md[k]={month:new Date(y,m-1,1),budget:0,paid:0};
@@ -203,8 +229,13 @@ function renderChart(data){
   sorted.forEach(function(d){
     d.isPast=d.month<firstOfThisMonth;
     var ym=d.month.getFullYear()+'-'+String(d.month.getMonth()+1).padStart(2,'0');
+    // Paid overlay comes from paid rows when present
     d.paidAmount=(paidMap[ym]!=null)?Number(paidMap[ym]||0):(d.paid||0);
-    d.display=Math.max(d.budget,d.paidAmount)||d.budget;
+    // For months up to and including the current month, show the monthly draw amount (History) if present.
+    // For future months, show scheduled budget by completion month.
+    var isThisOrPast=d.month<firstOfNextMonth;
+    var drawAmt=(drawAmtMap[ym]!=null)?Number(drawAmtMap[ym]||0):null;
+    d.display=isThisOrPast&&drawAmt!=null?drawAmt:d.budget;
   });
   el.innerHTML='<div class="sbox"><div class="shdr"><h2>💰 Monthly Draw Schedule</h2><div class="meta">Budget + approved COs by completion month</div></div><div style="padding:20px"><canvas id="drawCanvas" height="420"></canvas></div></div>';
 
