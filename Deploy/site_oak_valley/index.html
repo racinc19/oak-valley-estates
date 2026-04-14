@@ -1,0 +1,498 @@
+<!DOCTYPE html><!-- build:20260218183456 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rodriguez Residence — Dashboard</title>
+<style>
+:root{--bg:#0c1220;--card:#141e30;--card2:#1a2640;--hover:#1e2d4a;--bdr:#2a3a55;--bdr2:#354766;--txt:#e8edf5;--txt2:#8899b0;--dim:#5a6d85;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.5}
+.container{max-width:960px;margin:0 auto;padding:20px}
+
+/* Top Nav */
+.topnav-brand .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Loading / Error */
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px}
+.spinner{width:48px;height:48px;border:4px solid var(--bdr);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading .msg{color:var(--txt2);font-size:14px}
+#error{display:none;text-align:center;padding:80px 20px;color:var(--red)}
+#app{display:none}
+.btn{padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;border:none;cursor:pointer;color:white;transition:all .2s}
+.btn-blue{background:var(--blue)}.btn-blue:hover{background:#2563eb}
+
+/* ── Date hero ── */
+.date-hero{text-align:center;padding:32px 20px 24px;margin-bottom:24px}
+.date-hero .today-label{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);margin-bottom:6px}
+.date-hero .today-date{font-size:32px;font-weight:800;color:#fff;line-height:1.2}
+.date-hero .today-sub{font-size:14px;color:var(--txt2);margin-top:6px}
+
+/* ── Weather widget ── */
+.weather-bar{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:16px;flex-wrap:wrap}
+.weather-now{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:10px 18px}
+.weather-icon{font-size:36px;line-height:1}
+.weather-info{text-align:left}
+.weather-temp{font-size:22px;font-weight:800;color:#fff}
+.weather-desc{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px}
+.weather-details{display:flex;gap:6px;margin-top:3px}
+.weather-pill{font-size:10px;color:var(--dim);background:var(--bg);padding:2px 7px;border-radius:4px}
+.weather-time{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:10px 18px}
+.weather-clock{font-size:22px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.weather-tz{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.weather-forecast{display:flex;gap:4px}
+.forecast-day{text-align:center;background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:8px 10px;min-width:58px}
+.forecast-day .fd-label{font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase}
+.forecast-day .fd-icon{font-size:20px;line-height:1;margin:4px 0}
+.forecast-day .fd-hi{font-size:13px;font-weight:700;color:#fff}
+.forecast-day .fd-precip{font-size:9px;color:var(--cyan)}
+
+/* ── Today's update card ── */
+.update-card{background:var(--card);border-radius:16px;border:1px solid var(--bdr);padding:24px;margin-bottom:24px}
+.update-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+.badge-today{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.badge-recent{background:rgba(234,179,8,.15);color:var(--yellow);border:1px solid rgba(234,179,8,.25)}
+
+.update-date{font-size:13px;color:var(--dim);margin-bottom:12px}
+.update-tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase;margin-left:8px}
+.tag-general{background:rgba(59,130,246,.15);color:var(--blue)}
+.tag-inspection{background:rgba(234,179,8,.15);color:var(--yellow)}
+.tag-delivery{background:rgba(6,182,212,.15);color:var(--cyan)}
+.tag-issue{background:rgba(239,68,68,.15);color:var(--red)}
+.tag-milestone{background:rgba(34,197,94,.15);color:var(--green)}
+.tag-weather{background:rgba(139,92,246,.15);color:var(--purple)}
+.tag-subcontractor{background:rgba(245,158,11,.15);color:var(--orange)}
+
+.update-notes{font-size:15px;line-height:1.7;color:var(--txt);white-space:pre-wrap;margin-bottom:16px}
+.update-photos{display:flex;gap:10px;flex-wrap:wrap}
+.update-photos img{width:180px;height:135px;object-fit:cover;border-radius:10px;border:1px solid var(--bdr);cursor:pointer;transition:transform .2s}
+.update-photos img:hover{transform:scale(1.03)}
+.update-divider{height:1px;background:var(--bdr);margin:20px 0}
+
+.no-update{text-align:center;padding:40px 20px}
+.no-update .icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.no-update h3{color:var(--txt2);font-size:16px;margin-bottom:4px}
+.no-update p{color:var(--dim);font-size:13px}
+
+/* ── Phase tracker ── */
+.phase-tracker{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0}
+.phase-card{background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--bdr)}
+.phase-card.current{border-color:rgba(59,130,246,.4);background:linear-gradient(135deg,var(--card),rgba(59,130,246,.06))}
+.phase-card.next{border-color:rgba(90,109,133,.3)}
+.phase-card .phase-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.phase-card.current .phase-label{color:var(--blue)}
+.phase-card.next .phase-label{color:var(--dim)}
+.phase-card .phase-name{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px}
+.phase-card.next .phase-name{color:var(--txt2)}
+.phase-card .phase-detail{font-size:12px;color:var(--dim);margin-bottom:12px}
+.phase-card .phase-pbar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid rgba(42,58,85,.5)}
+.phase-card .phase-pfill{height:100%;border-radius:4px;transition:width .5s}
+.phase-card.current .phase-pfill{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.phase-card .phase-pct{font-size:22px;font-weight:700;color:var(--blue);margin-bottom:2px}
+
+/* Phase steps bar */
+.phase-steps{background:var(--card);border-radius:12px;padding:16px 20px;border:1px solid var(--bdr);margin-top:16px}
+.phase-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:10px}
+.phase-steps-row{display:flex;gap:4px;align-items:center}
+.phase-step{flex:1;height:6px;border-radius:3px;background:var(--bdr);transition:background .3s}
+.phase-step.done{background:var(--green)}
+.phase-step.active{background:var(--blue);box-shadow:0 0 8px rgba(59,130,246,.4)}
+.phase-step-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+
+@media(max-width:600px){
+  .phase-tracker{grid-template-columns:1fr}
+}
+
+/* ── Overview section ── */
+.overview-label{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:12px;padding-left:2px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border-radius:10px;padding:14px;border:1px solid var(--bdr)}
+.stat-lbl{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.stat-val{font-size:22px;font-weight:700;color:#fff;margin:2px 0}
+.stat-val.b{color:var(--blue)}.stat-val.g{color:var(--green)}.stat-val.y{color:var(--yellow)}.stat-val.r{color:var(--red)}.stat-val.c{color:var(--cyan)}
+.stat-sub{font-size:11px;color:var(--dim)}
+
+.pbar-wrap{background:var(--card);border-radius:10px;padding:16px;border:1px solid var(--bdr)}
+.pbar-hdr{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+.pbar-outer{height:24px;background:var(--bg);border-radius:6px;overflow:hidden;border:1px solid var(--bdr)}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;transition:width .5s}
+
+/* Lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;display:none;align-items:center;justify-content:center;cursor:pointer}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:90vh;border-radius:8px}
+
+@media(max-width:600px){
+  .date-hero .today-date{font-size:24px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .update-photos img{width:140px;height:105px}
+}
+.topnav{position:fixed;top:0;left:0;width:100vw;z-index:50;background:var(--card);border-bottom:1px solid var(--bdr);padding:0 20px}
+.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px;position:relative}
+.topnav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700;font-size:16px;white-space:nowrap}
+.topnav-links{display:flex;gap:4px;align-items:center;overflow-x:auto;position:absolute;left:50%;transform:translateX(-50%)}
+.topnav-links a{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;color:var(--txt2);text-decoration:none;transition:all .2s;white-space:nowrap}
+.topnav-links a:hover{color:var(--txt);background:var(--hover)}
+.topnav-links a.active{color:white;background:var(--blue)}
+.topnav-refresh{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--bdr);background:none;color:var(--txt2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.topnav-refresh:hover{border-color:var(--blue);color:var(--txt)}
+html{overflow-y:scroll}body{overflow-x:hidden}
+</style>
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+  <a href="index.html" class="topnav-brand"><span class="dot"></span>Rodriguez Residence</a>
+  <div class="topnav-links">
+    <a href="index.html" class="active">Dashboard</a>
+    <a href="log.html">Daily Log</a>
+    
+    <a href="selections.html">Selections</a>
+    <a href="accounting.html">Accounting</a>
+    <a href="accounting.html#co">Change Orders</a>
+    <a href="gantt.html">Gantt</a>
+    <a href="draws.html">Draws</a>
+    <a href="budget.html">Budget & Schedule</a>
+    <a href="https://drive.google.com/drive/u/0/folders/1kS-2awScLDAnGS973xD0D28RxynI49Si" target="_blank" style="color:var(--cyan)">📁 Drive</a>
+  </div>
+  <button class="topnav-refresh" onclick="doRefresh()">↻ Refresh</button>
+</div></nav>
+
+<div id="loading"><div class="spinner"></div><div class="msg">Loading project data…</div></div>
+<div id="error"><h2>⚠ Failed to load data</h2><div class="detail" id="errorDetail"></div><br><button class="btn btn-blue" onclick="doRefresh()">Retry</button></div>
+
+<div id="app" class="container">
+  <div class="date-hero">
+    <div class="today-label">Project Update</div>
+    <div class="today-date" id="heroDate"></div>
+    <div class="today-sub" id="heroSub"></div>
+    <div class="weather-bar" id="weatherBar"></div>
+  </div>
+
+  <div id="todayUpdate"></div>
+
+  <!-- Phase tracker -->
+  <div id="phaseTracker" style="margin-top:24px"></div>
+
+  <div style="margin-top:32px">
+    <div class="overview-label">Project Overview</div>
+    <div class="stats" id="statsGrid"></div>
+    <div class="pbar-wrap">
+      <div class="pbar-hdr"><span>Overall Progress</span><span id="progressLabel">0%</span></div>
+      <div class="pbar-outer"><div class="pbar-fill" id="progressFill" style="width:0%">0%</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')"><img id="lightboxImg"></div>
+
+<script src="shared.js?v20260414_ov1"></script>
+<script>
+const LOG_KEY='rodriguez_daily_log';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwpc52FdbzWarRISLfdcbY1n2OgJXp5ZoIQxQCJfnogslhGOZoKHeoM3vd6ieMbz-2beg/exec';
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function renderDateHero(){
+  const now=new Date();
+  document.getElementById('heroDate').textContent=DAYS[now.getDay()]+', '+MO[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
+  const beforeStart=now<P_START;
+  if(beforeStart){
+    document.getElementById('heroSub').textContent='Construction begins in '+daysBetween(now,P_START)+' days'
+  }else{
+    const elapsed=daysBetween(P_START,now);
+    const remaining=Math.max(0,TOTAL_DAYS-elapsed);
+    document.getElementById('heroSub').textContent='Day '+elapsed+' of '+TOTAL_DAYS+' · '+remaining+' days remaining'
+  }
+  fetchWeather()
+}
+
+// ═══ WEATHER — Open-Meteo (free, no key) ═══
+const WX_LAT=37.375,WX_LNG=-113.18; // Kanarraville, UT
+
+function wxIcon(code,isDay){
+  // WMO weather codes → emoji
+  if(code===0)return isDay?'☀️':'🌙';
+  if(code===1)return isDay?'🌤️':'🌙';
+  if(code===2)return '⛅';
+  if(code===3)return '☁️';
+  if(code>=45&&code<=48)return '🌫️';
+  if(code>=51&&code<=55)return '🌦️';
+  if(code>=56&&code<=57)return '🌧️';
+  if(code>=61&&code<=65)return '🌧️';
+  if(code>=66&&code<=67)return '🧊';
+  if(code>=71&&code<=77)return '🌨️';
+  if(code>=80&&code<=82)return '🌧️';
+  if(code>=85&&code<=86)return '🌨️';
+  if(code>=95)return '⛈️';
+  return '🌡️'
+}
+function wxDesc(code){
+  if(code===0)return 'Clear sky';
+  if(code===1)return 'Mostly clear';
+  if(code===2)return 'Partly cloudy';
+  if(code===3)return 'Overcast';
+  if(code>=45&&code<=48)return 'Fog';
+  if(code>=51&&code<=55)return 'Drizzle';
+  if(code>=56&&code<=57)return 'Freezing drizzle';
+  if(code>=61&&code<=63)return 'Rain';
+  if(code>=64&&code<=65)return 'Heavy rain';
+  if(code>=66&&code<=67)return 'Freezing rain';
+  if(code>=71&&code<=75)return 'Snow';
+  if(code>=76&&code<=77)return 'Snow grains';
+  if(code>=80&&code<=82)return 'Rain showers';
+  if(code>=85&&code<=86)return 'Snow showers';
+  if(code>=95)return 'Thunderstorm';
+  return ''
+}
+const WDAY=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+async function fetchWeather(){
+  const bar=document.getElementById('weatherBar');
+  try{
+    const url='https://api.open-meteo.com/v1/forecast?latitude='+WX_LAT+'&longitude='+WX_LNG
+      +'&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,is_day'
+      +'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max'
+      +'&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America/Denver&forecast_days=5';
+    const r=await fetch(url);
+    const d=await r.json();
+    const c=d.current;
+    const temp=Math.round(c.temperature_2m);
+    const icon=wxIcon(c.weather_code,c.is_day);
+    const desc=wxDesc(c.weather_code);
+    const wind=Math.round(c.wind_speed_10m);
+    const humid=c.relative_humidity_2m;
+
+    // Clock in MST
+    const mst=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Denver'}));
+    const hh=mst.getHours(),mm=mst.getMinutes();
+    const clock=((hh%12)||12)+':'+String(mm).padStart(2,'0')+' '+(hh>=12?'PM':'AM');
+
+    // Forecast
+    let fc='<div class="weather-forecast">';
+    for(let i=1;i<d.daily.time.length&&i<=4;i++){
+      const dd=new Date(d.daily.time[i]+'T12:00:00');
+      const hi=Math.round(d.daily.temperature_2m_max[i]);
+      const lo=Math.round(d.daily.temperature_2m_min[i]);
+      const fIcon=wxIcon(d.daily.weather_code[i],true);
+      const precip=d.daily.precipitation_probability_max[i];
+      fc+='<div class="forecast-day">'
+        +'<div class="fd-label">'+WDAY[dd.getDay()]+'</div>'
+        +'<div class="fd-icon">'+fIcon+'</div>'
+        +'<div class="fd-hi">'+hi+'°</div>'
+        +(precip>10?'<div class="fd-precip">💧'+precip+'%</div>':'')
+        +'</div>'
+    }
+    fc+='</div>';
+
+    bar.innerHTML=
+      '<div class="weather-time"><div><div class="weather-clock">'+clock+'</div><div class="weather-tz">MST · Kanarraville</div></div></div>'
+      +'<div class="weather-now"><div class="weather-icon">'+icon+'</div><div class="weather-info">'
+      +'<div class="weather-temp">'+temp+'°F</div>'
+      +'<div class="weather-desc">'+desc+'</div>'
+      +'<div class="weather-details"><span class="weather-pill">💨 '+wind+' mph</span><span class="weather-pill">💧 '+humid+'%</span></div>'
+      +'</div></div>'
+      +fc
+  }catch(e){
+    bar.innerHTML='<div style="color:var(--dim);font-size:12px">Weather unavailable</div>';
+    console.warn('Weather fetch failed:',e)
+  }
+}
+
+// Update clock every minute
+setInterval(()=>{
+  const el=document.querySelector('.weather-clock');
+  if(!el)return;
+  const mst=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Denver'}));
+  const hh=mst.getHours(),mm=mst.getMinutes();
+  el.textContent=((hh%12)||12)+':'+String(mm).padStart(2,'0')+' '+(hh>=12?'PM':'AM')
+},60000);
+
+async function renderTodayUpdate(){
+  const el=document.getElementById('todayUpdate');
+  let entries=[];
+  try{
+    const res=await fetch(SCRIPT_URL+'?action=list&_='+Date.now());
+    const data=await res.json();
+    if(Array.isArray(data)) entries=data.map(e=>{
+      if(!e.photoURLs||!e.photoURLs.length){
+        const raw=e.photourls||'';
+        if(typeof raw==='string'&&raw.trim()){
+          if(raw.trim().startsWith('[')){try{e.photoURLs=JSON.parse(raw);}catch(x){e.photoURLs=[];}}
+          else{e.photoURLs=raw.split('|').map(u=>u.trim()).filter(Boolean);}
+        } else {e.photoURLs=[];}
+      }
+      return e;
+    });
+  }catch(e){console.warn('Log fetch failed:',e);}
+  if(!entries.length){
+    el.innerHTML='<div class="update-card"><div class="no-update"><div class="icon">📋</div><h3>No updates yet</h3><p>Updates will appear here once the team logs activity</p><a href="log.html" style="display:inline-block;margin-top:12px;padding:8px 20px;background:var(--blue);color:white;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">Go to Daily Log →</a></div></div>';
+    return
+  }
+  entries.sort((a,b)=>{function nd(d){if(!d)return'';var p=new Date(d);return isNaN(p)?d:p.toISOString().slice(0,10);}return nd(b.date).localeCompare(nd(a.date))||(b.created||'').localeCompare(a.created||'');})
+  const now=new Date();
+  const todayStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  const todayEntries=entries.filter(e=>(e.date||'').slice(0,10)===todayStr);
+  if(todayEntries.length){
+    el.innerHTML=renderCards(todayEntries,'today')
+  }else{
+    const latestDate=entries[0].date;
+    el.innerHTML=renderCards(entries.filter(e=>(e.date||'').slice(0,10)===latestDate.slice(0,10)),'recent')
+  }
+}
+
+function renderCards(entries,mode){
+  const isToday=mode==='today';
+  let html='<div class="update-card">';
+  html+='<div class="update-badge '+(isToday?'badge-today':'badge-recent')+'">'+(isToday?'🟢 Today\'s Update':'🕐 Most Recent Update')+'</div>';
+  entries.forEach((entry,i)=>{
+    if(i>0)html+='<div class="update-divider"></div>';
+    const d=new Date(entry.date.includes('T')?entry.date:entry.date+'T12:00:00');
+    const dateStr=DAYS[d.getDay()]+', '+MO[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+    let timeStr='';
+    if(entry.created){const ct=new Date(entry.created);const h=ct.getHours();const m=ct.getMinutes();timeStr=' at '+((h%12)||12)+':'+String(m).padStart(2,'0')+' '+(h>=12?'PM':'AM')}
+    html+='<div class="update-date">'+(isToday?'':dateStr+' · ')+'Logged'+timeStr+'<span class="update-tag tag-'+entry.tag+'">'+entry.tag+'</span></div>';
+    if(entry.notes)html+='<div class="update-notes">'+linkify(esc(entry.notes))+'</div>';
+    const photoList=entry.photoURLs||entry.photos||[];
+    if(photoList.length){
+      html+='<div class="update-photos">'+photoList.filter(Boolean).map(u=>'<img src="'+u+'" onclick="openLB(this.src)">').join('')+'</div>'
+    }
+  });
+  html+='</div>';
+  return html
+}
+
+function loadDashboardPhotos(){
+  document.querySelectorAll('.update-photos[data-photos]').forEach(async div=>{
+    const keys=div.dataset.photos.split(',').filter(Boolean);
+    if(!keys.length)return;
+    // Check if keys are IDB keys (p_xxx) or legacy base64
+    if(keys[0].startsWith('data:')){
+      div.innerHTML=keys.map(p=>'<img src="'+p+'" onclick="openLB(this.src)">').join('');
+      return
+    }
+    const urls=await getPhotos(keys);
+    div.innerHTML=urls.filter(Boolean).map(u=>'<img src="'+u+'" onclick="openLB(this.src)">').join('');
+    if(!div.innerHTML)div.remove()
+  })
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function linkify(s){return s.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--cyan);word-break:break-all">$1</a>');}
+function openLB(src){document.getElementById('lightboxImg').src=src;document.getElementById('lightbox').classList.add('open')}
+
+// ═══ PHASE TRACKER ═══
+function renderPhaseTracker(data){
+  const el=document.getElementById('phaseTracker');
+  const phases=data.phases.filter(p=>p.name!=='options');
+  if(!phases.length){el.innerHTML='';return}
+
+  const now=new Date();
+
+  // Determine current phase: first phase not at 100%, or last phase
+  let currentIdx=0;
+  for(let i=0;i<phases.length;i++){
+    if(phases[i].progress<100){currentIdx=i;break}
+    if(i===phases.length-1)currentIdx=i;
+  }
+
+  const current=phases[currentIdx];
+  const next=currentIdx<phases.length-1?phases[currentIdx+1]:null;
+
+  // Current phase details
+  const curItems=current.items.length;
+  const curDone=current.items.filter(it=>it.progress>=100).length;
+  const curActive=current.items.filter(it=>it.progress>0&&it.progress<100).length;
+
+  // Date range for current phase
+  const curStarts=current.items.filter(i=>i.startDate).map(i=>i.startDate);
+  const curEnds=current.items.filter(i=>i.endDate).map(i=>i.endDate);
+  const curStart=curStarts.length?new Date(Math.min(...curStarts)):null;
+  const curEnd=curEnds.length?new Date(Math.max(...curEnds)):null;
+  const curDateStr=curStart&&curEnd?fmtDate(curStart)+' — '+fmtDate(curEnd):'';
+
+  let html='<div class="phase-tracker">';
+
+  // Current phase card
+  html+=`<div class="phase-card current">
+    <div class="phase-label">🔨 Current Phase</div>
+    <div class="phase-name">${current.display}</div>
+    <div class="phase-detail">${curDone} of ${curItems} items complete${curActive?' · '+curActive+' active':''}${curDateStr?' · '+curDateStr:''}</div>
+    <div class="phase-pct">${current.progress.toFixed(0)}%</div>
+    <div class="phase-pbar"><div class="phase-pfill" style="width:${Math.max(2,current.progress)}%"></div></div>
+  </div>`;
+
+  // Next phase card
+  if(next){
+    const nextItems=next.items.length;
+    const nextStarts=next.items.filter(i=>i.startDate).map(i=>i.startDate);
+    const nextStart=nextStarts.length?new Date(Math.min(...nextStarts)):null;
+    const nextDateStr=nextStart?'Starts '+fmtDate(nextStart):'';
+    html+=`<div class="phase-card next">
+      <div class="phase-label">⏭ Next Phase</div>
+      <div class="phase-name">${next.display}</div>
+      <div class="phase-detail">${nextItems} items · ${fmtK(next.markupTotal)}${nextDateStr?' · '+nextDateStr:''}</div>
+    </div>`;
+  }else{
+    html+=`<div class="phase-card next">
+      <div class="phase-label">🏁 Final Phase</div>
+      <div class="phase-name">Project Completion</div>
+      <div class="phase-detail">All phases complete · Target ${fmtDate(P_END)}</div>
+    </div>`;
+  }
+
+  html+='</div>';
+
+  // Phase progress steps bar
+  html+='<div class="phase-steps"><div class="phase-steps-label">Phase Progress</div><div class="phase-steps-row">';
+  phases.forEach((p,i)=>{
+    const cls=p.progress>=100?'done':i===currentIdx?'active':'';
+    html+=`<div class="phase-step ${cls}" title="${p.display}: ${p.progress.toFixed(0)}%"></div>`;
+  });
+  html+='</div><div class="phase-step-labels"><span>'+phases[0].display+'</span><span>'+phases[phases.length-1].display+'</span></div></div>';
+
+  el.innerHTML=html
+}
+
+function renderStats(data,totals){
+  const now=new Date();const beforeStart=now<P_START;
+  const elapsed=Math.max(0,daysBetween(P_START,now));
+  const remaining=beforeStart?TOTAL_DAYS:Math.max(0,TOTAL_DAYS-elapsed);
+  const timePct=beforeStart?0:Math.min(100,(elapsed/TOTAL_DAYS*100));
+  const itemCount=data.phases.reduce((s,p)=>s+(p.name==='options'?0:p.items.length),0);
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat"><div class="stat-lbl">Total Budget</div><div class="stat-val b">${fmtK(totals.totalBudget)}</div><div class="stat-sub">${(data.headerInfo.sqft||6993).toLocaleString()} SF</div></div>
+    <div class="stat"><div class="stat-lbl">Paid to Date</div><div class="stat-val g">${fmtK(totals.totalPaid)}</div><div class="stat-sub">${totals.progress.toFixed(1)}% complete</div></div>
+    <div class="stat"><div class="stat-lbl">Remaining</div><div class="stat-val y">${fmtK(totals.totalBudget-totals.totalPaid)}</div><div class="stat-sub">${(100-totals.progress).toFixed(1)}% to go</div></div>
+    <div class="stat"><div class="stat-lbl">Days Left</div><div class="stat-val ${remaining<30?'r':remaining<90?'y':''}">${remaining}</div><div class="stat-sub">${beforeStart?'Starts '+fmtDate(P_START):'Target '+fmtDate(P_END)}</div></div>
+    <div class="stat"><div class="stat-lbl">Phases</div><div class="stat-val">${data.phases.filter(p=>p.name!=='options').length}</div><div class="stat-sub">${itemCount} line items</div></div>
+    <div class="stat"><div class="stat-lbl">Timeline</div><div class="stat-val${beforeStart?' c':''}">${beforeStart?'Pre-Build':timePct.toFixed(0)+'%'}</div><div class="stat-sub">Day ${elapsed} of ${TOTAL_DAYS}</div></div>`;
+  const pct=totals.progress.toFixed(1);
+  document.getElementById('progressLabel').textContent=pct+'%';
+  const fill=document.getElementById('progressFill');fill.style.width=Math.max(2,totals.progress)+'%';fill.textContent=pct+'%'
+}
+
+async function doRefresh(){
+  document.getElementById('loading').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('error').style.display='none';
+  try{await init()}catch(e){document.getElementById('loading').style.display='none';document.getElementById('error').style.display='block';document.getElementById('errorDetail').textContent=e.message}
+}
+
+async function init(){
+  renderDateHero();renderTodayUpdate();
+  try{
+    const{main,draws,totals}=await loadProjectData();
+    renderStats(main,totals);
+    renderPhaseTracker(main);
+    document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block'
+  }catch(e){
+    document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block';
+    document.getElementById('statsGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--dim)">⚠ Could not load project data · '+esc(e.message)+'</div>'
+  }
+}
+init()
+</script>
+</body>
+</html>

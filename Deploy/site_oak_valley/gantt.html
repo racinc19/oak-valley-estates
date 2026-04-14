@@ -1,0 +1,159 @@
+<!DOCTYPE html><!-- build:20260218183456 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rodriguez Residence — Gantt Chart</title>
+<style>
+:root{--bg:#0c1220;--card:#141e30;--card2:#1a2640;--hover:#1e2d4a;--bdr:#2a3a55;--bdr2:#354766;--txt:#e8edf5;--txt2:#8899b0;--dim:#5a6d85;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{padding-top:56px;overflow-x:hidden;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.5}
+.container{max-width:960px;margin:0 auto;padding:20px}
+.topnav-brand .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px}
+.spinner{width:48px;height:48px;border:4px solid var(--bdr);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#loading .msg{color:var(--txt2);font-size:14px}
+#error{display:none;text-align:center;padding:80px 20px;color:var(--red)}
+#app{display:none}
+.btn{padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;border:none;cursor:pointer;color:white}
+.btn-blue{background:var(--blue)}
+
+.sbox{background:var(--card);border-radius:12px;border:1px solid var(--bdr)}
+.shdr{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--bdr);flex-wrap:wrap;gap:8px}
+.shdr h2{font-size:18px;font-weight:700}
+.shdr .meta{font-size:12px;color:var(--dim)}
+
+/* ── Section label (match Dashboard) ── */
+.overview-label{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:12px;padding-left:2px}
+
+/* Gantt */
+.gantt-hdr-wrap{position:sticky;top:56px;z-index:10;background:var(--card);overflow:hidden}
+.gantt-hdr{display:flex;border-bottom:2px solid var(--bdr);min-width:1200px}
+.gantt-body-wrap{overflow-x:auto;padding:0 0 20px}
+.gantt-body-inner{min-width:1200px;position:relative}
+.gantt-label-col{width:280px;min-width:280px;padding:8px 12px;font-size:11px;color:var(--dim);text-transform:uppercase;border-right:1px solid var(--bdr)}
+.gantt-timeline{flex:1;display:flex}
+.gantt-month{flex:1;text-align:center;font-size:11px;color:var(--dim);padding:8px 0;border-right:1px solid var(--bdr)}
+.gantt-row{display:flex;border-bottom:1px solid rgba(42,58,85,.3);transition:background .15s}
+.gantt-row:hover{background:var(--hover)}
+.gantt-row.phase{background:rgba(59,130,246,.04)}
+.gantt-row .label{width:280px;min-width:280px;padding:8px 12px;font-size:13px;border-right:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center}
+.gantt-row.phase .label{font-weight:700;color:var(--blue);font-size:14px}
+.gantt-row .label .vendor{color:var(--dim);font-size:11px;margin-left:8px}
+.gantt-row .label .amt{color:var(--blue);font-size:12px;font-weight:600;margin-left:auto}
+.gantt-row .timeline{flex:1;position:relative;height:32px}
+.gantt-bar{position:absolute;top:8px;height:16px;border-radius:4px;background:var(--bdr2);min-width:4px;transition:all .3s}
+.gantt-bar.phase-bar{background:rgba(59,130,246,.25);height:12px;top:10px;border-radius:3px}
+.gantt-bar.active{background:var(--orange)}
+.gantt-bar.done{background:var(--green)}
+.gantt-body{padding-top:56px;position:relative}
+.today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:4;pointer-events:none}
+.today-label{position:absolute;top:-20px;left:-16px;font-size:10px;color:var(--red);font-weight:700;white-space:nowrap}
+.topnav{position:fixed;top:0;left:0;width:100vw;z-index:50;background:var(--card);border-bottom:1px solid var(--bdr);padding:0 20px}
+.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px;position:relative}
+.topnav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700;font-size:16px;white-space:nowrap}
+.topnav-links{display:flex;gap:4px;align-items:center;overflow-x:auto;position:absolute;left:50%;transform:translateX(-50%)}
+.topnav-links a{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;color:var(--txt2);text-decoration:none;transition:all .2s;white-space:nowrap}
+.topnav-links a:hover{color:var(--txt);background:var(--hover)}
+.topnav-links a.active{color:white;background:var(--blue)}
+.topnav-refresh{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--bdr);background:none;color:var(--txt2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.topnav-refresh:hover{border-color:var(--blue);color:var(--txt)}
+html{overflow-y:scroll}body{overflow-x:hidden}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="index.html" class="topnav-brand"><span class="dot"></span>Rodriguez Residence</a>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="log.html">Daily Log</a>
+    
+    <a href="selections.html">Selections</a>
+    <a href="accounting.html">Accounting</a>
+    <a href="accounting.html#co">Change Orders</a>
+    <a href="gantt.html" class="active">Gantt</a>
+    <a href="draws.html">Draws</a>
+    <a href="budget.html">Budget & Schedule</a>
+    <a href="https://drive.google.com/drive/u/0/folders/1kS-2awScLDAnGS973xD0D28RxynI49Si" target="_blank" style="color:var(--cyan)">📁 Drive</a>
+  </div>
+  <button class="topnav-refresh" onclick="doRefresh()">↻ Refresh</button>
+</div></nav>
+
+<div id="loading"><div class="spinner"></div><div class="msg">Loading Gantt chart…</div></div>
+<div id="error"><h2>⚠ Failed to load data</h2><div class="detail" id="errorDetail"></div><br><button class="btn btn-blue" onclick="doRefresh()">Retry</button></div>
+
+<div id="app" class="container">
+  <div class="overview-label">Schedule</div>
+  <div id="ganttContainer"></div>
+</div>
+
+<script src="shared.js?v20260414_ov1"></script>
+<script>
+function renderGantt(data){
+  const el=document.getElementById('ganttContainer');
+  const today=new Date();
+  const tasks=data.scheduleTasks||[];
+  if(!tasks.length){el.innerHTML='<div style="padding:40px;color:var(--txt2)">No schedule data found.</div>';return}
+
+  let gMin=Infinity,gMax=-Infinity;
+  for(const t of tasks){
+    if(t.startDate)gMin=Math.min(gMin,t.startDate.getTime());
+    if(t.endDate)gMax=Math.max(gMax,t.endDate.getTime());
+  }
+  if(!isFinite(gMin)){gMin=P_START.getTime();gMax=P_END.getTime()}
+  const gStart=new Date(new Date(gMin).getFullYear(),new Date(gMin).getMonth(),1);
+  const gEndRaw=new Date(gMax);
+  const gEnd=new Date(gEndRaw.getFullYear(),gEndRaw.getMonth()+1,0);
+  const gDays=Math.max(1,daysBetween(gStart,gEnd));
+  const todayPct=Math.min(100,Math.max(0,daysBetween(gStart,today)/gDays*100));
+  const gMonths=[];
+  {let d=new Date(gStart);while(d<=gEnd){gMonths.push(new Date(d));d=new Date(d.getFullYear(),d.getMonth()+1,1)}}
+
+  let mh='';for(const m of gMonths)mh+=`<div class="gantt-month">${fmtMoShort(m)}</div>`;
+  let rows='';
+  for(const t of tasks){
+    if(!t.startDate)continue;
+    const isPhase=t.isPhase;
+    const s=t.startDate,e=t.endDate;
+    const left=Math.max(0,Math.min(daysBetween(gStart,s),e?daysBetween(gStart,e):daysBetween(gStart,s))/gDays*100);
+    const right=Math.max(0,Math.max(daysBetween(gStart,s),e?daysBetween(gStart,e):daysBetween(gStart,s))/gDays*100);
+    const iL=left;
+    const iW=Math.max(.4,right-left);
+    const st=t.progress>=100?'done':t.progress>0?'active':'';
+    const vendorStr=t.vendor?`<span class="vendor">${t.vendor}</span>`:'';
+    if(isPhase){
+      rows+=`<div class="gantt-row phase"><div class="label">${PHASE_SPELL_FIX[t.nameNorm]||t.name}<span class="amt">${t.duration}d</span></div><div class="timeline"><div class="gantt-bar phase-bar ${st}" style="left:${iL}%;width:${iW}%"></div></div></div>`;
+    }else{
+      rows+=`<div class="gantt-row"><div class="label">${t.name}${vendorStr}</div><div class="timeline"><div class="gantt-bar ${st}" style="left:${iL}%;width:${iW}%"></div></div></div>`;
+    }
+  }
+  const rangeLabel=fmtMoShort(gStart)+' — '+fmtMoShort(gEnd)+' · '+gDays+' days';
+  el.innerHTML=`<div class="sbox"><div class="shdr"><h2>📊 Gantt Chart</h2><div class="meta">${rangeLabel}</div></div>
+    <div class="gantt-hdr-wrap"><div class="gantt-hdr"><div class="gantt-label-col">Task</div><div class="gantt-timeline">${mh}</div></div></div>
+    <div class="gantt-body-wrap"><div class="gantt-body-inner">
+      <div class="gantt-body">${rows}
+        <div class="today-line" style="left:calc(280px + (100% - 280px) * ${todayPct} / 100)"><div class="today-label">▼ Today</div></div>
+      </div></div></div></div>`;
+  // sync horizontal scroll between body and frozen header
+  const bw=el.querySelector('.gantt-body-wrap');
+  const hw=el.querySelector('.gantt-hdr-wrap');
+  if(bw&&hw){bw.addEventListener('scroll',()=>{hw.scrollLeft=bw.scrollLeft})}
+}
+
+async function doRefresh(){
+  document.getElementById('loading').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('error').style.display='none';
+  try{await init()}catch(e){document.getElementById('loading').style.display='none';document.getElementById('error').style.display='block';document.getElementById('errorDetail').textContent=e.message}
+}
+async function init(){
+  try{
+    const{main}=await loadProjectData();
+    renderGantt(main);
+    document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block'
+  }catch(e){document.getElementById('loading').style.display='none';document.getElementById('error').style.display='block';document.getElementById('errorDetail').textContent=e.message}
+}
+init()
+</script>
+</body>
+</html>
