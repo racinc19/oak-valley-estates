@@ -417,6 +417,18 @@ async function loadProjectData(){
     totalBudget+=p.markupTotal;
     totalPaid+=p.paidTotal;
   }
+
+  let coApprovedAmt=0,coPaidTotal=0;
+  for(const co of (sheetCOs||[])){
+    if(!co)continue;
+    const status=String(co.status||'').toLowerCase().trim();
+    if(status==='approved'){
+      coApprovedAmt+=Number(co.amount||0)||0;
+      coPaidTotal+=Number(co.paid||0)||0;
+    }
+  }
+  totalBudget+=coApprovedAmt;
+  totalPaid+=coPaidTotal;
   if(totalPaidOverride>0)totalPaid=totalPaidOverride;
   const totals={totalBudget,totalPaid,progress:totalBudget>0?(totalPaid/totalBudget*100):0};
 
