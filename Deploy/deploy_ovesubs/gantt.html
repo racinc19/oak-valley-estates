@@ -123,6 +123,10 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .g-bar.dn{background:var(--green)}
 .g-bar.ac{background:var(--orange)}
 .g-bar.od{background:var(--red)}
+.g-delay{position:absolute;top:50%;transform:translateY(-50%);height:12px;border-radius:3px;background:rgba(239,68,68,.18);border:1px dashed rgba(239,68,68,.75);min-width:3px;pointer-events:none}
+.g-row.ph .g-delay{height:6px;border-radius:3px}
+.g-row.act .g-delay{height:20px;border-radius:5px}
+.g-dlbl{position:absolute;top:-14px;left:2px;font-size:9px;font-weight:800;color:var(--red);white-space:nowrap}
 .g-fill{position:absolute;left:0;top:0;bottom:0;border-radius:inherit}
 .ac .g-fill{background:var(--green)}
 .od .g-fill{background:rgba(255,255,255,.15)}
@@ -202,7 +206,7 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
   </div>
 </div>
 
-<script src="shared.js?v1772133761"></script>
+<script src="shared.js?v20260416_subGanttDelay1"></script>
 <script>
 const ADMIN_PIN=SITE_ACCESS_PIN;
 const ADMIN_KEY='rac_admin';
@@ -249,8 +253,18 @@ function renderHero(tasks){
   const today=new Date();today.setHours(0,0,0,0);
   const hero=document.getElementById('hero');
   const nonPhase=tasks.filter(t=>!t.isPhase&&t.startDate);
+  const effEnd=t=>{
+    const e=t.endDate||null;
+    if(!e)return null;
+    const dly=Math.max(0,parseInt(t.delay)||0);
+    return new Date(e.getTime()+dly*864e5);
+  };
   // Current: started and not yet finished
-  const active=nonPhase.filter(t=>t.startDate<=today&&t.endDate>=today);
+  const active=nonPhase.filter(t=>{
+    if(!(t.startDate<=today))return false;
+    const e=effEnd(t)||t.endDate;
+    return e?e>=today:true;
+  });
   // Next up if none active
   const upcoming=nonPhase.filter(t=>t.startDate>today).sort((a,b)=>a.startDate-b.startDate);
   const cur=active.length?active[0]:upcoming.length?upcoming[0]:null;
@@ -262,13 +276,14 @@ function renderHero(tasks){
   }
 
   const prog=pending[cur.nameNorm]!==undefined?pending[cur.nameNorm]:cur.progress;
-  const isActive=cur.startDate<=today&&cur.endDate>=today;
-  const totalDays=Math.max(1,daysBetween(cur.startDate,cur.endDate));
+  const curEnd=effEnd(cur)||cur.endDate;
+  const isActive=cur.startDate<=today&&(curEnd?curEnd>=today:true);
+  const totalDays=Math.max(1,daysBetween(cur.startDate,curEnd||cur.startDate));
   const elapsedDays=Math.max(0,daysBetween(cur.startDate,today));
   // On time = still has days left OR complete. Only red if past finish date and not done.
-  const onTime=cur.endDate>=today||prog>=100;
-  const behindBy=Math.max(0,Math.round(daysBetween(cur.endDate,today)));
-  const daysLeft=daysBetween(today,cur.endDate);
+  const onTime=(curEnd?curEnd>=today:true)||prog>=100;
+  const behindBy=Math.max(0,Math.round(daysBetween(curEnd||today,today)));
+  const daysLeft=daysBetween(today,curEnd||today);
   const daysStr=isActive?(daysLeft>0?daysLeft+' days left':daysLeft===0?'Due today':'Overdue '+Math.abs(daysLeft)+' days'):'Starts '+fmtDate(cur.startDate);
 
   hero.className='hero '+(onTime?'on-time':'off-time');
@@ -353,9 +368,12 @@ function render(tasks){
     if(!t.startDate)continue;
     const s=t.startDate,e=t.endDate||s;
     const prog=pending[t.nameNorm]!==undefined?pending[t.nameNorm]:t.progress;
-    const overdue=!t.isPhase&&e<today&&prog<100;
-    const active=!t.isPhase&&s<=today&&e>=today;
-    const done=prog>=100;
+    const dly=Math.max(0,parseInt(t.delay)||0);
+    const effE=(!t.isPhase&&t.endDate&&dly>0)?new Date(t.endDate.getTime()+dly*864e5):t.endDate;
+    const autoDone=!!(!t.isPhase&&effE&&today>effE);
+    const done=(prog>=100)||autoDone;
+    const overdue=!t.isPhase&&effE&&today>effE&&!done;
+    const active=!t.isPhase&&s<=today&&(!effE||effE>=today)&&!done;
 
     const row=document.createElement('div');
     row.className='g-row'+(t.isPhase?' ph':'')+(active?' act':'')+(overdue?' ov':'');
@@ -371,6 +389,19 @@ function render(tasks){
     const bar=document.createElement('div');
     bar.className='g-bar '+bc;
     bar.style.left=left+'%';bar.style.width=w+'%';
+    if(!t.isPhase&&t.endDate&&dly>0){
+      const dL=Math.max(0,daysBetween(gS,t.endDate)/gD*100);
+      const dR=Math.min(100,daysBetween(gS,new Date(t.endDate.getTime()+dly*864e5))/gD*100);
+      const dW=Math.max(.3,dR-dL);
+      const dl=document.createElement('div');
+      dl.className='g-delay';
+      dl.style.left=dL+'%';dl.style.width=dW+'%';
+      const lbl=document.createElement('div');
+      lbl.className='g-dlbl';
+      lbl.textContent='+'+dly+'d';
+      dl.appendChild(lbl);
+      tl.appendChild(dl);
+    }
     if(!t.isPhase&&prog>0&&!done){
       const fill=document.createElement('div');
       fill.className='g-fill';fill.style.width=Math.min(100,prog)+'%';
