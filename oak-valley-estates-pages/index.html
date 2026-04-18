@@ -395,13 +395,25 @@ function renderPhaseTracker(data){
   // Determine current phase by date window first (matches Gantt feel).
   // Fallback to progress-based selection if dates are missing.
   let currentIdx=-1;
+  let bestActiveStart=-Infinity;
   for(let i=0;i<phases.length;i++){
     const p=phases[i];
-    if(!(p.startDate&&p.endDate))continue;
+    if(!p.startDate)continue;
     const s=new Date(p.startDate);
-    const e=new Date(p.endDate);
-    if(isNaN(s)||isNaN(e))continue;
-    if(now>=s&&now<=e){currentIdx=i;break}
+    if(isNaN(s))continue;
+    // If endDate is missing, treat phase as open-ended.
+    let active=false;
+    if(p.endDate){
+      const e=new Date(p.endDate);
+      if(!isNaN(e)) active = (now>=s&&now<=e);
+      else active = (now>=s);
+    }else{
+      active = (now>=s);
+    }
+    if(active){
+      const st=s.getTime();
+      if(st>bestActiveStart){bestActiveStart=st;currentIdx=i;}
+    }
   }
   if(currentIdx===-1){
     // If no phase contains today, pick the next upcoming phase by start date.
