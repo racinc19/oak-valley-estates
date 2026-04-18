@@ -1,0 +1,454 @@
+<!DOCTYPE html><!-- build:20260218183456 -->
+<html lang="en">
+<head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rodriguez Residence — Draws</title>
+<style>
+:root{--bg:#0c1220;--card:#141e30;--card2:#1a2640;--hover:#1e2d4a;--bdr:#2a3a55;--bdr2:#354766;--txt:#e8edf5;--txt2:#8899b0;--dim:#5a6d85;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.5}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+.topnav-brand .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px}
+.spinner{width:48px;height:48px;border:4px solid var(--bdr);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#loading .msg{color:var(--txt2);font-size:14px}
+#error{display:none;text-align:center;padding:80px 20px;color:var(--red)}
+#app{display:none}
+.sbox{background:var(--card);border-radius:12px;border:1px solid var(--bdr);overflow:hidden;margin-bottom:20px}
+.shdr{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--bdr);flex-wrap:wrap;gap:8px}
+.shdr h2{font-size:18px;font-weight:700}
+.shdr .meta{font-size:12px;color:var(--dim)}
+#drawCanvas{width:100%;background:transparent}
+.draw-month{border-bottom:1px solid var(--bdr)}
+.draw-month-hdr{padding:14px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .15s}
+.draw-month-hdr:hover{background:var(--hover)}
+.draw-month-hdr h3{font-size:15px;font-weight:700}
+.draw-month-hdr .total{font-weight:700;font-size:15px;color:var(--blue)}
+.draw-month-hdr .arrow{transition:transform .2s;color:var(--dim);font-size:10px}
+.draw-month-hdr .arrow.open{transform:rotate(180deg)}
+.draw-items{display:none;padding:0 20px 14px}
+.draw-items.open{display:block}
+.draw-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:6px;margin-bottom:4px;background:var(--bg);font-size:13px}
+.draw-item .name{font-weight:600}
+.draw-item .vendor{color:var(--dim);font-size:11px;margin-left:8px}
+.draw-item .amount{font-weight:600;color:var(--blue)}
+.draw-item .draws{color:var(--green);font-size:12px;margin-left:12px}
+.draw-item.co-item{border-left:3px solid var(--purple)}
+.draw-item.co-item .name{color:var(--purple)}
+.draw-item.co-item .amount{color:var(--purple)}
+.co-tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;background:rgba(139,92,246,.15);color:var(--purple);margin-left:6px;vertical-align:middle}
+.topnav{position:fixed;top:0;left:0;width:100vw;z-index:50;background:var(--card);border-bottom:1px solid var(--bdr);padding:0 20px}
+.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px;position:relative}
+.topnav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700;font-size:16px;white-space:nowrap}
+.topnav-links{display:flex;gap:4px;align-items:center;overflow-x:auto;position:absolute;left:50%;transform:translateX(-50%)}
+.topnav-links a{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;color:var(--txt2);text-decoration:none;transition:all .2s;white-space:nowrap}
+.topnav-links a:hover{color:var(--txt);background:var(--hover)}
+.topnav-links a.active{color:white;background:var(--blue)}
+.topnav-refresh{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--bdr);background:none;color:var(--txt2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.topnav-refresh:hover{border-color:var(--blue);color:var(--txt)}
+html{overflow-y:scroll}body{overflow-x:hidden}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="index.html" class="topnav-brand"><span class="dot"></span>Rodriguez Residence</a>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="log.html">Daily Log</a>
+    
+    <a href="selections.html">Selections</a>
+    <a href="accounting.html">Accounting</a>
+    <a href="accounting.html#co">Change Orders</a>
+    <a href="gantt.html">Gantt</a>
+    <a href="draws.html" class="active">Draws</a>
+    <a href="budget.html">Budget & Schedule</a>
+    <a href="https://drive.google.com/drive/u/0/folders/1kS-2awScLDAnGS973xD0D28RxynI49Si" target="_blank" style="color:var(--cyan)">📁 Drive</a>
+  </div>
+  <button class="topnav-refresh" onclick="doRefresh()">↻ Refresh</button>
+</div></nav>
+
+<div id="loading"><div class="spinner"></div><div class="msg">Loading draw data…</div></div>
+<div id="error"><h2>⚠ Failed to load data</h2><div class="detail" id="errorDetail"></div><br><button style="background:var(--blue);padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;border:none;cursor:pointer;color:white" onclick="doRefresh()">Retry</button></div>
+
+<div id="app" class="container">
+  <div id="chartBox"></div>
+  <div id="schedBox"></div>
+</div>
+
+<script src="shared.js?v20260320feb"></script>
+<script>
+var CO_KEY='rodriguez_change_orders_v3';
+var CO_SEED=[{
+  num:'CO-001',desc:'Door Automation — Upgrade (3) sliding doors to automatic (Dining, Primary Bed, Primary Bath)',
+  vendor:'AutoSlide',amount:20038.95,paid:0,date:'2026-02-06',status:'approved',pct:0,
+  notes:'$6,679.65 ea × 3 doors. Original contract $3,168,660. Revised $3,188,698.95'
+}];
+var _data=null;
+
+function loadCOs(){
+  var cos;
+  try{cos=JSON.parse(localStorage.getItem(CO_KEY)||'[]')}catch(e){cos=[]}
+  if(cos.length===0){cos=CO_SEED.slice();localStorage.setItem(CO_KEY,JSON.stringify(cos))}
+  return cos;
+}
+
+function injectCOs(md,asList){
+  var cos=loadCOs();
+  for(var i=0;i<cos.length;i++){
+    var co=cos[i];
+    if(co.status!=='approved'||!co.date)continue;
+    var d=new Date(co.date+'T00:00:00');
+    if(isNaN(d.getTime()))continue;
+    var k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    if(!md[k]){
+      if(asList) md[k]={month:new Date(d.getFullYear(),d.getMonth(),1),total:0,paid:0,items:[]};
+      else md[k]={month:new Date(d.getFullYear(),d.getMonth(),1),budget:0,paid:0};
+    }
+    if(asList){
+      md[k].total+=co.amount;
+      md[k].paid+=(co.paid||0);
+      md[k].items.push({name:co.num+' '+co.desc,vendor:co.vendor||'',markup:co.amount,paid:co.paid||0,isCO:true});
+    }else{
+      md[k].budget+=co.amount;
+      md[k].paid+=(co.paid||0);
+    }
+  }
+}
+
+var INV_KEY='rac_invoices_v2';
+function getInvoiceTotal(){
+  try{
+    var invs=JSON.parse(localStorage.getItem(INV_KEY)||'[]');
+    return invs.reduce(function(s,i){return s+(parseFloat(i.total)||0);},0);
+  }catch(e){return 0;}
+}
+function fmtDateStr(s){if(!s)return'—';var d=new Date(s+'T12:00:00');return(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()}
+function normYm(v,label){
+  if(v==null)v='';
+  v=String(v).trim();
+  if(!v&&label!=null)v=String(label).trim();
+  if(!v)return null;
+  // Accept YYYY-MM, YYYY-M
+  var m=v.match(/^(\d{4})-(\d{1,2})$/);
+  if(m){
+    var y=String(m[1]);
+    var mo=String(parseInt(m[2],10)).padStart(2,'0');
+    if(!y||!mo)return null;
+    return y+'-'+mo;
+  }
+  // Accept labels like "March 2026" or "Mar 2026" (and variants)
+  var mm=v.match(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\b\s+(\d{4})/i);
+  if(mm){
+    var mon=mm[1].toLowerCase();
+    var y2=String(mm[2]);
+    var map={jan:1,january:1,feb:2,february:2,mar:3,march:3,apr:4,april:4,may:5,jun:6,june:6,jul:7,july:7,aug:8,august:8,sep:9,sept:9,september:9,oct:10,october:10,nov:11,november:11,dec:12,december:12};
+    var n=map[mon];
+    if(!n)return null;
+    return y2+'-'+String(n).padStart(2,'0');
+  }
+  return null;
+}
+function getMonthlyPaidMap(){
+  var KEY='rac_monthly_invoice_rows_v1';
+  try{
+    var rows=JSON.parse(localStorage.getItem(KEY)||'[]');
+    if(!Array.isArray(rows))return {};
+    var map={};
+    rows.forEach(function(r){
+      if(!r)return;
+      var ym=normYm(r.ym,r.label);
+      if(!ym)return;
+      if(ym==='2026-02')return; // keep consistent with Accounting cleanup
+      var paid=(r.status==='in_progress')?0:Number(r.paid||0);
+      if(!isFinite(paid))paid=0;
+      map[ym]=paid;
+    });
+    return map;
+  }catch(e){return {};}
+}
+function loadMonthlyRows(){
+  var KEY='rac_monthly_invoice_rows_v1';
+  try{
+    var a=JSON.parse(localStorage.getItem(KEY));
+    if(!Array.isArray(a))return [];
+    return a.map(function(r){
+      if(!r)return null;
+      var ym=normYm(r.ym,r.label);
+      if(!ym)return null;
+      var out={};
+      for(var k in r){out[k]=r[k];}
+      out.ym=ym;
+      return out;
+    }).filter(function(r){return r&&r.ym&&r.ym!=='2026-02';});
+  }catch(e){return [];}
+}
+function getHistoryMonthAmountMap(){
+  // Accounting → History monthly rows are the source of truth for months that have occurred.
+  // Use row.amount for Due/Paid months; In progress months are 0.
+  var rows=loadMonthlyRows();
+  var map={};
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    if(!r||!r.ym)continue;
+    if(r.status==='in_progress'){map[r.ym]=0;continue;}
+    var amt=r.amount!=null&&r.amount!==''?Number(r.amount):0;
+    if(!isFinite(amt))amt=0;
+    map[r.ym]=amt;
+  }
+  return map;
+}
+function monthLabelFromYm(ym){
+  try{
+    var p=String(ym||'').split('-');
+    if(p.length!==2)return ym;
+    var y=p[0];
+    var m=parseInt(p[1],10)-1;
+    var names=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return (names[m]||ym)+' '+y;
+  }catch(e){return ym;}
+}
+function getSheetPaidToDate(data){
+  try{
+    if(data&&data.main&&data.main.buildGrossTotals&&typeof data.main.buildGrossTotals.paid==='number'&&data.main.buildGrossTotals.paid>0) return data.main.buildGrossTotals.paid;
+    if(data&&data.totals&&typeof data.totals.totalPaid==='number'&&data.totals.totalPaid>0) return data.totals.totalPaid;
+  }catch(e){}
+  return 0;
+}
+function getMergedSheetCOs(main){
+  var sheet=(main&&main.sheetCOs)||[];
+  var local=[];
+  try{local=JSON.parse(localStorage.getItem(CO_KEY)||'[]')}catch(e){}
+  var localByNum={};
+  local.forEach(function(co){if(co&&co.num)localByNum[co.num]=co;});
+  var merged=sheet.map(function(co){
+    var l=co&&co.num?localByNum[co.num]:null;
+    if(!l) return co;
+    var m=Object.assign({},co);
+    if(l.status) m.status=l.status;
+    return m;
+  });
+  // Append local-only COs not present on the sheet
+  var sheetNums=merged.map(function(c){return c&&c.num;}).filter(Boolean);
+  local.forEach(function(co){
+    if(!co||!co.num)return;
+    if(sheetNums.indexOf(co.num)>=0)return;
+    merged.push(co);
+  });
+  return merged;
+}
+function getRevisedTotal(main){
+  var base=(main&&main.totals&&main.totals.totalBudget)||0;
+  var cos=getMergedSheetCOs(main);
+  var coAmt=0;
+  for(var i=0;i<cos.length;i++) if(cos[i]&&cos[i].status==='approved') coAmt+=Number(cos[i].amount||0);
+  return base+coAmt;
+}
+function reconcileScheduleToRevised(md,main){
+  var revised=getRevisedTotal(main);
+  var keys=Object.keys(md);
+  var sum=0;
+  for(var i=0;i<keys.length;i++) sum+=Number(md[keys[i]].budget||0);
+  var delta=revised-sum;
+  if(delta>1){
+    // Put any unscheduled delta into the final month so cumulative always equals Revised Total.
+    var lastKey=keys.sort().slice(-1)[0];
+    if(!lastKey){
+      var now=new Date();
+      lastKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+      md[lastKey]={month:new Date(now.getFullYear(),now.getMonth(),1),budget:0,paid:0};
+    }
+    md[lastKey].budget+=delta;
+  }
+  return revised;
+}
+function renderChart(data){
+  var main=data.main||data;
+  var phases=main.phases||[];
+  var totals=data.totals||{};
+  var paidMap=getMonthlyPaidMap();
+  var histAmtMap=getHistoryMonthAmountMap();
+  var totalPaid=(function(){
+    var s=0;for(var k in paidMap){if(Object.prototype.hasOwnProperty.call(paidMap,k))s+=Number(paidMap[k]||0);}
+    return s>0?s:getSheetPaidToDate(data);
+  })();
+  var el=document.getElementById('chartBox');
+  var md={};
+  var now=new Date();
+  var firstOfThisMonth=new Date(now.getFullYear(),now.getMonth(),1);
+  var firstOfNextMonth=new Date(now.getFullYear(),now.getMonth()+1,1);
+  function addToMonth(y,m,bud,pad){
+    var k=y+'-'+String(m).padStart(2,'0');
+    if(!md[k])md[k]={month:new Date(y,m-1,1),budget:0,paid:0};
+    md[k].budget+=bud;md[k].paid+=pad;
+  }
+  for(var p=0;p<phases.length;p++){if(phases[p].name==='options')continue;
+    for(var j=0;j<phases[p].items.length;j++){var item=phases[p].items[j];
+      var start=item.startDate,end=item.endDate;
+      var amt=item.markup||0;var pvd=item.paid||0;
+      if(!end&&!start)continue;
+      if(end){
+        var ey=end.getFullYear(),em=end.getMonth()+1;
+        addToMonth(ey,em,amt,pvd);
+      }
+    }}
+  injectCOs(md,false);
+  reconcileScheduleToRevised(md,main);
+  var sorted=Object.values(md).sort(function(a,b){return a.month-b.month});
+  sorted.forEach(function(d){
+    d.isPast=d.month<firstOfThisMonth;
+    var ym=d.month.getFullYear()+'-'+String(d.month.getMonth()+1).padStart(2,'0');
+    var isThisOrPastMonth=d.month<firstOfNextMonth;
+    if(isThisOrPastMonth){
+      // Past/current months: month total is the sent invoice amount (History), or 0 if no history.
+      var v=(histAmtMap[ym]!=null)?Number(histAmtMap[ym]||0):((paidMap[ym]!=null)?Number(paidMap[ym]||0):0);
+      d.display=v;
+      d.paidAmount=v;
+    }else{
+      // Future months: follow schedule.
+      d.display=d.budget;
+      d.paidAmount=0;
+    }
+  });
+  el.innerHTML='<div class="sbox"><div class="shdr"><h2>💰 Monthly Draw Schedule</h2><div class="meta">Budget + approved COs by completion month</div></div><div style="padding:20px"><canvas id="drawCanvas" height="420"></canvas></div></div>';
+
+  var canvas=document.getElementById('drawCanvas');
+  if(!canvas||!canvas.offsetWidth)return;
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  var W=canvas.offsetWidth,H=420;
+  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.height=H+'px';ctx.scale(dpr,dpr);
+  if(!sorted.length)return;
+
+  var pad={t:40,r:85,b:65,l:85};
+  var cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
+  var maxBar=Math.max.apply(null,sorted.map(function(d){return d.display}))||1;
+  // Cumulative line represents schedule budget (reconciled to Revised Total)
+  var maxCum=Math.max(sorted.reduce(function(s,d){return s+(d.budget||0)},0),1);
+  var barW=Math.min(48,cW/sorted.length*.65);
+  var gap=(cW-barW*sorted.length)/(sorted.length+1);
+
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(42,58,85,.4)';ctx.lineWidth=1;
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='10px sans-serif';
+  for(var i=0;i<=5;i++){
+    var y=pad.t+cH*(1-i/5);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.textAlign='right';ctx.fillText(fmtK(maxBar*i/5),pad.l-8,y+4);
+    ctx.textAlign='left';ctx.fillText(fmtK(maxCum*i/5),W-pad.r+8,y+4);
+  }
+
+  var cum=0;var pts=[];
+  sorted.forEach(function(d,i){
+    var x=pad.l+gap+(barW+gap)*i;
+    var bH=(d.display/maxBar)*cH;var y2=pad.t+cH-bH;
+    var grad=ctx.createLinearGradient(x,y2,x,y2+bH);
+    grad.addColorStop(0,'rgba(59,130,246,.85)');grad.addColorStop(1,'rgba(59,130,246,.5)');
+    ctx.fillStyle=grad;ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(x,y2,barW,bH,3);else ctx.rect(x,y2,barW,bH);
+    ctx.fill();
+    if(d.paidAmount>0){var pH=Math.min((d.paidAmount/maxBar)*cH,bH);ctx.fillStyle='rgba(34,197,94,.7)';ctx.fillRect(x,pad.t+cH-pH,barW,pH)}
+    if(bH>25){ctx.fillStyle='white';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(fmtK(d.display),x+barW/2,y2+14)}
+    ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(fmtMoShort(d.month),x+barW/2,H-pad.b+14);
+    cum+=(d.budget||0);
+    pts.push({x:x+barW/2,y:pad.t+cH-(cum/maxCum)*cH});
+  });
+
+  if(pts.length>1){
+    ctx.strokeStyle='#22c55e';ctx.lineWidth=2.5;ctx.setLineDash([]);ctx.beginPath();
+    pts.forEach(function(p,i){i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)});ctx.stroke();
+    pts.forEach(function(p){ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill()});
+  }
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('Monthly Budget ($)',W/2,H-4);
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='10px sans-serif';ctx.save();ctx.translate(W-8,pad.t+cH/2);ctx.rotate(Math.PI/2);ctx.fillText('Cumulative',0,0);ctx.restore();
+}
+
+function renderSchedule(data){
+  var main=data.main||data;
+  var phases=main.phases||[];
+  var totals=data.totals||{};
+  var histAmtMap=getHistoryMonthAmountMap();
+  var paidMap=getMonthlyPaidMap();
+  var el=document.getElementById('schedBox');
+  var months={};
+  var now=new Date();
+  var firstOfThisMonth=new Date(now.getFullYear(),now.getMonth(),1);
+  var firstOfNextMonth=new Date(now.getFullYear(),now.getMonth()+1,1);
+  function addItem(k,item,bud,pvd){
+    if(!months[k])months[k]={month:new Date(parseInt(k.split('-')[0],10),parseInt(k.split('-')[1],10)-1,1),total:0,paid:0,items:[]};
+    months[k].total+=bud;months[k].paid+=pvd;
+    if(pvd>0||bud>0)months[k].items.push({name:item.name,vendor:item.vendor||'',markup:bud,paid:pvd,phase:item.phase});
+  }
+  for(var p=0;p<phases.length;p++){if(phases[p].name==='options')continue;
+    var phase=phases[p];
+    for(var j=0;j<phase.items.length;j++){var item=phase.items[j];item.phase=phase.display||phase.name;
+      var start=item.startDate,end=item.endDate;
+      var amt=item.markup||0;var pvd=item.paid||0;
+      if(!end&&!start)continue;
+      if(end){var k=end.getFullYear()+'-'+String(end.getMonth()+1).padStart(2,'0');addItem(k,item,amt,pvd);}
+    }}
+  injectCOs(months,true);
+  reconcileScheduleToRevised(months,main);
+  var sorted=Object.entries(months).sort(function(a,b){return a[0].localeCompare(b[0])});
+  sorted.forEach(function(entry){
+    var k=entry[0];
+    var m=entry[1];
+    m.isPast=m.month<firstOfThisMonth;
+    var isThisOrPastMonth=m.month<firstOfNextMonth;
+    if(isThisOrPastMonth){
+      var v=(histAmtMap[k]!=null)?Number(histAmtMap[k]||0):((paidMap[k]!=null)?Number(paidMap[k]||0):0);
+      m.paid=v;
+      m.display=v;
+    }else{
+      m.paid=0;
+      m.display=m.total;
+    }
+  });
+  var cum=0,html='';
+  for(var s=0;s<sorted.length;s++){
+    var key=sorted[s][0],m=sorted[s][1];
+    cum+=m.display;
+    var itemsHtml='';
+    for(var i=0;i<m.items.length;i++){
+      var it=m.items[i];
+      var drawn=it.paid>0?'<span class="draws">✓ '+fmt(it.paid)+'</span>':'';
+      var cls=it.isCO?'draw-item co-item':'draw-item';
+      var tag=it.isCO?'<span class="co-tag">CO</span>':'';
+      itemsHtml+='<div class="'+cls+'"><div><span class="name">'+it.name+'</span>'+tag+'<span class="vendor">'+(it.vendor||'')+'</span></div><div><span class="amount">'+fmt(it.markup)+'</span>'+drawn+'</div></div>';
+    }
+    var drawnAmt=m.paid||0;
+    var paidNote=(m.month<firstOfNextMonth&&drawnAmt>0)?' · <span style="color:var(--green)">'+fmt(drawnAmt)+' drawn</span>':'';
+    var coCount=m.items.filter(function(x){return x.isCO}).length;
+    var coNote=coCount>0?' · <span style="color:var(--purple)">'+coCount+' CO'+(coCount>1?'s':'')+'</span>':'';
+    var amtLabel=(m.month<firstOfNextMonth)?' (actual)':'';
+    var totalStyle=(m.month<firstOfNextMonth)?'color:var(--green);font-weight:700':'';
+    html+='<div class="draw-month"><div class="draw-month-hdr" onclick="toggleDraw(this)"><h3>'+fmtMo(m.month)+'</h3><div style="display:flex;align-items:center;gap:16px"><span style="font-size:12px;color:var(--dim)">'+m.items.length+' items · Cumul: '+fmtK(cum)+paidNote+coNote+'</span><span class="total" style="'+totalStyle+'">'+fmt(m.display)+amtLabel+'</span><span class="arrow">▼</span></div></div><div class="draw-items">'+itemsHtml+'</div></div>';
+  }
+  el.innerHTML='<div class="sbox"><div class="shdr"><h2>📑 Draw Schedule by Month</h2><div class="meta">Click to expand · '+sorted.length+' months · Includes approved COs</div></div>'+html+'</div>';
+}
+
+function toggleDraw(hdr){hdr.querySelector('.arrow').classList.toggle('open');hdr.nextElementSibling.classList.toggle('open')}
+
+async function doRefresh(){
+  document.getElementById('loading').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('error').style.display='none';
+  try{await init()}catch(e){document.getElementById('loading').style.display='none';document.getElementById('error').style.display='block';document.getElementById('errorDetail').textContent=e.message}
+}
+async function init(){
+  try{
+    var d=await loadProjectData();
+    _data={main:d.main,totals:d.totals};
+    document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block';
+    setTimeout(function(){renderChart(_data);renderSchedule(_data)},50);
+  }catch(e){document.getElementById('loading').style.display='none';document.getElementById('error').style.display='block';document.getElementById('errorDetail').textContent=e.message}
+}
+window.addEventListener('resize',function(){if(_data)renderChart(_data)});
+init();
+</script>
+</body>
+</html>
