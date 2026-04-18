@@ -689,7 +689,6 @@ function computeInvoiceSummary(){
       sheetCOs2.push(co);
     });
   })();
-  sheetCOs2.forEach(function(co){if(co.status==='approved')totalContract+=co.amount;});
   sections.forEach(function(s){s.items.forEach(function(i){
     totalEarned+=i.earned;
     totalPrev+=i.prev;

@@ -2,7 +2,7 @@ WHY TWO SITES LOOK DIFFERENT
 ============================
 
 You have deploy folders under Deploy/:
-  1. deploy_live      — used by deploy_ovesubs.ps1 → ovesubs.pages.dev
+  1. deploy_live      — legacy output folder (no longer the Cloudflare Pages build output)
   2. deploy_full_23_review — different layout, may be what oak-valley-estates uses
 
 If oak-valley-estates was deployed from deploy_full_23_review (or an old zip),
@@ -13,8 +13,9 @@ FIX: Deploy the SAME folder to BOTH sites
   .\deploy_ovesubs.ps1         → ovesubs.pages.dev
   .\deploy_oak_valley.ps1      → oak-valley-estates.pages.dev
 
-Both scripts deploy from Deploy/deploy_live. Run both after making changes.
+Cloudflare Pages build output is now oak-valley-estates-pages (see wrangler.toml).
+Make sure your deploy scripts / dashboard settings match that source of truth.
 
 In Cloudflare Pages dashboard, ensure BOTH projects have:
-  - Build output directory: deploy_live (or "Direct Upload" if using the scripts)
+  - Build output directory: oak-valley-estates-pages (or "Direct Upload" if using the scripts)
   - No build command needed (static files)

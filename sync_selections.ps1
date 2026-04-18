@@ -1,7 +1,7 @@
-# Copy Oak Valley selections (deploy_live) to OVE Subs (deploy_ovesubs)
+ # Copy Oak Valley selections (oak-valley-estates-pages) to OVE Subs (deploy_ovesubs)
 # Run before deploying ovesubs so subs see the same selections as client
 # Then replace nav with OVE Subs nav (Dashboard, Plans & Permits, Selections)
-Copy-Item Deploy/deploy_live\selections.html Deploy/deploy_ovesubs\selections.html -Force
+Copy-Item oak-valley-estates-pages\selections.html Deploy\deploy_ovesubs\selections.html -Force
 $c = Get-Content Deploy/deploy_ovesubs\selections.html -Raw
 $oveNav = @'
 <nav class="topnav"><div class="topnav-inner">
