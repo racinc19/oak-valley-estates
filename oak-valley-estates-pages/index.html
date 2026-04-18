@@ -412,7 +412,7 @@ function renderPhaseTracker(data){
     }
     if(active){
       const st=s.getTime();
-      if(st>bestActiveStart){bestActiveStart=st;currentIdx=i;}
+      if(st>=bestActiveStart){bestActiveStart=st;currentIdx=i;}
     }
   }
   if(currentIdx===-1){
