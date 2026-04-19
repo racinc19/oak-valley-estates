@@ -91,6 +91,8 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .phase-step.done{background:var(--green)}
 .phase-step.active{background:var(--yellow);box-shadow:0 0 8px rgba(234,179,8,.35)}
 .phase-step-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+.phase-step-all-labels{display:flex;gap:4px;margin-top:8px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+.phase-step-all-label{flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .item-steps{background:var(--card);border-radius:12px;padding:16px 20px;border:1px solid var(--bdr);margin-top:12px}
 .item-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:14px}
@@ -99,6 +101,8 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .item-step.done{background:var(--green)}
 .item-step.active{background:var(--yellow)}
 .item-step-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+.item-step-all-labels{display:flex;gap:4px;margin-top:8px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+.item-step-all-label{flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 @media(max-width:600px){
   .phase-tracker{grid-template-columns:1fr}
@@ -577,13 +581,13 @@ function renderPhaseTracker(data){
       const cls=i<simp.currentIdx?'done':(i===simp.currentIdx?'active':'');
       html+=`<div class="phase-step ${cls}" title="${p.label}"></div>`;
     });
-    html+='</div><div class="phase-step-labels"><span>'+simp.list[0].label+'</span><span>'+simp.list[simp.list.length-1].label+'</span></div></div>';
+    html+='</div><div class="phase-step-all-labels">'+simp.list.map(p=>`<div class="phase-step-all-label">${p.label}</div>`).join('')+'</div></div>';
   }else{
     phases.forEach((p,i)=>{
       const cls=i<currentIdx?'done':(i===currentIdx?'active':'');
       html+=`<div class="phase-step ${cls}" title="${p.display}: ${p.progress.toFixed(0)}%"></div>`;
     });
-    html+='</div><div class="phase-step-labels"><span>'+phases[0].display+'</span><span>'+phases[phases.length-1].display+'</span></div></div>';
+    html+='</div><div class="phase-step-all-labels">'+phases.map(p=>`<div class="phase-step-all-label">${p.display}</div>`).join('')+'</div></div>';
   }
 
   // Current phase activity steps (items within current phase)
@@ -603,7 +607,7 @@ function renderPhaseTracker(data){
       const first=(items[0]&&items[0].name)||'';
       const last=(items[items.length-1]&&items[items.length-1].name)||'';
       html+='<div class="item-steps"><div class="item-steps-label">ACTIVITIES — '+label+'</div><div class="item-steps-row">'+itemRow+'</div>'
-        +'<div class="item-step-labels"><span>'+first+'</span><span>'+last+'</span></div></div>';
+        +'<div class="item-step-all-labels">'+items.map(it=>`<div class="item-step-all-label">${(it&&it.name)||''}</div>`).join('')+'</div></div>';
     }
   }
 
