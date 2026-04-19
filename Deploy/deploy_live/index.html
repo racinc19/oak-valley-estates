@@ -81,11 +81,11 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .phase-card{background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--bdr)}
 .phase-card.current{border-color:rgba(59,130,246,.4);background:linear-gradient(135deg,var(--card),rgba(59,130,246,.06))}
 .phase-card.next{border-color:rgba(90,109,133,.3)}
-.phase-card .phase-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.phase-card .phase-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;display:flex;align-items:center;gap:6px}
 .phase-card.current .phase-label{color:var(--blue)}
 .phase-card.next .phase-label{color:var(--dim)}
 .phase-steps{background:var(--card);border-radius:12px;padding:16px 20px;border:1px solid var(--bdr);margin-top:16px}
-.phase-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:10px}
+.phase-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:14px}
 .phase-steps-row{display:flex;gap:4px;align-items:center}
 .phase-step{flex:1;height:6px;border-radius:3px;background:var(--bdr);transition:background .3s}
 .phase-step.done{background:var(--green)}
@@ -93,7 +93,7 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .phase-step-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
 
 .item-steps{background:var(--card);border-radius:12px;padding:16px 20px;border:1px solid var(--bdr);margin-top:12px}
-.item-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:10px}
+.item-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:14px}
 .item-steps-row{display:flex;gap:4px;align-items:center}
 .item-step{flex:1;height:6px;border-radius:3px;background:var(--bdr);transition:background .3s}
 .item-step.done{background:var(--green)}
@@ -486,7 +486,7 @@ function renderPhaseTracker(data){
   // Phase progress steps bar
   html+='<div class="phase-steps"><div class="phase-steps-label">Project Phases</div><div class="phase-steps-row">';
   phases.forEach((p,i)=>{
-    const cls=p.progress>=100?'done':i===currentIdx?'active':'';
+    const cls=i<currentIdx?'done':(i===currentIdx?'active':'');
     html+=`<div class="phase-step ${cls}" title="${p.display}: ${p.progress.toFixed(0)}%"></div>`;
   });
   html+='</div><div class="phase-step-labels"><span>'+phases[0].display+'</span><span>'+phases[phases.length-1].display+'</span></div></div>';
