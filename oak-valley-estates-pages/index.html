@@ -92,11 +92,6 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .phase-card.current .phase-pfill{background:linear-gradient(90deg,var(--blue),var(--cyan))}
 .phase-card .phase-pct{font-size:22px;font-weight:700;color:var(--blue);margin-bottom:2px}
 
-.phase-items{display:flex;gap:3px;align-items:flex-end;margin-top:10px}
-.phase-item{flex:1;height:10px;background:rgba(90,109,133,.35);border-radius:2px;transform:skewX(-18deg);transform-origin:bottom left;transition:background .3s,box-shadow .3s}
-.phase-item.done{background:var(--green)}
-.phase-item.active{background:var(--blue);box-shadow:0 0 10px rgba(59,130,246,.25)}
-
 /* Phase steps bar */
 .phase-steps{background:var(--card);border-radius:12px;padding:16px 20px;border:1px solid var(--bdr);margin-top:16px}
 .phase-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:10px}
@@ -105,6 +100,14 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .phase-step.done{background:var(--green)}
 .phase-step.active{background:var(--blue);box-shadow:0 0 8px rgba(59,130,246,.4)}
 .phase-step-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+
+.item-steps{background:var(--card);border-radius:12px;padding:16px 20px;border:1px solid var(--bdr);margin-top:12px}
+.item-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:10px}
+.item-steps-row{display:flex;gap:4px;align-items:center}
+.item-step{flex:1;height:6px;border-radius:3px;background:var(--bdr);transition:background .3s}
+.item-step.done{background:var(--green)}
+.item-step.active{background:var(--yellow)}
+.item-step-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
 
 @media(max-width:600px){
   .phase-tracker{grid-template-columns:1fr}
@@ -491,20 +494,12 @@ function renderPhaseTracker(data){
   let html='<div class="phase-tracker">';
 
   // Current phase card
-  const itemTicks=(current.items||[]).map((it)=>{
-    const done=it&&it.progress>=100;
-    const active=it&&it.progress>0&&it.progress<100;
-    const cls=done?'done':(active?'active':'');
-    const title=it?((it.name||'')+': '+(it.progress!=null?Number(it.progress).toFixed(0):'0')+'%'):'';
-    return `<div class="phase-item ${cls}" title="${title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}"></div>`;
-  }).join('');
   html+=`<div class="phase-card current">
     <div class="phase-label">🔨 Current Phase</div>
     <div class="phase-name">${current.display}</div>
     <div class="phase-detail">${curDone} of ${curItems} items complete${curActive?' · '+curActive+' active':''}${curTask?' · Current Activity: '+curTask.name:''}${curDateStr?' · '+curDateStr:''}</div>
     <div class="phase-pct">${current.progress.toFixed(0)}%</div>
     <div class="phase-pbar"><div class="phase-pfill" style="width:${Math.max(2,current.progress)}%"></div></div>
-    <div class="phase-items">${itemTicks}</div>
   </div>`;
 
   // Next phase card
@@ -542,6 +537,24 @@ function renderPhaseTracker(data){
     html+=`<div class="phase-step ${cls}" title="${p.display}: ${p.progress.toFixed(0)}%"></div>`;
   });
   html+='</div><div class="phase-step-labels"><span>'+phases[0].display+'</span><span>'+phases[phases.length-1].display+'</span></div></div>';
+
+  // Current phase activity steps (items within current phase)
+  {
+    const items=(current&&current.items)||[];
+    const itemRow=items.map((it)=>{
+      const done=it&&it.progress>=100;
+      const active=it&&it.progress>0&&it.progress<100;
+      const cls=done?'done':(active?'active':'');
+      const name=(it&&it.name)?String(it.name):'';
+      const pct=it&&it.progress!=null?Number(it.progress).toFixed(0):'0';
+      const title=(name?name:'Item')+': '+pct+'%';
+      return `<div class="item-step ${cls}" title="${title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}"></div>`;
+    }).join('');
+    if(items.length){
+      html+='<div class="item-steps"><div class="item-steps-label">'+current.display+' Activities</div><div class="item-steps-row">'+itemRow+'</div>'
+        +'<div class="item-step-labels"><span>'+(items[0].name||'')+'</span><span>'+(items[items.length-1].name||'')+'</span></div></div>';
+    }
+  }
 
   el.innerHTML=html
 }
