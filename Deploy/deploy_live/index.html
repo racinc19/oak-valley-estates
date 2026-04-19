@@ -606,10 +606,16 @@ function renderPhaseTracker(data){
     blocks.forEach((bIdx)=>{
       const items=simp?simp.list[bIdx].tasks:(current&&current.items)||[];
       const label=simp?simp.list[bIdx].label:(current?current.display:'');
+      const firstActiveIdx=items.findIndex(it=>{
+        if(!it)return false;
+        const pv=pctVal(it);
+        return pv>0&&pv<100;
+      });
       const itemRow=items.map((it)=>{
         const done=it&&pctVal(it)>=100;
         const active=it&&pctVal(it)>0&&pctVal(it)<100;
-        const cls=done?'done':(active?'active':'');
+        const forcedDone=firstActiveIdx>=0 && items.indexOf(it)<firstActiveIdx;
+        const cls=(done||forcedDone)?'done':(active?'active':'');
         const name=(it&&it.name)?String(it.name):'';
         const pct=it&&it.progress!=null?Number(it.progress).toFixed(0):'0';
         const title=(name?name:'Item')+': '+pct+'%';
