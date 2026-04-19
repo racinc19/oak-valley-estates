@@ -571,7 +571,7 @@ function renderPhaseTracker(data){
   let html='';
 
   // Phase progress steps bar
-  html+='<div class="phase-steps"><div class="phase-steps-label">Project Phases</div><div class="phase-steps-row">';
+  html+='<div class="phase-steps"><div class="phase-steps-label">PHASES</div><div class="phase-steps-row">';
   if(simp){
     simp.list.forEach((p,i)=>{
       const cls=i<simp.currentIdx?'done':(i===simp.currentIdx?'active':'');
@@ -602,7 +602,7 @@ function renderPhaseTracker(data){
     if(items.length){
       const first=(items[0]&&items[0].name)||'';
       const last=(items[items.length-1]&&items[items.length-1].name)||'';
-      html+='<div class="item-steps"><div class="item-steps-label">'+label+' Activities</div><div class="item-steps-row">'+itemRow+'</div>'
+      html+='<div class="item-steps"><div class="item-steps-label">ACTIVITIES — '+label+'</div><div class="item-steps-row">'+itemRow+'</div>'
         +'<div class="item-step-labels"><span>'+first+'</span><span>'+last+'</span></div></div>';
     }
   }
