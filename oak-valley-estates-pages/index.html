@@ -459,7 +459,7 @@ function renderPhaseTracker(data){
         const ee=effectiveEnd(t)||t.endDate||t.startDate;
         const inWindow=(t.startDate<=today0)&&(!ee||today0<=ee);
         const pv=pctVal(t);
-        return inWindow && pv>0 && pv<100;
+        return inWindow && pv<100;
       });
       return {key:p.key,label:p.label,tasks,start,end,done,active};
     });
