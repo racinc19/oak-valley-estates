@@ -439,6 +439,7 @@ function renderPhaseTracker(data){
   const next=currentIdx<phases.length-1?phases[currentIdx+1]:null;
   const today=new Date(now);today.setHours(0,0,0,0);
   let nextTask=null;
+  let curTask=null;
   {
     const items=(current&&current.items)||[];
     const upcoming=items
@@ -456,6 +457,18 @@ function renderPhaseTracker(data){
         });
       if(active.length)nextTask=active[0];
     }
+  }
+
+  {
+    const items=(current&&current.items)||[];
+    const activeNow=items
+      .filter(it=>it&&it.startDate&&it.progress<100&&it.startDate<=today)
+      .sort((a,b)=>{
+        const ae=a.endDate||a.startDate;
+        const be=b.endDate||b.startDate;
+        return ae-be;
+      });
+    if(activeNow.length)curTask=activeNow[0];
   }
 
   // Current phase details
@@ -476,7 +489,7 @@ function renderPhaseTracker(data){
   html+=`<div class="phase-card current">
     <div class="phase-label">🔨 Current Phase</div>
     <div class="phase-name">${current.display}</div>
-    <div class="phase-detail">${curDone} of ${curItems} items complete${curActive?' · '+curActive+' active':''}${curDateStr?' · '+curDateStr:''}</div>
+    <div class="phase-detail">${curDone} of ${curItems} items complete${curActive?' · '+curActive+' active':''}${curTask?' · Current Activity: '+curTask.name:''}${curDateStr?' · '+curDateStr:''}</div>
     <div class="phase-pct">${current.progress.toFixed(0)}%</div>
     <div class="phase-pbar"><div class="phase-pfill" style="width:${Math.max(2,current.progress)}%"></div></div>
   </div>`;
@@ -485,7 +498,7 @@ function renderPhaseTracker(data){
   if(nextTask){
     const nextTaskDateStr=nextTask.startDate?'Starts '+fmtDate(nextTask.startDate):'';
     html+=`<div class="phase-card next">
-      <div class="phase-label">⏭ Next Phase</div>
+      <div class="phase-label">⏭ Next Activity</div>
       <div class="phase-name">${nextTask.name}</div>
       <div class="phase-detail">${current.display} · ${fmtK(nextTask.markup||0)}${nextTaskDateStr?' · '+nextTaskDateStr:''}</div>
     </div>`;
