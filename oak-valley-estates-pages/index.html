@@ -454,8 +454,17 @@ function renderPhaseTracker(data){
         if(ee&&(!end||ee>end))end=ee;
       }
       const done=tasks.length?tasks.every(t=>pctVal(t)>=100):false;
-      return {key:p.key,label:p.label,tasks,start,end,done};
+      const active=tasks.some(t=>{
+        if(!t||!t.startDate)return false;
+        const ee=effectiveEnd(t)||t.endDate||t.startDate;
+        const inWindow=(t.startDate<=today0)&&(!ee||today0<=ee);
+        const pv=pctVal(t);
+        return inWindow && pv>0 && pv<100;
+      });
+      return {key:p.key,label:p.label,tasks,start,end,done,active};
     });
+    const activeIdx=out.map((p,i)=>p.active?i:-1).filter(i=>i>=0);
+
     // Find current simplified phase by date window, preferring one that contains today.
     let idx=-1;
     for(let i=0;i<out.length;i++){
@@ -481,7 +490,7 @@ function renderPhaseTracker(data){
         if(i===out.length-1)idx=i;
       }
     }
-    return {list:out,currentIdx:idx};
+    return {list:out,currentIdx:idx,activeIdx};
   };
 
   const simp=hasSchedule?buildSimp():null;
@@ -582,8 +591,9 @@ function renderPhaseTracker(data){
   // Phase progress steps bar
   html+='<div class="phase-steps"><div class="phase-steps-label">PHASES</div><div class="phase-steps-row">';
   if(simp){
+    const minActive=simp.activeIdx&&simp.activeIdx.length?Math.min(...simp.activeIdx):simp.currentIdx;
     simp.list.forEach((p,i)=>{
-      const cls=i<simp.currentIdx?'done':(i===simp.currentIdx?'active':'');
+      const cls=(i<minActive)?'done':((simp.activeIdx||[]).indexOf(i)>=0?'active':(i===simp.currentIdx?'active':''));
       html+=`<div class="phase-step ${cls}" title="${p.label}"></div>`;
     });
     html+='</div><div class="phase-step-all-labels">'+simp.list.map(p=>`<div class="phase-step-all-label">${p.label}</div>`).join('')+'</div></div>';
@@ -597,21 +607,24 @@ function renderPhaseTracker(data){
 
   // Current phase activity steps (items within current phase)
   {
-    const items=simp?simp.list[simp.currentIdx].tasks:(current&&current.items)||[];
-    const label=simp?simp.list[simp.currentIdx].label:(current?current.display:'');
-    const itemRow=items.map((it)=>{
-      const done=it&&pctVal(it)>=100;
-      const active=it&&pctVal(it)>0&&pctVal(it)<100;
-      const cls=done?'done':(active?'active':'');
-      const name=(it&&it.name)?String(it.name):'';
-      const pct=it&&it.progress!=null?Number(it.progress).toFixed(0):'0';
-      const title=(name?name:'Item')+': '+pct+'%';
-      return `<div class="item-step ${cls}" title="${title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}"></div>`;
-    }).join('');
-    if(items.length){
-      html+='<div class="item-steps"><div class="item-steps-label">ACTIVITIES — '+label+'</div><div class="item-steps-row">'+itemRow+'</div>'
-        +'<div class="item-step-all-labels">'+items.map(it=>`<div class="item-step-all-label">${(it&&it.name)||''}</div>`).join('')+'</div></div>';
-    }
+    const blocks=(simp&&simp.activeIdx&&simp.activeIdx.length)?simp.activeIdx:[simp?simp.currentIdx:currentIdx];
+    blocks.forEach((bIdx)=>{
+      const items=simp?simp.list[bIdx].tasks:(current&&current.items)||[];
+      const label=simp?simp.list[bIdx].label:(current?current.display:'');
+      const itemRow=items.map((it)=>{
+        const done=it&&pctVal(it)>=100;
+        const active=it&&pctVal(it)>0&&pctVal(it)<100;
+        const cls=done?'done':(active?'active':'');
+        const name=(it&&it.name)?String(it.name):'';
+        const pct=it&&it.progress!=null?Number(it.progress).toFixed(0):'0';
+        const title=(name?name:'Item')+': '+pct+'%';
+        return `<div class="item-step ${cls}" title="${title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}"></div>`;
+      }).join('');
+      if(items.length){
+        html+='<div class="item-steps"><div class="item-steps-label">ACTIVITIES — '+label+'</div><div class="item-steps-row">'+itemRow+'</div>'
+          +'<div class="item-step-all-labels">'+items.map(it=>`<div class="item-step-all-label">${(it&&it.name)||''}</div>`).join('')+'</div></div>';
+      }
+    });
   }
 
   el.innerHTML=html
