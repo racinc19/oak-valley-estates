@@ -391,6 +391,93 @@ function renderPhaseTracker(data){
 
   const now=new Date();
 
+  const today0=new Date(now);today0.setHours(0,0,0,0);
+  const scheduleTasks=(data&&data.scheduleTasks)||[];
+  const hasSchedule=Array.isArray(scheduleTasks)&&scheduleTasks.length;
+
+  const effectiveEnd=t=>{
+    if(!(t&&t.endDate))return null;
+    const dly=Math.max(0,parseInt(t.delay)||0);
+    return new Date(t.endDate.getTime()+dly*864e5);
+  };
+  const pctVal=t=>{
+    const raw=Number(t&&t.progress);
+    const base=isFinite(raw)?Math.max(0,Math.min(100,raw)):0;
+    const ee=effectiveEnd(t);
+    if(ee&&today0>ee)return 100;
+    return base;
+  };
+
+  // Simplified phases (derived from Gantt/schedule truth)
+  const SIMP=[
+    {key:'deposit',label:'Deposit'},
+    {key:'site',label:'Site'},
+    {key:'structural',label:'Structural'},
+    {key:'mechanical',label:'Mechanical'},
+    {key:'roof',label:'Roof'},
+    {key:'exterior',label:'Exterior'},
+    {key:'ceiling',label:'Ceiling'},
+    {key:'carpentry',label:'Carpentry'},
+    {key:'equipment',label:'Equipment/Finishes'},
+    {key:'landscape',label:'Landscape'}
+  ];
+
+  const simpTasksFor=(t,k)=>{
+    const sec=(t&&t.section)||'';
+    const name=(t&&t.nameNorm)||'';
+    if(k==='deposit')return sec==='deposit'||sec==='pre construction';
+    if(k==='site')return sec==='site';
+    if(k==='structural')return sec==='structural';
+    if(k==='mechanical')return sec==='mechanical rough';
+    if(k==='roof')return name==='roofing'||name==='roofing ';
+    if(k==='exterior')return sec==='exterior sealing'&&name!=='roofing'&&name!=='roofing ';
+    if(k==='ceiling')return sec==='wall/cieling finish';
+    if(k==='carpentry')return sec==='carpentery';
+    if(k==='equipment')return sec==='equipment/ finishes';
+    if(k==='landscape')return sec==='landscape';
+    return false;
+  };
+
+  const buildSimp=()=>{
+    const nonPhase=scheduleTasks.filter(t=>t&&!t.isPhase&&t.startDate);
+    const out=SIMP.map(p=>{
+      const tasks=nonPhase.filter(t=>simpTasksFor(t,p.key));
+      let start=null,end=null;
+      for(const t of tasks){
+        if(t.startDate&&(!start||t.startDate<start))start=t.startDate;
+        const ee=effectiveEnd(t)||t.endDate||t.startDate;
+        if(ee&&(!end||ee>end))end=ee;
+      }
+      const done=tasks.length?tasks.every(t=>pctVal(t)>=100):false;
+      return {key:p.key,label:p.label,tasks,start,end,done};
+    });
+    let idx=-1;
+    for(let i=0;i<out.length;i++){
+      const p=out[i];
+      if(!(p.start&&p.end))continue;
+      if(!p.done&&today0>=p.start&&today0<=p.end){idx=i;break;}
+    }
+    if(idx===-1){
+      let best=Infinity;
+      for(let i=0;i<out.length;i++){
+        const p=out[i];
+        if(!p.start)continue;
+        const ts=p.start.getTime();
+        if(ts>=today0.getTime()&&ts<best){best=ts;idx=i;}
+      }
+    }
+    if(idx===-1){
+      idx=0;
+      for(let i=0;i<out.length;i++){
+        if(!out[i].done){idx=i;break;}
+        if(i===out.length-1)idx=i;
+      }
+    }
+    return {list:out,currentIdx:idx};
+  };
+
+  const simp=hasSchedule?buildSimp():null;
+
   // Determine current phase: first phase not at 100%, or last phase
   let currentIdx=-1;
   let bestActiveStart=-Infinity;
@@ -485,18 +572,27 @@ function renderPhaseTracker(data){
 
   // Phase progress steps bar
   html+='<div class="phase-steps"><div class="phase-steps-label">Project Phases</div><div class="phase-steps-row">';
-  phases.forEach((p,i)=>{
-    const cls=i<currentIdx?'done':(i===currentIdx?'active':'');
-    html+=`<div class="phase-step ${cls}" title="${p.display}: ${p.progress.toFixed(0)}%"></div>`;
-  });
-  html+='</div><div class="phase-step-labels"><span>'+phases[0].display+'</span><span>'+phases[phases.length-1].display+'</span></div></div>';
+  if(simp){
+    simp.list.forEach((p,i)=>{
+      const cls=i<simp.currentIdx?'done':(i===simp.currentIdx?'active':'');
+      html+=`<div class="phase-step ${cls}" title="${p.label}"></div>`;
+    });
+    html+='</div><div class="phase-step-labels"><span>'+simp.list[0].label+'</span><span>'+simp.list[simp.list.length-1].label+'</span></div></div>';
+  }else{
+    phases.forEach((p,i)=>{
+      const cls=i<currentIdx?'done':(i===currentIdx?'active':'');
+      html+=`<div class="phase-step ${cls}" title="${p.display}: ${p.progress.toFixed(0)}%"></div>`;
+    });
+    html+='</div><div class="phase-step-labels"><span>'+phases[0].display+'</span><span>'+phases[phases.length-1].display+'</span></div></div>';
+  }
 
   // Current phase activity steps (items within current phase)
   {
-    const items=(current&&current.items)||[];
+    const items=simp?simp.list[simp.currentIdx].tasks:(current&&current.items)||[];
+    const label=simp?simp.list[simp.currentIdx].label:(current?current.display:'');
     const itemRow=items.map((it)=>{
-      const done=it&&it.progress>=100;
-      const active=it&&it.progress>0&&it.progress<100;
+      const done=it&&pctVal(it)>=100;
+      const active=it&&pctVal(it)>0&&pctVal(it)<100;
       const cls=done?'done':(active?'active':'');
       const name=(it&&it.name)?String(it.name):'';
       const pct=it&&it.progress!=null?Number(it.progress).toFixed(0):'0';
@@ -504,8 +600,10 @@ function renderPhaseTracker(data){
       return `<div class="item-step ${cls}" title="${title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}"></div>`;
     }).join('');
     if(items.length){
-      html+='<div class="item-steps"><div class="item-steps-label">'+current.display+' Activities</div><div class="item-steps-row">'+itemRow+'</div>'
-        +'<div class="item-step-labels"><span>'+(items[0].name||'')+'</span><span>'+(items[items.length-1].name||'')+'</span></div></div>';
+      const first=(items[0]&&items[0].name)||'';
+      const last=(items[items.length-1]&&items[items.length-1].name)||'';
+      html+='<div class="item-steps"><div class="item-steps-label">'+label+' Activities</div><div class="item-steps-row">'+itemRow+'</div>'
+        +'<div class="item-step-labels"><span>'+first+'</span><span>'+last+'</span></div></div>';
     }
   }
 
