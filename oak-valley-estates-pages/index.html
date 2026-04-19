@@ -437,6 +437,26 @@ function renderPhaseTracker(data){
 
   const current=phases[currentIdx];
   const next=currentIdx<phases.length-1?phases[currentIdx+1]:null;
+  const today=new Date(now);today.setHours(0,0,0,0);
+  let nextTask=null;
+  {
+    const items=(current&&current.items)||[];
+    const upcoming=items
+      .filter(it=>it&&it.startDate&&it.progress<100&&it.startDate>today)
+      .sort((a,b)=>a.startDate-b.startDate);
+    if(upcoming.length){
+      nextTask=upcoming[0];
+    }else{
+      const active=items
+        .filter(it=>it&&it.startDate&&it.progress<100&&it.startDate<=today)
+        .sort((a,b)=>{
+          const ae=a.endDate||a.startDate;
+          const be=b.endDate||b.startDate;
+          return ae-be;
+        });
+      if(active.length)nextTask=active[0];
+    }
+  }
 
   // Current phase details
   const curItems=current.items.length;
@@ -462,7 +482,14 @@ function renderPhaseTracker(data){
   </div>`;
 
   // Next phase card
-  if(next){
+  if(nextTask){
+    const nextTaskDateStr=nextTask.startDate?'Starts '+fmtDate(nextTask.startDate):'';
+    html+=`<div class="phase-card next">
+      <div class="phase-label">⏭ Next Phase</div>
+      <div class="phase-name">${nextTask.name}</div>
+      <div class="phase-detail">${current.display} · ${fmtK(nextTask.markup||0)}${nextTaskDateStr?' · '+nextTaskDateStr:''}</div>
+    </div>`;
+  }else if(next){
     const nextItems=next.items.length;
     const nextStarts=next.items.filter(i=>i.startDate).map(i=>i.startDate);
     const nextStart=nextStarts.length?new Date(Math.min(...nextStarts)):null;
