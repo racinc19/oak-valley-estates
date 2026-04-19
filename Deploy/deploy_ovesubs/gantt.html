@@ -317,32 +317,21 @@ function renderHero(tasks){
     </div>`;
 }
 
-// GANTT — skips deposit/pre-construction, starts from first field task
+// GANTT
 function render(tasks){
   const today=new Date();today.setHours(0,0,0,0);
   const gi=document.getElementById('gi');
   const mhdr=document.getElementById('mhdr');
   gi.innerHTML='';mhdr.innerHTML='';
 
-  // Skip deposit and pre-construction phases + their children
-  const SKIP_PHASES=['deposit','pre construction'];
-  let skipPhase=false;
-  const filtered=tasks.filter(t=>{
-    if(t.isPhase){
-      skipPhase=SKIP_PHASES.includes(t.nameNorm);
-      return!skipPhase;
-    }
-    return!skipPhase;
-  });
+  const filtered=tasks;
 
   let gMin=Infinity,gMax=-Infinity;
   for(const t of filtered){
     if(t.startDate)gMin=Math.min(gMin,t.startDate.getTime());
     if(t.endDate)gMax=Math.max(gMax,t.endDate.getTime());
   }
-  if(!isFinite(gMin)){gMin=today.getTime()-30*864e5;gMax=today.getTime()+90*864e5}
-  gMin=Math.min(gMin,today.getTime()-20*864e5);
-  gMax=Math.max(gMax,today.getTime()+45*864e5);
+  if(!isFinite(gMin)){gMin=P_START.getTime();gMax=P_END.getTime()}
 
   const gS=new Date(new Date(gMin).getFullYear(),new Date(gMin).getMonth(),1);
   const gER=new Date(gMax);
@@ -368,40 +357,23 @@ function render(tasks){
     if(!t.startDate)continue;
     const s=t.startDate,e=t.endDate||s;
     const prog=pending[t.nameNorm]!==undefined?pending[t.nameNorm]:t.progress;
-    const dly=Math.max(0,parseInt(t.delay)||0);
-    const effE=(!t.isPhase&&t.endDate&&dly>0)?new Date(t.endDate.getTime()+dly*864e5):t.endDate;
-    const autoDone=!!(!t.isPhase&&effE&&today>effE);
-    const done=(prog>=100)||autoDone;
-    const overdue=!t.isPhase&&effE&&today>effE&&!done;
-    const active=!t.isPhase&&s<=today&&(!effE||effE>=today)&&!done;
+    const done=(prog>=100);
+    const active=(prog>0&&prog<100);
 
     const row=document.createElement('div');
-    row.className='g-row'+(t.isPhase?' ph':'')+(active?' act':'')+(overdue?' ov':'');
+    row.className='g-row'+(t.isPhase?' ph':'');
 
     const lbl=document.createElement('div');lbl.className='g-lbl';
-    lbl.innerHTML=`<div class="g-name">${t.name}</div>${t.vendor&&!t.isPhase?`<div class="g-sub"><a href="sub.html?v=${encodeURIComponent(t.vendor)}" style="color:var(--cyan);text-decoration:none;font-size:10px;font-weight:600" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">↗ ${t.vendor}</a></div>`:''}`;
+    lbl.innerHTML=`<div class="g-name">${t.isPhase?(PHASE_SPELL_FIX[t.nameNorm]||t.name):t.name}</div>${t.vendor&&!t.isPhase?`<div class="g-sub"><a href="sub.html?v=${encodeURIComponent(t.vendor)}" style="color:var(--cyan);text-decoration:none;font-size:10px;font-weight:600" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">↗ ${t.vendor}</a></div>`:''}`;
 
     const tl=document.createElement('div');tl.className='g-tl';
     const left=Math.max(0,daysBetween(gS,s)/gD*100);
     const right=Math.min(100,daysBetween(gS,e)/gD*100);
     const w=Math.max(.3,right-left);
-    const bc=done?'dn':overdue?'od':active?'ac':'';
+    const bc=done?'dn':active?'ac':'';
     const bar=document.createElement('div');
     bar.className='g-bar '+bc;
     bar.style.left=left+'%';bar.style.width=w+'%';
-    if(!t.isPhase&&t.endDate&&dly>0){
-      const dL=Math.max(0,daysBetween(gS,t.endDate)/gD*100);
-      const dR=Math.min(100,daysBetween(gS,new Date(t.endDate.getTime()+dly*864e5))/gD*100);
-      const dW=Math.max(.3,dR-dL);
-      const dl=document.createElement('div');
-      dl.className='g-delay';
-      dl.style.left=dL+'%';dl.style.width=dW+'%';
-      const lbl=document.createElement('div');
-      lbl.className='g-dlbl';
-      lbl.textContent='+'+dly+'d';
-      dl.appendChild(lbl);
-      tl.appendChild(dl);
-    }
     if(!t.isPhase&&prog>0&&!done){
       const fill=document.createElement('div');
       fill.className='g-fill';fill.style.width=Math.min(100,prog)+'%';
