@@ -86,19 +86,12 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .phase-card.next .phase-label{color:var(--dim)}
 .phase-card .phase-name{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px}
 .phase-card.next .phase-name{color:var(--txt2)}
-.phase-card .phase-detail{font-size:12px;color:var(--dim);margin-bottom:12px}
-.phase-card .phase-pbar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid rgba(42,58,85,.5)}
-.phase-card .phase-pfill{height:100%;border-radius:4px;transition:width .5s}
-.phase-card.current .phase-pfill{background:linear-gradient(90deg,var(--blue),var(--cyan))}
-.phase-card .phase-pct{font-size:22px;font-weight:700;color:var(--blue);margin-bottom:2px}
-
-/* Phase steps bar */
 .phase-steps{background:var(--card);border-radius:12px;padding:16px 20px;border:1px solid var(--bdr);margin-top:16px}
 .phase-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:10px}
 .phase-steps-row{display:flex;gap:4px;align-items:center}
 .phase-step{flex:1;height:6px;border-radius:3px;background:var(--bdr);transition:background .3s}
 .phase-step.done{background:var(--green)}
-.phase-step.active{background:var(--blue);box-shadow:0 0 8px rgba(59,130,246,.4)}
+.phase-step.active{background:var(--yellow);box-shadow:0 0 8px rgba(234,179,8,.35)}
 .phase-step-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
 
 .item-steps{background:var(--card);border-radius:12px;padding:16px 20px;border:1px solid var(--bdr);margin-top:12px}
@@ -491,47 +484,10 @@ function renderPhaseTracker(data){
   const curEnd=curEnds.length?new Date(Math.max(...curEnds)):null;
   const curDateStr=curStart&&curEnd?fmtDate(curStart)+' — '+fmtDate(curEnd):'';
 
-  let html='<div class="phase-tracker">';
-
-  // Current phase card
-  html+=`<div class="phase-card current">
-    <div class="phase-label">🔨 Current Phase</div>
-    <div class="phase-name">${current.display}</div>
-    <div class="phase-detail">${curDone} of ${curItems} items complete${curActive?' · '+curActive+' active':''}${curTask?' · Current Activity: '+curTask.name:''}${curDateStr?' · '+curDateStr:''}</div>
-    <div class="phase-pct">${current.progress.toFixed(0)}%</div>
-    <div class="phase-pbar"><div class="phase-pfill" style="width:${Math.max(2,current.progress)}%"></div></div>
-  </div>`;
-
-  // Next phase card
-  if(nextTask){
-    const nextTaskDateStr=nextTask.startDate?'Starts '+fmtDate(nextTask.startDate):'';
-    html+=`<div class="phase-card next">
-      <div class="phase-label">⏭ Next Activity</div>
-      <div class="phase-name">${nextTask.name}</div>
-      <div class="phase-detail">${current.display} · ${fmtK(nextTask.markup||0)}${nextTaskDateStr?' · '+nextTaskDateStr:''}</div>
-    </div>`;
-  }else if(next){
-    const nextItems=next.items.length;
-    const nextStarts=next.items.filter(i=>i.startDate).map(i=>i.startDate);
-    const nextStart=nextStarts.length?new Date(Math.min(...nextStarts)):null;
-    const nextDateStr=nextStart?'Starts '+fmtDate(nextStart):'';
-    html+=`<div class="phase-card next">
-      <div class="phase-label">⏭ Next Phase</div>
-      <div class="phase-name">${next.display}</div>
-      <div class="phase-detail">${nextItems} items · ${fmtK(next.markupTotal)}${nextDateStr?' · '+nextDateStr:''}</div>
-    </div>`;
-  }else{
-    html+=`<div class="phase-card next">
-      <div class="phase-label">🏁 Final Phase</div>
-      <div class="phase-name">Project Completion</div>
-      <div class="phase-detail">All phases complete · Target ${fmtDate(P_END)}</div>
-    </div>`;
-  }
-
-  html+='</div>';
+  let html='';
 
   // Phase progress steps bar
-  html+='<div class="phase-steps"><div class="phase-steps-label">Phase Progress</div><div class="phase-steps-row">';
+  html+='<div class="phase-steps"><div class="phase-steps-label">Project Phases</div><div class="phase-steps-row">';
   phases.forEach((p,i)=>{
     const cls=p.progress>=100?'done':i===currentIdx?'active':'';
     html+=`<div class="phase-step ${cls}" title="${p.display}: ${p.progress.toFixed(0)}%"></div>`;
