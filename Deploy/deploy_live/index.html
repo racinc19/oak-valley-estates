@@ -92,6 +92,11 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 .phase-card.current .phase-pfill{background:linear-gradient(90deg,var(--blue),var(--cyan))}
 .phase-card .phase-pct{font-size:22px;font-weight:700;color:var(--blue);margin-bottom:2px}
 
+.phase-items{display:flex;gap:3px;align-items:flex-end;margin-top:10px}
+.phase-item{flex:1;height:10px;background:rgba(90,109,133,.35);border-radius:2px;transform:skewX(-18deg);transform-origin:bottom left;transition:background .3s,box-shadow .3s}
+.phase-item.done{background:var(--green)}
+.phase-item.active{background:var(--blue);box-shadow:0 0 10px rgba(59,130,246,.25)}
+
 /* Phase steps bar */
 .phase-steps{background:var(--card);border-radius:12px;padding:16px 20px;border:1px solid var(--bdr);margin-top:16px}
 .phase-steps-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:10px}
@@ -485,12 +490,20 @@ function renderPhaseTracker(data){
   let html='<div class="phase-tracker">';
 
   // Current phase card
+  const itemTicks=(current.items||[]).map((it)=>{
+    const done=it&&it.progress>=100;
+    const active=it&&it.progress>0&&it.progress<100;
+    const cls=done?'done':(active?'active':'');
+    const title=it?((it.name||'')+': '+(it.progress!=null?Number(it.progress).toFixed(0):'0')+'%'):'';
+    return `<div class="phase-item ${cls}" title="${title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}"></div>`;
+  }).join('');
   html+=`<div class="phase-card current">
     <div class="phase-label">🔨 Current Phase</div>
     <div class="phase-name">${current.display}</div>
     <div class="phase-detail">${curDone} of ${curItems} items complete${curActive?' · '+curActive+' active':''}${curTask?' · Current Activity: '+curTask.name:''}${curDateStr?' · '+curDateStr:''}</div>
     <div class="phase-pct">${current.progress.toFixed(0)}%</div>
     <div class="phase-pbar"><div class="phase-pfill" style="width:${Math.max(2,current.progress)}%"></div></div>
+    <div class="phase-items">${itemTicks}</div>
   </div>`;
 
   // Next phase card
