@@ -1,13 +1,14 @@
 // shared.js — Rodriguez Residence Tracker — 100% LIVE from Google Sheet
 // NO hardcoded data. Everything pulled from published sheet on every page load.
 
-// Site-wide PIN: schedule Admin (🔒 Admin) + owner approval on Selections. Change only here.
-const SITE_ACCESS_PIN='1234';
+// Site PIN stored as SHA-256 hash only — plaintext never in source. Change hash here to change PIN.
+const SITE_ACCESS_PIN_HASH='03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
+async function checkSitePin(entered){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(entered));const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');return hex===SITE_ACCESS_PIN_HASH;}
 
 const BUDGET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQew4OQL4AsLo127rU7ZX8KC6Ur4BklOWahgzWE99HsNQzrEq2Re0cqFpDIofBkW39nXzTvx0cX5Los/pub?output=csv';
 const SCHEDULE_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQew4OQL4AsLo127rU7ZX8KC6Ur4BklOWahgzWE99HsNQzrEq2Re0cqFpDIofBkW39nXzTvx0cX5Los/pub?gid=1440569226&single=true&output=csv';
 // SUBS tab — publish this tab and replace the gid below
-// Columns: A=Vendor(exact match), B=PIN, C=ContractAmt, D=DriveFolderURL
+// sub.html uses col B (index 1) as the portal vendor id (must match ?v=). Col A = short name / label when present.
 const SUBS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQew4OQL4AsLo127rU7ZX8KC6Ur4BklOWahgzWE99HsNQzrEq2Re0cqFpDIofBkW39nXzTvx0cX5Los/pub?gid=2055446940&single=true&output=csv';
 
 const PHASE_NAMES=['deposit','pre construction','site','structural','mechanical rough',
@@ -343,16 +344,63 @@ function fmtDate(d){if(!d)return'—';return(d.getMonth()+1)+'/'+d.getDate()+'/'
 function fmtMo(d){return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear()}
 function fmtMoShort(d){return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+" '"+String(d.getFullYear()).slice(2)}
 
+// ═══ SUBS LIST → SCHEDULE ROWS (no duplicate vendors) ═══
+// If a sub exists on the Subs tab (portal PIN) but has no line on the Schedule tab, they
+// would not appear in the Gantt/Subs table. We append a placeholder task with _fromSubs so
+// the vendor link & nav still show. Add real dates on the Schedule tab to get a full bar.
+function mergeScheduleWithSubsVendors(scheduleTasks, subsCsvText){
+  if(!subsCsvText||!String(subsCsvText).trim())return scheduleTasks;
+  const rows=parseCSV(subsCsvText);
+  const have=new Set();
+  for(const t of scheduleTasks){
+    if(t.vendor)have.add(norm(t.vendor));
+  }
+  const extra=[];
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i];if(!r)continue;
+    const vendor=(r[1]||'').trim();
+    if(!vendor)continue;
+    if(have.has(norm(vendor)))continue;
+    have.add(norm(vendor));
+    const a=(r[0]||'').trim();
+    let taskName=a;
+    if(!taskName){
+      if(norm(vendor)==='deezcabnuts')taskName='Cabinets';
+      else if(norm(vendor)==='deez')taskName='Cabinets';
+      else taskName='On Subs list (add row to Schedule tab for dates)';
+    }
+    const nameKey='subsv_'+norm(vendor).replace(/[^a-z0-9]+/g,'_');
+    extra.push({
+      name:taskName,
+      nameNorm:nameKey,
+      vendor:vendor,
+      section:'',
+      isPhase:false,
+      progress:0,
+      startDate:null,
+      endDate:null,
+      duration:0,
+      delay:0,
+      _fromSubs:true
+    });
+  }
+  return scheduleTasks.concat(extra);
+}
+
 // ═══ LOAD ALL DATA LIVE ═══
 async function loadProjectData(){
   const ts=Date.now();
 
-  const[budgetCSV,scheduleCSV]=await Promise.all([
+  const[budgetCSV,scheduleCSV,subsCSV]=await Promise.all([
     fetch(BUDGET_URL+'&_='+ts).then(r=>{if(!r.ok)throw new Error('Budget tab HTTP '+r.status);return r.text()}),
     fetch(SCHEDULE_URL+'&_='+ts).then(r=>{
       if(!r.ok){console.warn('Schedule tab HTTP '+r.status);return ''}
       return r.text()
-    }).catch(e=>{console.warn('Schedule fetch failed:',e.message);return ''})
+    }).catch(e=>{console.warn('Schedule fetch failed:',e.message);return ''}),
+    fetch(SUBS_URL+'&_='+ts).then(r=>{
+      if(!r.ok){console.warn('Subs tab HTTP '+r.status);return ''}
+      return r.text()
+    }).catch(e=>{console.warn('Subs fetch failed:',e.message);return ''})
   ]);
 
   const budgetRows=parseCSV(budgetCSV);
@@ -364,6 +412,7 @@ async function loadProjectData(){
     const sched=parseScheduleTab(scheduleRows);
     scheduleTasks=sched.tasks;
   }
+  scheduleTasks=mergeScheduleWithSubsVendors(scheduleTasks, subsCSV);
 
   crossRefBudgetSchedule(phases,scheduleTasks);
 

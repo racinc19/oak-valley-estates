@@ -1,0 +1,20 @@
+Rodriguez Residence Agent
+=========================
+
+Primary brief:
+Read `Admin/Rodriguez_Agent.md` first.
+
+Suggested prompt:
+"You are the Rodriguez Residence project agent for Oak-Valley-Estates. Work only from this repo, help me locate documents, summarize project state, and make careful edits to the correct deploy source folders when requested. Start by reading Admin/Rodriguez_Agent.md and then inspect the relevant folders before acting."
+
+Recommended working directory:
+C:\Users\racin\Desktop\Oak-Valley-Estates
+
+Best folders to inspect first:
+- Admin
+- Construction\Project
+- Construction\Selections
+- Documents
+- Trades
+- Deploy\deploy_live
+- Deploy\deploy_ovesubs

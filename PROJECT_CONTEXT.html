@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oak Valley Estates / Rodriguez Residence — Project Context</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --fg: #c9d1d9;
+            --muted: #8b949e;
+            --accent: #58a6ff;
+            --border: #30363d;
+            --warn: #f0883e;
+            --ok: #3fb950;
+            --danger: #f85149;
+            --card-bg: #161b22;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+        h2 { color: var(--fg); margin-top: 2rem; font-size: 1.3rem; }
+        h3 { color: var(--muted); font-size: 1.05rem; margin-top: 1.5rem; }
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .badge-ok { background: rgba(63,185,80,0.15); color: var(--ok); }
+        .badge-warn { background: rgba(240,136,62,0.15); color: var(--warn); }
+        .badge-danger { background: rgba(248,81,73,0.15); color: var(--danger); }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+        code, pre {
+            font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+            font-size: 0.85rem;
+        }
+        code {
+            background: rgba(110,118,129,0.15);
+            padding: 0.1rem 0.35rem;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+        pre {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        ul, ol { padding-left: 1.5rem; }
+        li { margin: 0.35rem 0; }
+        .path { color: var(--accent); word-break: break-all; }
+        .highlight { color: var(--warn); font-weight: 600; }
+        .section-rule {
+            border-left: 3px solid var(--accent);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            background: rgba(88,166,255,0.05);
+            padding: 0.75rem 1rem;
+            border-radius: 0 6px 6px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        th { color: var(--muted); font-weight: 500; }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .status-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+        }
+        .status-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; }
+        .status-value { font-size: 1.1rem; font-weight: 600; margin-top: 0.25rem; }
+    </style>
+</head>
+<body>
+
+<h1>🏠 Oak Valley Estates / Rodriguez Residence</h1>
+<p style="color: var(--muted); margin-top: -0.5rem;">Project context document for AI assistants. <strong>Read this first</strong> before doing project work.</p>
+
+<div class="card">
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <div><strong>Project:</strong> Rodriguez Residence @ Oak Valley Estates</div>
+        <div><strong>Owner:</strong> Craig Engel (RAC Development)</div>
+        <div><strong>Location:</strong> Southern Utah / St. George area</div>
+        <div><strong>Project Root:</strong> <span class="path">C:\Users\racin\Desktop\Oak-Valley-Estates</span></div>
+    </div>
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>📁 Folder Structure & Rules</h2>
+
+<table>
+    <tr><th>Folder</th><th>Purpose</th><th>Rules</th></tr>
+    <tr>
+        <td><code>Admin/</code></td>
+        <td>Permits, vendor records, project helper docs</td>
+        <td>Reference-only unless explicitly asked to edit</td>
+    </tr>
+    <tr>
+        <td><code>Construction/</code></td>
+        <td>Bids, contracts, change orders, selections</td>
+        <td>Has trade subfolders (Electrical, Plumbing, etc.). <strong>Source of truth for project docs.</strong></td>
+    </tr>
+    <tr>
+        <td><code>Documents/</code></td>
+        <td>Reference docs, plans, PDFs, source material</td>
+        <td>Archive — don't edit unless converting/processing</td>
+    </tr>
+    <tr>
+        <td><code>Trades/</code></td>
+        <td>Trade-specific working material</td>
+        <td>Active working docs for subs</td>
+    </tr>
+    <tr>
+        <td><code>Deploy/</code></td>
+        <td>Published site assets & deployment scripts</td>
+        <td><span class="highlight">Read DEPLOY_GIT.txt before editing.</span> Source folders: <code>deploy_live</code> (client site), <code>deploy_ovesubs</code> (subs site)</td>
+    </tr>
+    <tr>
+        <td><code>tools/</code></td>
+        <td>Utility scripts for content sync</td>
+        <td><code>sync_selections_to_ovesubs.mjs</code> syncs shared selections</td>
+    </tr>
+</table>
+
+<div class="section-rule">
+    <strong>Golden Rule:</strong> When editing site content, edit the <em>source</em> folder (<code>deploy_live</code> or <code>deploy_ovesubs</code>), not generated/review copies. Run the appropriate deploy script after changes.
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>🌐 Deploy Targets</h2>
+
+<table>
+    <tr><th>Target</th><th>Source Folder</th><th>Deploy Command</th><th>Purpose</th></tr>
+    <tr>
+        <td>Client Site</td>
+        <td><code>Deploy/deploy_live/</code></td>
+        <td><code>npm run deploy:live</code></td>
+        <td>Rodriguez client-facing site</td>
+    </tr>
+    <tr>
+        <td>Subs Site</td>
+        <td><code>Deploy/deploy_ovesubs/</code></td>
+        <td><code>npm run deploy:subs</code></td>
+        <td>Subcontractor portal (COI, docs, selections)</td>
+    </tr>
+    <tr>
+        <td>Both</td>
+        <td>—</td>
+        <td><code>npm run deploy</code></td>
+        <td>Deploy both sites</td>
+    </tr>
+    <tr>
+        <td>Selections Sync</td>
+        <td><code>tools/sync_selections_to_ovesubs.mjs</code></td>
+        <td><code>npm run sync:selections</code></td>
+        <td>Push shared selections to subs site</td>
+    </tr>
+</table>
+
+<div class="section-rule">
+    <strong>Shared JS Rule:</strong> If you change <code>Deploy/deploy_live/shared.js</code>, sync the corresponding copy in <code>deploy_ovesubs</code> afterward.
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>🛠️ Common Tasks</h2>
+
+<ol>
+    <li><strong>Locate project documents</strong> — Search <code>Construction/</code>, <code>Documents/</code>, <code>Trades/</code></li>
+    <li><strong>Summarize change orders / selections</strong> — Read relevant files, present clear bullet summary</li>
+    <li><strong>Prepare client or subcontractor updates</strong> — Package docs, create zip, verify contents</li>
+    <li><strong>Edit static site</strong> — Determine if change belongs in <code>deploy_live</code> or <code>deploy_ovesubs</code>, edit source, deploy</li>
+    <li><strong>COI / vendor doc upload</strong> — Use OVE subs upload tool (Supabase bucket <code>sub-docs</code>)</li>
+    <li><strong>Contract hand-off packages</strong> — Zip contract + plans + renderings, verify, deliver</li>
+</ol>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>📦 Hand-Off Workflow</h2>
+
+<p>A "hand-off" is a complete package of documents delivered to a subcontractor or client.</p>
+
+<h3>Standard Package Contents</h3>
+<ul>
+    <li>Contract / agreement document (DOCX/PDF)</li>
+    <li>Relevant plans (PDF/DWG)</li>
+    <li>Renderings or visual references (PNG/JPG)</li>
+    <li>Selections or specs (HTML/CSV/PDF)</li>
+    <li>Any required COI or license docs</li>
+</ul>
+
+<h3>Steps</h3>
+<ol>
+    <li>Gather all files from <code>Construction/</code>, <code>Documents/</code>, <code>Trades/</code></li>
+    <li>Verify completeness — read the contract, check plan count, confirm rendering coverage</li>
+    <li>Create zip with naming convention: <code>{Trade}_{PackageType}_Rodriguez.zip</code></li>
+    <li>Document contents in a summary text block (for email body)</li>
+    <li>Deliver via: email, OVE subs site upload, or shared drive</li>
+    <li><strong>Verify delivery</strong> — confirm receipt, check sent folder, confirm upload success</li>
+</ol>
+
+<div class="section-rule">
+    <strong>CRITICAL:</strong> Never report "sent" or "uploaded" without verification. If you cannot confirm delivery, say "I attempted but cannot verify delivery."
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>📋 Current Project Status</h2>
+
+<div class="status-grid">
+    <div class="status-item">
+        <div class="status-label">Cabinet Contract</div>
+        <div class="status-value"><span class="badge badge-warn">In Progress</span></div>
+        <div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">
+            Package created 4/22: DeezCabnuts contract + 4 plans + 18 renderings. Needs delivery confirmation.
+        </div>
+    </div>
+    <div class="status-item">
+        <div class="status-label">Site Deploy</div>
+        <div class="status-value"><span class="badge badge-ok">Current</span></div>
+        <div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">
+            Last deploy 4/19. Source folders: <code>deploy_live</code>, <code>deploy_ovesubs</code>.
+        </div>
+    </div>
+    <div class="status-item">
+        <div class="status-label">OVE Subs Docs</div>
+        <div class="status-value"><span class="badge badge-ok">Functional</span></div>
+        <div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">
+            COI upload tool active. Supabase bucket: <code>sub-docs</code>. Vendor names must match Google Sheet exactly.
+        </div>
+    </div>
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>🔑 Key Information</h2>
+
+<div class="card">
+    <h3>OVE Subs — COI Upload</h3>
+    <ul>
+        <li><strong>Tool:</strong> <code>upload_sub_doc(vendor, doc_type, file_path)</code></li>
+        <li><strong>Supabase:</strong> <code>https://mcvkkohtvywwvtndpuvw.supabase.co</code></li>
+        <li><strong>Bucket:</strong> <code>sub-docs</code></li>
+        <li><strong>Storage path:</strong> <code>{vendor}/{doc_type}.pdf</code></li>
+        <li><strong>Doc types:</strong> <code>liability</code> (COI), <code>license</code>, <code>workmans_comp</code>, <code>contract</code>, <code>addendum</code>, <code>invoice</code></li>
+        <li><strong>Critical:</strong> Vendor name must match Google Sheet exactly — <strong>"Frie"</strong> not "Frei"</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h3>Deploy Folder — Key Files</h3>
+    <ul>
+        <li><code>Deploy/DEPLOY_GIT.txt</code> — Deployment instructions & git workflow</li>
+        <li><code>Deploy/DEPLOY_SOURCE.txt</code> — Source folder mapping</li>
+        <li><code>Deploy/deploy-all.ps1</code> — Full deployment script</li>
+        <li><code>Deploy/deploy_oak_valley.ps1</code> — Client site deploy</li>
+        <li><code>Deploy/deploy_ovesubs.ps1</code> — Subs site deploy</li>
+        <li><code>Deploy/sync_ove_shared_from_live.ps1</code> — Sync shared assets</li>
+    </ul>
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>🚫 Hard Rules</h2>
+
+<div class="section-rule">
+    <strong>Read before editing.</strong> Always read DEPLOY_GIT.txt and the target file before making changes to Deploy/.
+</div>
+<div class="section-rule">
+    <strong>Narrow edits.</strong> Keep changes reversible. Prefer exact edits over wholesale rewrites.
+</div>
+<div class="section-rule">
+    <strong>No casual renames.</strong> Don't move or rename project files unless Craig explicitly asks.
+</div>
+<div class="section-rule">
+    <strong>Verify before reporting.</strong> Never say "done" or "sent" without proof. Screenshots, confirmations, or file checks required.
+</div>
+<div class="section-rule">
+    <strong>Source of truth only.</strong> Edit <code>deploy_live</code> and <code>deploy_ovesubs</code> — not generated copies.
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>📌 Recent Work Log</h2>
+
+<table>
+    <tr><th>Date</th><th>Work</th><th>Status</th></tr>
+    <tr>
+        <td>2026-04-22</td>
+        <td>Created DeezCabnuts cabinet contract package (contract + 4 plans + 18 renderings)</td>
+        <td><span class="badge badge-warn">Needs delivery</span></td>
+    </tr>
+    <tr>
+        <td>2026-04-19</td>
+        <td>Site deploy scripts updated; DEPLOY_GIT.txt refreshed</td>
+        <td><span class="badge badge-ok">Complete</span></td>
+    </tr>
+    <tr>
+        <td>2026-04-18</td>
+        <td>Project structure cleanup; AGENTS.md created</td>
+        <td><span class="badge badge-ok">Complete</span></td>
+    </tr>
+</table>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>🎯 Next / In Progress</h2>
+
+<ul>
+    <li>[ ] Deliver cabinet contract package to DeezCabnuts</li>
+    <li>[ ] Verify OVE subs site has all current COI docs</li>
+    <li>[ ] Review any pending change orders or selections</li>
+    <li>[ ] Sync shared selections to subs site if client selections updated</li>
+</ul>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>🆘 Emergency Contacts & Escalation</h2>
+
+<div class="card">
+    <p><strong>If stuck on a task:</strong></p>
+    <ol>
+        <li>Read the relevant file(s) mentioned above</li>
+        <li>Check <code>Admin/Rodriguez_Agent.md</code> for project-specific guidance</li>
+        <li>Check <code>Deploy/DEPLOY_GIT.txt</code> for deploy questions</li>
+        <li>Ask Craig — don't guess on project-critical decisions</li>
+    </ol>
+</div>
+
+<hr style="border-color: var(--border); margin: 2rem 0;">
+<p style="color: var(--muted); font-size: 0.85rem;">
+    Last updated: 2026-04-23 · Document: <code>Oak-Valley-Estates/PROJECT_CONTEXT.html</code><br>
+    Rule: <strong>Read this first.</strong> Update this doc when project status changes.
+</p>
+
+</body>
+</html>

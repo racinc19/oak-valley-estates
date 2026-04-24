@@ -1,8 +1,9 @@
 // shared.js — Rodriguez Residence Tracker — 100% LIVE from Google Sheet
 // NO hardcoded data. Everything pulled from published sheet on every page load.
 
-// Site-wide PIN: schedule Admin (🔒 Admin) + owner approval on Selections. Change only here.
-const SITE_ACCESS_PIN='1234';
+// Site PIN stored as SHA-256 hash only — plaintext never in source. Change hash here to change PIN.
+const SITE_ACCESS_PIN_HASH='03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
+async function checkSitePin(entered){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(entered));const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');return hex===SITE_ACCESS_PIN_HASH;}
 
 const BUDGET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQew4OQL4AsLo127rU7ZX8KC6Ur4BklOWahgzWE99HsNQzrEq2Re0cqFpDIofBkW39nXzTvx0cX5Los/pub?output=csv';
 const SCHEDULE_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQew4OQL4AsLo127rU7ZX8KC6Ur4BklOWahgzWE99HsNQzrEq2Re0cqFpDIofBkW39nXzTvx0cX5Los/pub?gid=1440569226&single=true&output=csv';

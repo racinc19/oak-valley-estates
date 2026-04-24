@@ -202,9 +202,8 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
   </div>
 </div>
 
-<script src="shared.js?v1772133761"></script>
+<script src="shared.js?v20260424a"></script>
 <script>
-const ADMIN_PIN=SITE_ACCESS_PIN;
 const ADMIN_KEY='rac_admin';
 let isAdmin=sessionStorage.getItem(ADMIN_KEY)==='1';
 let pending={};
@@ -216,9 +215,9 @@ function openPin(){document.getElementById('pinModal').classList.remove('hidden'
 function closePin(){document.getElementById('pinModal').classList.add('hidden');[0,1,2,3].forEach(i=>document.getElementById('pd'+i).value='');document.getElementById('pinOk').disabled=true;document.getElementById('pinErr').textContent=''}
 function pIn(i){const e=document.getElementById('pd'+i);e.value=e.value.replace(/\D/g,'');if(e.value&&i<3)document.getElementById('pd'+(i+1)).focus();document.getElementById('pinOk').disabled=[0,1,2,3].map(j=>document.getElementById('pd'+j).value).join('').length!==4;document.getElementById('pinErr').textContent=''}
 function pKey(e,i){if(e.key==='Backspace'&&!document.getElementById('pd'+i).value&&i>0)document.getElementById('pd'+(i-1)).focus();if(e.key==='Enter')checkPin()}
-function checkPin(){
+async function checkPin(){
   const p=[0,1,2,3].map(i=>document.getElementById('pd'+i).value).join('');
-  if(p===ADMIN_PIN){isAdmin=true;sessionStorage.setItem(ADMIN_KEY,'1');closePin();applyAdmin()}
+  if(await checkSitePin(p)){isAdmin=true;sessionStorage.setItem(ADMIN_KEY,'1');closePin();applyAdmin()}
   else{document.getElementById('pinErr').textContent='Incorrect PIN';[0,1,2,3].forEach(i=>document.getElementById('pd'+i).value='');document.getElementById('pd0').focus();document.getElementById('pinOk').disabled=true}
 }
 function applyAdmin(){
@@ -350,7 +349,29 @@ function render(tasks){
   renderHero(tasks);
 
   for(const t of filtered){
-    if(!t.startDate)continue;
+    if(!t.startDate){
+      if(t._fromSubs && t.vendor){
+        const row=document.createElement('div');
+        row.className='g-row';
+        const lbl=document.createElement('div');
+        lbl.className='g-lbl';
+        lbl.style.minHeight='44px';
+        lbl.innerHTML=`<div class="g-name">${t.name}</div><div class="g-sub"><a href="sub.html?v=${encodeURIComponent(t.vendor)}" style="color:var(--cyan);text-decoration:none;font-size:10px;font-weight:600" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">↗ ${t.vendor}</a></div>`;
+        const tl=document.createElement('div');
+        tl.className='g-tl';
+        tl.style.minHeight='44px';
+        tl.style.display='flex';
+        tl.style.alignItems='center';
+        const note=document.createElement('div');
+        note.style.cssText='font-size:11px;color:var(--dim);padding:0 8px';
+        note.textContent='On Subs register — set start/finish in the Schedule tab to show a timeline bar';
+        tl.appendChild(note);
+        row.appendChild(lbl);
+        row.appendChild(tl);
+        gi.appendChild(row);
+      }
+      continue;
+    }
     const s=t.startDate,e=t.endDate||s;
     const prog=pending[t.nameNorm]!==undefined?pending[t.nameNorm]:t.progress;
     const overdue=!t.isPhase&&e<today&&prog<100;

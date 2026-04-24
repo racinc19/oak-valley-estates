@@ -29,6 +29,13 @@ guardian-gaii-pages/
 # Temp extract from guardian deploy zip (remove when done)
 _guardian_deploy_23_extract/
 
+# Binary files
+*.pdf
+*.PDF
+*.Pdf
+*.rvt
+*.RVT
+
 # Logs
 *.log
 npm-debug.log*

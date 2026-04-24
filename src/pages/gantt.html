@@ -1,0 +1,281 @@
+<!DOCTYPE html><!-- build:20260218183456 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rodriguez Residence — Gantt Chart</title>
+<style>
+/* @include _styles.css */
+.container{max-width:1600px;margin:0 auto;padding:20px}
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px}
+.spinner{width:48px;height:48px;border:4px solid var(--bdr);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading .msg{color:var(--txt2);font-size:14px}
+#error{display:none;text-align:center;padding:80px 20px;color:var(--red)}
+#app{display:none}
+.btn{padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;border:none;cursor:pointer;color:white}
+.btn-blue{background:var(--blue)}
+
+.sbox{background:var(--card);border-radius:12px;border:1px solid var(--bdr)}
+.shdr{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--bdr);flex-wrap:wrap;gap:8px}
+.shdr h2{font-size:18px;font-weight:700}
+.shdr .meta{font-size:12px;color:var(--dim)}
+
+.hero{background:var(--card);border-radius:12px;border:1px solid var(--bdr);padding:16px 20px;margin-bottom:16px}
+.hero-hdr{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.hero-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:700}
+.hero-meta{font-size:12px;color:var(--dim)}
+.hero-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.hero-item{background:rgba(10,16,28,.35);border:1px solid rgba(42,58,85,.6);border-radius:10px;padding:12px 12px 10px}
+.hero-item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.hero-name{font-size:14px;font-weight:800;color:#fff;line-height:1.2}
+.hero-vendor{font-size:11px;color:var(--dim);margin-top:2px}
+.hero-pct{font-size:14px;font-weight:800}
+.hero-pct.on{color:var(--green)}
+.hero-pct.act{color:var(--orange)}
+.hero-pct.off{color:var(--red)}
+.hero-bar{height:8px;background:var(--bg);border-radius:6px;overflow:hidden;border:1px solid rgba(42,58,85,.7);margin-top:10px}
+.hero-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.hero-fill.on{background:linear-gradient(90deg,var(--green),#16a34a)}
+.hero-fill.act{background:linear-gradient(90deg,var(--orange),#d97706)}
+.hero-fill.off{background:linear-gradient(90deg,var(--red),#b91c1c)}
+.hero-sub{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;color:var(--dim)}
+.hero-badge{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid var(--bdr)}
+.hero-badge.on{color:var(--green);border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.10)}
+.hero-badge.act{color:var(--orange);border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.10)}
+.hero-badge.off{color:var(--red);border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.10)}
+
+/* Gantt */
+.gantt-hdr-wrap{position:sticky;top:56px;z-index:10;background:var(--card);overflow:hidden}
+.gantt-hdr{display:flex;border-bottom:2px solid var(--bdr);min-width:1200px}
+.gantt-body-wrap{overflow-x:auto;padding:0 0 20px}
+.gantt-body-inner{min-width:1200px;position:relative}
+.gantt-label-col{width:280px;min-width:280px;padding:8px 12px;font-size:11px;color:var(--dim);text-transform:uppercase;border-right:1px solid var(--bdr)}
+.gantt-timeline{flex:1;display:flex}
+.gantt-month{flex:1;text-align:center;font-size:11px;color:var(--dim);padding:8px 0;border-right:1px solid var(--bdr)}
+.gantt-row{display:flex;border-bottom:1px solid rgba(42,58,85,.3);transition:background .15s}
+.gantt-row:hover{background:var(--hover)}
+.gantt-row.phase{background:rgba(59,130,246,.04)}
+.gantt-row .label{width:280px;min-width:280px;padding:8px 12px;font-size:13px;border-right:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center}
+.gantt-row.phase .label{font-weight:700;color:var(--blue);font-size:14px}
+.gantt-row .label .vendor{color:var(--dim);font-size:11px;margin-left:8px}
+.gantt-row .label .amt{color:var(--blue);font-size:12px;font-weight:600;margin-left:auto}
+.gantt-row .timeline{flex:1;position:relative;height:32px}
+.gantt-bar{position:absolute;top:8px;height:16px;border-radius:4px;background:var(--bdr2);min-width:4px;transition:all .3s}
+.gantt-bar.phase-bar{background:rgba(59,130,246,.25);height:12px;top:10px;border-radius:3px}
+.gantt-bar.active{background:var(--orange)}
+.gantt-bar.done{background:var(--green)}
+.gantt-delay{position:absolute;top:8px;height:16px;border-radius:4px;background:rgba(239,68,68,.18);border:1px dashed rgba(239,68,68,.75);min-width:4px}
+.gantt-delay.phase-bar{height:12px;top:10px;border-radius:3px}
+.gantt-delay-label{position:absolute;top:-14px;font-size:10px;font-weight:800;color:var(--red);white-space:nowrap}
+.gantt-body{padding-top:56px;position:relative}
+.today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:4;pointer-events:none}
+.today-label{position:absolute;top:-20px;left:-16px;font-size:10px;color:var(--red);font-weight:700;white-space:nowrap}
+</style>
+</head>
+<body>
+<!-- @include _nav.html(active="gantt.html",refresh="doRefresh") -->
+
+<div id="loading"><div class="spinner"></div><div class="msg">Loading Gantt chart…</div></div>
+<div id="error"><h2>⚠ Failed to load data</h2><div class="detail" id="errorDetail"></div><br><button class="btn btn-blue" onclick="doRefresh()">Retry</button></div>
+
+<div id="app" class="container">
+  <div id="ganttContainer"></div>
+</div>
+
+<script src="shared.js?v20260416_ganttDone1"></script>
+<script>
+function esc(s){
+  return String(s??'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function renderOnSiteHero(tasks){
+  const today=new Date();today.setHours(0,0,0,0);
+  const nonPhase=(tasks||[]).filter(t=>t&&!t.isPhase&&t.startDate);
+  const effectiveEnd=t=>{
+    if(!t.endDate)return null;
+    const dly=Math.max(0,parseInt(t.delay)||0);
+    return new Date(t.endDate.getTime()+dly*864e5);
+  };
+  const pctVal=t=>{
+    const raw=Number(t.progress);
+    const base=isFinite(raw)?Math.max(0,Math.min(100,raw)):0;
+    const ee=effectiveEnd(t);
+    // If we're past end+delay, treat as complete (schedule says it should be complete by then)
+    if(ee&&today>ee)return 100;
+    return base;
+  };
+  // On-site window: started and not complete, and today is before end+delay (or no end date)
+  const onSite=nonPhase.filter(t=>{
+    if(!(t.startDate<=today))return false;
+    if(pctVal(t)>=100)return false;
+    const ee=effectiveEnd(t);
+    if(!ee)return true;
+    return today<=ee;
+  });
+  onSite.sort((a,b)=>{
+    const aE=effectiveEnd(a);
+    const bE=effectiveEnd(b);
+    const aOff=(a.endDate&&a.endDate<today)?1:0;
+    const bOff=(b.endDate&&b.endDate<today)?1:0;
+    if(aOff!==bOff)return bOff-aOff;
+    return ((aE||a.endDate||a.startDate).getTime())-((bE||b.endDate||b.startDate).getTime());
+  });
+  const upcoming=nonPhase.filter(t=>t.startDate>today).sort((a,b)=>a.startDate-b.startDate);
+  const completed=nonPhase
+    .filter(t=>pctVal(t)>=100)
+    .sort((a,b)=>(b.endDate||b.startDate).getTime()-(a.endDate||a.startDate).getTime());
+
+  const mode=onSite.length?'onSite':(completed.length?'completed':(upcoming.length?'upcoming':'empty'));
+  const list=mode==='onSite'
+    ?onSite
+    :mode==='completed'
+      ?completed.slice(0,3)
+      :mode==='upcoming'
+        ?upcoming.slice(0,3)
+        :[];
+
+  const title=mode==='onSite'?'On Site Trades':mode==='completed'?'Recently Completed':'Next Up';
+  const meta=mode==='onSite'
+    ?(''+onSite.length+' active')
+    :mode==='completed'
+      ?(''+Math.min(3,completed.length)+' shown')
+      :(list.length?'No active trades — showing next scheduled':'No schedule data');
+
+  const upcomingList=upcoming.slice(0,3);
+
+  let items='';
+  for(const t of list){
+    const p=Math.round(pctVal(t));
+    const ee=effectiveEnd(t);
+    const isDone=p>=100;
+    const active=t.startDate<=today&&(ee?today<=ee:(t.endDate?t.endDate>=today:true));
+    const overdue=!!(ee&&today>ee&&p<100);
+    const cls=isDone?'on':(overdue?'off':'on');
+    const badge=isDone?'Completed':(overdue?'Overdue':'On Site');
+    const hasDelay=Math.max(0,parseInt(t.delay)||0)>0;
+    const dateStr=isDone
+      ?('Finished '+fmtDate(t.endDate||t.startDate))
+      :(overdue&&ee
+        ?('Overdue since '+fmtDate(ee))
+        :(hasDelay&&t.endDate&&ee&&today>t.endDate
+          ?('Extended to '+fmtDate(ee))
+          :(t.endDate?('Due '+fmtDate(ee||t.endDate)):'Starts '+fmtDate(t.startDate))));
+    items+=
+      '<div class="hero-item">'
+      +'<div class="hero-item-top">'
+        +'<div>'
+          +'<div class="hero-name">'+esc(t.name||'')+'</div>'
+          +'<div class="hero-vendor">'+esc(t.vendor||'')+'</div>'
+        +'</div>'
+        +'<div class="hero-pct '+cls+'">'+p+'%</div>'
+      +'</div>'
+      +'<div class="hero-bar"><div class="hero-fill '+cls+'" style="width:'+p+'%"></div></div>'
+      +'<div class="hero-sub"><span>'+dateStr+'</span><span class="hero-badge '+cls+'">'+badge+'</span></div>'
+      +'</div>';
+  }
+  if(!items)items='<div style="color:var(--dim);font-size:13px;padding:6px 2px">No schedule tasks found.</div>';
+
+  let upNextHtml='';
+  if(upcomingList.length){
+    let upItems='';
+    for(const t of upcomingList){
+      const p=Math.round(pctVal(t));
+      upItems+=
+        '<div class="hero-item">'
+        +'<div class="hero-item-top">'
+          +'<div>'
+            +'<div class="hero-name">'+esc(t.name||'')+'</div>'
+            +'<div class="hero-vendor">'+esc(t.vendor||'')+'</div>'
+          +'</div>'
+          +'<div class="hero-pct on">'+p+'%</div>'
+        +'</div>'
+        +'<div class="hero-bar"><div class="hero-fill on" style="width:'+p+'%"></div></div>'
+        +'<div class="hero-sub"><span>Starts '+fmtDate(t.startDate)+'</span><span class="hero-badge on">Up Next</span></div>'
+        +'</div>';
+    }
+    upNextHtml='<div class="hero"><div class="hero-hdr"><div class="hero-title">Up Next</div><div class="hero-meta">'+upcomingList.length+' scheduled</div></div><div class="hero-list">'+upItems+'</div></div>';
+  }
+
+  return '<div class="hero"><div class="hero-hdr"><div class="hero-title">'+title+'</div><div class="hero-meta">'+meta+'</div></div><div class="hero-list">'+items+'</div></div>'+upNextHtml;
+}
+
+function renderGantt(data){
+  const el=document.getElementById('ganttContainer');
+  const today=new Date();
+  const tasks=data.scheduleTasks||[];
+  if(!tasks.length){el.innerHTML='<div style="padding:40px;color:var(--txt2)">No schedule data found.</div>';return}
+
+  let gMin=Infinity,gMax=-Infinity;
+  for(const t of tasks){
+    if(t.startDate)gMin=Math.min(gMin,t.startDate.getTime());
+    if(t.endDate)gMax=Math.max(gMax,t.endDate.getTime());
+  }
+  if(!isFinite(gMin)){gMin=P_START.getTime();gMax=P_END.getTime()}
+  const gStart=new Date(new Date(gMin).getFullYear(),new Date(gMin).getMonth(),1);
+  const gEndRaw=new Date(gMax);
+  const gEnd=new Date(gEndRaw.getFullYear(),gEndRaw.getMonth()+1,0);
+  const gDays=Math.max(1,daysBetween(gStart,gEnd));
+  const todayPct=Math.min(100,Math.max(0,daysBetween(gStart,today)/gDays*100));
+  const gMonths=[];
+  {let d=new Date(gStart);while(d<=gEnd){gMonths.push(new Date(d));d=new Date(d.getFullYear(),d.getMonth()+1,1)}}
+
+  let mh='';for(const m of gMonths)mh+=`<div class="gantt-month">${fmtMoShort(m)}</div>`;
+  let rows='';
+  for(const t of tasks){
+    if(!t.startDate)continue;
+    const isPhase=t.isPhase;
+    const s=t.startDate,e=t.endDate;
+    const left=Math.max(0,Math.min(daysBetween(gStart,s),e?daysBetween(gStart,e):daysBetween(gStart,s))/gDays*100);
+    const right=Math.max(0,Math.max(daysBetween(gStart,s),e?daysBetween(gStart,e):daysBetween(gStart,s))/gDays*100);
+    const iL=left;
+    const iW=Math.max(.4,right-left);
+    const dly=Math.max(0,parseInt(t.delay)||0);
+    const effEnd=(e&&dly>0)?new Date(e.getTime()+dly*864e5):e;
+    const autoDone=!!(effEnd&&today>effEnd);
+    const st=(t.progress>=100||autoDone)?'done':t.progress>0?'active':'';
+    const hasDelay=!!(dly>0&&e);
+    const dL=hasDelay?Math.max(0,Math.min(100,daysBetween(gStart,e)/gDays*100)):0;
+    const dR=hasDelay?Math.max(0,Math.min(100,daysBetween(gStart,new Date(e.getTime()+dly*864e5))/gDays*100)):0;
+    const dW=hasDelay?Math.max(.4,dR-dL):0;
+    const vendorStr=t.vendor?`<span class="vendor">${t.vendor}</span>`:'';
+    if(isPhase){
+      rows+=`<div class="gantt-row phase"><div class="label">${PHASE_SPELL_FIX[t.nameNorm]||t.name}<span class="amt">${t.duration}d</span></div><div class="timeline"><div class="gantt-bar phase-bar ${st}" style="left:${iL}%;width:${iW}%"></div>${hasDelay?`<div class="gantt-delay phase-bar" style="left:${dL}%;width:${dW}%"><div class="gantt-delay-label">+${dly}d</div></div>`:''}</div></div>`;
+    }else{
+      rows+=`<div class="gantt-row"><div class="label">${t.name}${vendorStr}</div><div class="timeline"><div class="gantt-bar ${st}" style="left:${iL}%;width:${iW}%"></div>${hasDelay?`<div class="gantt-delay" style="left:${dL}%;width:${dW}%"><div class="gantt-delay-label">+${dly}d</div></div>`:''}</div></div>`;
+    }
+  }
+  const rangeLabel=fmtMoShort(gStart)+' — '+fmtMoShort(gEnd)+' · '+gDays+' days';
+  const heroHtml=renderOnSiteHero(tasks);
+  el.innerHTML=heroHtml+`<div class="sbox"><div class="shdr"><h2>📊 Gantt Chart</h2><div class="meta">${rangeLabel}</div></div>
+    <div class="gantt-hdr-wrap"><div class="gantt-hdr"><div class="gantt-label-col">Task</div><div class="gantt-timeline">${mh}</div></div></div>
+    <div class="gantt-body-wrap"><div class="gantt-body-inner">
+      <div class="gantt-body">${rows}
+        <div class="today-line" style="left:calc(280px + (100% - 280px) * ${todayPct} / 100)"><div class="today-label">▼ Today</div></div>
+      </div></div></div></div>`;
+  // sync horizontal scroll between body and frozen header
+  const bw=el.querySelector('.gantt-body-wrap');
+  const hw=el.querySelector('.gantt-hdr-wrap');
+  if(bw&&hw){bw.addEventListener('scroll',()=>{hw.scrollLeft=bw.scrollLeft})}
+}
+
+async function doRefresh(){
+  document.getElementById('loading').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('error').style.display='none';
+  try{await init()}catch(e){document.getElementById('loading').style.display='none';document.getElementById('error').style.display='block';document.getElementById('errorDetail').textContent=e.message}
+}
+async function init(){
+  try{
+    const{main}=await loadProjectData();
+    renderGantt(main);
+    document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block'
+  }catch(e){document.getElementById('loading').style.display='none';document.getElementById('error').style.display='block';document.getElementById('errorDetail').textContent=e.message}
+}
+init()
+</script>
+</body>
+</html>

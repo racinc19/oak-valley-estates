@@ -1,0 +1,11 @@
+{
+  "name": "oak-valley-estates",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Rodriguez Residence construction project tracker",
+  "scripts": {
+    "build": "node build.js",
+    "deploy:subs": "powershell -File Deploy/deploy_ovesubs.ps1",
+    "sync:selections": "node sync_selections.ps1"
+  }
+}

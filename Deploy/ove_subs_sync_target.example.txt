@@ -1,0 +1,7 @@
+# One non-comment line: local path to your clone of https://github.com/racinc19/ovesubs
+# (Absolute path, or relative to the Oak-Valley-Estates repo root.)
+# Usually leave this file *empty* and put the clone as a SIBLING folder named "ovesubs" — then no config is needed.
+#
+# Examples:
+# ..\ovesubs
+# C:\Users\you\code\ovesubs

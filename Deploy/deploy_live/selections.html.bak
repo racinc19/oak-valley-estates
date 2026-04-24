@@ -220,7 +220,8 @@ select.st-received{border-color:var(--purple);color:var(--purple)}.select.st-ins
 
 const SCRIPT_URL='https://ove-proxy.racinc19.workers.dev';
 const SEL_KEY='rodriguez_sel_v9';
-const OWNER_PIN='1234';
+const OWNER_PIN_HASH='03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
+async function checkSitePin(e){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(e));const h=Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');return h===OWNER_PIN_HASH;}
 let _pinTarget=null,_pinType=null;
 const STATUS_ORDER=['not_started','researching','selected','ordered','received','installed'];
 const STATUS_LABELS={not_started:'Not Started',researching:'Researching',selected:'Selected',ordered:'Ordered',received:'Received',installed:'Installed'};
@@ -240,9 +241,9 @@ function requestApproval(type, id){
   document.getElementById('modalPin').classList.add('open');
   setTimeout(()=>document.getElementById('pinInput').focus(),100);
 }
-function submitPin(){
+async function submitPin(){
   const entered=document.getElementById('pinInput').value;
-  if(entered!==OWNER_PIN){
+  if(!(await checkSitePin(entered))){
     document.getElementById('pinError').textContent='Incorrect PIN. Try again.';
     document.getElementById('pinInput').value='';
     return;

@@ -12,7 +12,7 @@ export default {
     }
     const url = new URL(req.url);
     const target = OVE_PROXY + url.pathname + url.search;
-    const opts = { method: req.method, headers: req.headers };
+    const opts = { method: req.method, headers: req.headers, redirect: 'follow' };
     if (req.method === 'POST' && req.body) {
       opts.body = req.body;
     }

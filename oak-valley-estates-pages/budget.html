@@ -8,8 +8,19 @@
 :root{--bg:#0c1220;--card:#141e30;--card2:#1a2640;--hover:#1e2d4a;--bdr:#2a3a55;--bdr2:#354766;--txt:#e8edf5;--txt2:#8899b0;--dim:#5a6d85;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#8b5cf6}
 *{margin:0;padding:0;box-sizing:border-box}
 body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.5}
-.container{max-width:100%;margin:0 auto;padding:20px 28px}
 .topnav-brand .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.topnav{position:fixed;top:0;left:0;width:100vw;z-index:50;background:var(--card);border-bottom:1px solid var(--bdr);padding:0 20px}
+.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px;position:relative}
+.topnav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700;font-size:16px;white-space:nowrap}
+.topnav-links{display:flex;gap:4px;align-items:center;overflow-x:auto;position:absolute;left:50%;transform:translateX(-50%)}
+.topnav-links a{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;color:var(--txt2);text-decoration:none;transition:all .2s;white-space:nowrap}
+.topnav-links a:hover{color:var(--txt);background:var(--hover)}
+.topnav-links a.active{color:white;background:var(--blue)}
+.topnav-refresh{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--bdr);background:none;color:var(--txt2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.topnav-refresh:hover{border-color:var(--blue);color:var(--txt)}
+html{overflow-y:scroll}body{overflow-x:hidden}
+.container{max-width:100%;margin:0 auto;padding:20px 28px}
 #loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px}
 .spinner{width:48px;height:48px;border:4px solid var(--bdr);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -18,7 +29,6 @@ body{padding-top:56px;font-family:'SF Pro Display',-apple-system,BlinkMacSystemF
 #error h2{margin-bottom:8px}
 #app{display:none}
 .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite;margin-right:6px}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .updated{font-size:11px;color:var(--dim)}
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
 .sum-card{background:var(--card);border-radius:10px;padding:16px;border:1px solid var(--bdr)}
@@ -91,16 +101,6 @@ tr.co-total td{background:rgba(139,92,246,.08);border-top:1px solid var(--purple
 .co-act{background:none;border:none;cursor:pointer;font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px}
 .co-act-edit{color:var(--blue)}.co-act-edit:hover{background:rgba(59,130,246,.1)}
 .co-act-del{color:var(--red)}.co-act-del:hover{background:rgba(239,68,68,.1)}
-.topnav{position:fixed;top:0;left:0;width:100vw;z-index:50;background:var(--card);border-bottom:1px solid var(--bdr);padding:0 20px}
-.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px;position:relative}
-.topnav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700;font-size:16px;white-space:nowrap}
-.topnav-links{display:flex;gap:4px;align-items:center;overflow-x:auto;position:absolute;left:50%;transform:translateX(-50%)}
-.topnav-links a{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;color:var(--txt2);text-decoration:none;transition:all .2s;white-space:nowrap}
-.topnav-links a:hover{color:var(--txt);background:var(--hover)}
-.topnav-links a.active{color:white;background:var(--blue)}
-.topnav-refresh{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--bdr);background:none;color:var(--txt2);cursor:pointer;transition:all .2s;white-space:nowrap}
-.topnav-refresh:hover{border-color:var(--blue);color:var(--txt)}
-html{overflow-y:scroll}body{overflow-x:hidden}
 </style>
 </head>
 <body>
@@ -109,16 +109,15 @@ html{overflow-y:scroll}body{overflow-x:hidden}
   <div class="topnav-links">
     <a href="index.html">Dashboard</a>
     <a href="log.html">Daily Log</a>
-    
     <a href="selections.html">Selections</a>
-    <a href="accounting.html">Accounting</a>
-    <a href="accounting.html#co">Change Orders</a>
+    <a href="accounting.html" id="navAccounting">Accounting</a>
+    <a href="accounting.html#co" id="navCO">Change Orders</a>
     <a href="gantt.html">Gantt</a>
     <a href="draws.html">Draws</a>
-    <a href="budget.html" class="active">Budget</a>
+    <a href="budget.html" class="active">Budget &amp; Schedule</a>
     <a href="https://drive.google.com/drive/u/0/folders/1kS-2awScLDAnGS973xD0D28RxynI49Si" target="_blank" style="color:var(--cyan)">📁 Drive</a>
   </div>
-  <button class="topnav-refresh" onclick="doRefresh()">↻ Refresh</button>
+  <button class="topnav-refresh" onclick="doRefresh()">&#8635; Refresh</button>
 </div></nav>
 <div id="loading"><div class="spinner"></div><div class="msg">Loading live data…</div></div>
 <div id="error"><h2>⚠ Failed to load data</h2><div class="detail" id="errorDetail"></div><button style="background:var(--blue);padding:8px 18px;border-radius:8px;font-weight:500;font-size:13px;border:none;cursor:pointer;color:white;margin-top:16px" onclick="doRefresh()">Retry</button></div>

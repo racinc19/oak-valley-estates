@@ -1,0 +1,29 @@
+Level,Mark,Count,Rough Width,Default Header Stock,Pieces,Status,Notes
+Main,100,9,3'-2",double 2x10x6,18,Include,
+Main,101,3,3'-2",double 2x10x6,6,Include,
+Main,101-E,1,3'-2",double 2x10x6,2,Include,
+Main,102,1,2'-8",double 2x10x6,2,Include,
+Main,103 pocket,5,6'-3",double 2x10x10,10,Include,
+Main,104,1,3'-2",double 2x10x6,2,Include,
+Main,105 double closet,1,6'-3",double 2x10x10,2,Include,
+Main,106 Urban Iron,1,6'-3",double 2x10x10,2,Verify,May be steel/special opening
+Main,107 garage,4,varies / 9x20 model,structural/LVL/steel,,Excluded,Do not order as dimensional lumber until structural opening is verified
+Main,108,1,3'-2",double 2x10x6,2,Include,
+Main,109,1,3'-2",double 2x10x6,2,Include,
+Main,110,1,3'-2",double 2x10x6,2,Include,
+Main,111,1,3'-2",double 2x10x6,2,Include,
+Main,W1,8,6'-0",double 2x10x10,16,Include,
+Main,W2,1,6'-0",double 2x10x10,2,Include,
+Basement,302,3,2'-8",double 2x10x6,6,Include,
+Basement,307 Vault,1,not listed,double 2x10x6,2,Verify,
+Level 12,200,1,3'-2",double 2x10x6,2,Include,
+Level 12,202,3,2'-8",double 2x10x6,6,Include,
+Level 12,203 pocket,3,model 3x8,double 2x10x6,6,Verify,Rough width not cleanly listed in schedule text
+Level 12,204 opening,2,2'-6",double 2x10x6,4,Include,
+Level 12,303,1,3'-2",double 2x10x6,2,Include,
+Level 12,304,1,3'-2",double 2x10x6,2,Include,
+Level 10,W3,1,6'-0",double 2x10x10,2,Include,
+Level 12,W4,1,6'-0",double 2x10x10,2,Include,
+Level 12,W13,1,3'-0 1/2",double 2x10x6,2,Include,
+TOTAL,2x10x6,,,,70,Order,
+TOTAL,2x10x10,,,,36,Order,Includes 2-piece verification allowance for Urban Iron 106

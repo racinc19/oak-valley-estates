@@ -1,0 +1,69 @@
+Category,Type,Manufacturer,Model/Note,Mark,Wattage,Level,Count,Status
+Equipment,Disconnect,HVAC,Disconnect,,,Project,13,Clean
+Equipment,Media Center,Leviton,28 inch Media Center,,,Project,1,Clean
+Equipment,Load Center,Leviton,Load Center with Smart Breakers,,,Project,2,Clean
+Equipment,Smoke Detector,Smoke Detector,,,,Project,9,Clean
+Main Devices,Touch Screen,Axion,8 inch Android PoE Touch Screen,,,Main,10,Clean
+Main Devices,Communication,Communication,LeGrande 9 and 120 duplex,,,Main,7,Clean
+Main Devices,Outlet,Outlet,Floor,,,Main,5,Clean
+Main Devices,Outlet,Outlet,Range,,,Main,3,Clean
+Main Devices,Outlet,Outlet,Stack,,,Main,1,Clean
+Main Devices,Outlet,Outlet,Water Proof,,,Main,9,Clean
+Main Devices,Outlet Duplex,Outlet Duplex,Microwave,,,Main,1,Clean
+Main Devices,Outlet Duplex,Outlet Duplex,Wall,,,Main,32,Clean
+Main Devices,Outlet GFCI,Outlet GFCI,Countertop,,,Main,14,Clean
+Main Devices,Outlet GFCI,Outlet GFCI,Island,,,Main,4,Clean
+Main Devices,LAN,RAC,LAN1,,,Main,14,Clean
+UpperLower Devices,Touch Screen,Axion,8 inch Android PoE Touch Screen,,,Basement,3,Clean
+UpperLower Devices,Communication,Communication,LeGrande 9 and 120 duplex,,,Basement,1,Clean
+UpperLower Devices,Outlet,Outlet,Ceiling,,,Basement,3,Clean
+UpperLower Devices,Outlet Duplex,Outlet Duplex,Wall,,,Basement,10,Clean
+UpperLower Devices,Outlet GFCI,Outlet GFCI,Countertop,,,Basement,3,Clean
+UpperLower Devices,Touch Screen,Axion,8 inch Android PoE Touch Screen,,,Level 12,4,Clean
+UpperLower Devices,Communication,Communication,LeGrande 9 and 120 duplex,,,Level 12,1,Clean
+UpperLower Devices,Outlet,Outlet,Dryer,,,Level 12,1,Clean
+UpperLower Devices,Outlet,Outlet,Hybrid Water Heater 240,,,Level 12,1,Clean
+UpperLower Devices,Outlet,Outlet,Water Proof,,,Level 12,4,Clean
+UpperLower Devices,Outlet Duplex,Outlet Duplex,Wall,,,Level 12,11,Clean
+UpperLower Devices,Outlet GFCI,Outlet GFCI,Countertop,,,Level 12,1,Clean
+UpperLower Devices,Outlet GFCI,Outlet GFCI,Island,,,Level 12,2,Clean
+UpperLower Devices,LAN,RAC,LAN1,,,Level 12,5,Clean
+Main Lighting,Light,Focal Point,3.5 inch Wash,,7W,Main,14,Clean
+Main Lighting,Light,XAL,Motion Flush,,12W,Main,13,Clean
+UpperLower Lighting,Light,Focal Point,3.5 inch Wash,<varies>,7W,Mixed,103,Verify as possible family total
+UpperLower Lighting,Light,XAL,Motion Flush,XAL M,12W,Mixed,9,Verify
+UpperLower Lighting,Light,Focal Point,3.5 inch Wash,FP3.5,7W,Basement,2,Clean
+UpperLower Lighting,Light,XAL,Motion Flush,XAL M,12W,Basement,1,Clean
+UpperLower Lighting,Pendant,FLy Achilles,Modern Minimalist LED Long Strip Indoor Pendant Lights,,16W,Level 10,2,Clean
+UpperLower Lighting,Light,Lightology,A Tubes,LAT,12W,Level 10,1,Clean
+UpperLower Lighting,Light,Focal Point,3.5 inch Wash,FP7W,7W,Level 12,26,Clean
+UpperLower Lighting,Light,XAL,Laundry,<varies>,7W,Level 12,4,Clean
+UpperLower Lighting,Light,Lightology,A Tubes,<varies>,12W,Level 22,3,Clean
+Smart Controls,Smart Load Center,Leviton,Load Center with Smart Breakers,,,Project,2,Clean
+Smart Controls,Media Center,Leviton,28 inch Media Center,,,Project,1,Clean
+Smart Controls,Hub,Homey Pro,Homey Pro 2023,,,Project,1,Clean
+Smart Controls,Network,POE Switch,,,,Project,1,Clean
+Smart Controls,Switch,Custom Rotary Switch,,,,Project,1,Clean
+Low Voltage Distribution,Distro,Fused 24V Distro,,,,Project,8,Clean
+Shelly Modules,Motor/Shade Module,Shelly,Dual Cover,,,Project,8,Clean
+Shelly Modules,Power Module,Shelly,PM4,,,Project,1,Clean
+Shelly Modules,RGBW Module,Shelly,RGBW Plus,,,Project,1,Clean
+Shelly Pro Modules,Power Module,Shelly,PM-1 Pro,,,Project,11,Verify
+Shelly Pro Modules,Power Module,Shelly,PM-2 Pro,,,Project,3,Clean
+Shelly Pro Modules,Power Module,Shelly,PM-3 Pro,,,Project,1,Clean
+Shelly Pro Modules,Power Module,Shelly,PM-4 Pro,,,Project,4,Clean
+LED Drivers,Driver,MeanWell,HDR-150-24,,,Project,4,Clean
+LED Drivers,Driver,MeanWell,HDR-240-24,,,Project,11,Clean
+LED Drivers,Driver,MeanWell,HDR-320-24,,,Project,10,Clean
+LED Drivers,Driver,MeanWell,HDR-360-24,,,Project,1,Clean
+LED Drivers,Driver,MeanWell,HDR-480-24,,,Project,10,Clean
+LED Drivers,Transformer,MeanWell,120/24V Transformer,,,Project,1,Diagram callout
+LED Strip/Channel Zones,Strip and channel zones,Panel 1,Top zones,,,Panel 1,10,Clean
+LED Strip/Channel Zones,Strip and channel zones,Panel 1,Bottom zones,,,Panel 1,11,Clean
+LED Strip/Channel Zones,Strip and channel zones,Panel 2,Top zones,,,Panel 2,8,Clean
+LED Strip/Channel Zones,Strip and channel zones,Panel 2,Bottom zones,,,Panel 2,9,Clean
+LED Strip/Channel Zones,Strip and channel zones,Panel 3,Top zones,,,Panel 3,9,Clean
+LED Strip/Channel Zones,Strip and channel zones,Panel 3,Bottom zones,,,Panel 3,9,Clean
+LED Strip/Channel Zones,Strip and channel zones,Panel 4,Top zones,,,Panel 4,7,Clean
+LED Strip/Channel Zones,Strip and channel zones,Panel 4,Bottom zones,,,Panel 4,7,Clean
+LED Strip/Channel Zones,Strip and channel zones,TOTAL,All LED strip/channel zones,,,Project,70,Clean
