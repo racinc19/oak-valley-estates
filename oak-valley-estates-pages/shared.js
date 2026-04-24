@@ -4,8 +4,7 @@
 // Site-wide PIN: schedule Admin (🔒 Admin) + owner approval on Selections. Change only here.
 const SITE_ACCESS_PIN='1234';
 
-const BUDGET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQew4OQL4AsLo127rU7ZX8KC6Ur4BklOWahgzWE99HsNQzrEq2Re0cqFpDIofBkW39nXzTvx0cX5Los/pub?output=csv';
-const SCHEDULE_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQew4OQL4AsLo127rU7ZX8KC6Ur4BklOWahgzWE99HsNQzrEq2Re0cqFpDIofBkW39nXzTvx0cX5Los/pub?gid=1440569226&single=true&output=csv';
+const BUDGET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQew4OQL4AsLo127rU7ZX8KC6Ur4BklOWahgzWE99HsNQzrEq2Re0cqFpDIofBkW39nXzTvx0cX5Los/pub?gid=128071023&single=true&output=csv';
 
 const PHASE_NAMES=['deposit','pre construction','site','structural','mechanical rough',
   'exterior sealing','wall/cieling finish','carpentery','equipment/ finishes','landscape',
