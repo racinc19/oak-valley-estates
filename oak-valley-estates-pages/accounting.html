@@ -715,7 +715,8 @@ function computeInvoiceSummary(){
   var invAdj=0;
   var useAnchor=tgt==null&&anchorDue>1&&!accruedCaughtUp&&!forceZeroGross&&!forceNewMonthZero;
   if(tgt!=null)invAdj=tgt-sheetThis-adjSent;
-  else if(forceAccruedZero||forceZeroGross||forceNewMonthZero)invAdj=-sheetThis-adjSent;
+  else if(forceAccruedZero||forceZeroGross)invAdj=-sheetThis-adjSent;
+  else if(forceNewMonthZero)invAdj=totalOut-sheetThis-adjSent;
   else if(useAnchor)invAdj=anchorDue-sheetThis-adjSent;
   var finalThis;
   if(tgt!=null)finalThis=tgt;
